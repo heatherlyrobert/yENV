@@ -252,7 +252,7 @@ yENV_perms_data         (char a_type, char b_name [LEN_TERSE], int *b_perms, cha
    /*---(defense)------------------------*/
    --rce;  if (a_type == '\0' || strchr ("nid", a_type) == NULL)               return rce;
    --rce;  if (a_type == 'n' && (b_name  == NULL || strcmp (b_name, "") == 0)) return rce;
-   --rce;  if (a_type == 'i' && (b_perms == NULL || b_perms < 0))              return rce;
+   --rce;  if (a_type == 'i' && (b_perms == NULL || *b_perms < 0))             return rce;
    --rce;  if (a_type == 'd' && (b_disp  == NULL || strcmp (b_disp, "") == 0)) return rce;
    /*---(find by name)-------------------*/
    --rce;  if (a_type == 'n') {
