@@ -336,4 +336,21 @@ yENV_detail             (char a_name [LEN_PATH], int *r_uid, char r_own [LEN_LAB
 
 char yENV_exists  (char a_name [LEN_PATH]) { return yENV_detail (a_name, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL); }
 
+char*
+yENV_detail_unit        (char a_name [LEN_PATH])
+{
+   char        x_type      = '-';
+   char        x_owner     [LEN_LABEL] = "";
+   char        x_group     [LEN_LABEL] = "";
+   char        x_perms     [LEN_TERSE] = "";
+   static char x_out       [LEN_FULL]  = "";
+   x_type = yENV_detail (a_name, NULL, x_owner, NULL, x_group, NULL, NULL, x_perms, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+   if (x_type == '-') {
+      sprintf (x_out, "%-45.45s  -  ·           ·           ·          ´", a_name);
+   } else {
+      sprintf (x_out, "%-45.45s  %c  %-10.10s  %-10.10s  %-10.10s ´", a_name, x_type, x_owner, x_group, x_perms);
+   }
+   return x_out;
+}
+
 

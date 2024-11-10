@@ -55,8 +55,9 @@ char        yENV_removier           (char a_type, char a_name [LEN_PATH]);
 char        yENV_rm                 (char a_name [LEN_PATH]);
 char        yENV_rmdir              (char a_name [LEN_PATH]);
 /*---(checking)-------------*/
-char        yENV_detail             (char a_name [LEN_PATH], int *r_uid, char r_own [LEN_LABEL], int *r_gid, char r_grp [LEN_LABEL], int *r_perms, char r_pname [LEN_LABEL], char r_pdisp [LEN_TERSE], long *r_bytes, int *r_epoch, int *r_major, int *r_minor, char r_link [LEN_PATH], int *r_dev, int *r_inode, char r_hash [LEN_DESC]);
 char        yENV_exists             (char a_name [LEN_PATH]);
+char        yENV_detail             (char a_name [LEN_PATH], int *r_uid, char r_own [LEN_LABEL], int *r_gid, char r_grp [LEN_LABEL], int *r_perms, char r_pname [LEN_LABEL], char r_pdisp [LEN_TERSE], long *r_bytes, int *r_epoch, int *r_major, int *r_minor, char r_link [LEN_PATH], int *r_dev, int *r_inode, char r_hash [LEN_DESC]);
+char*       yENV_detail_unit        (char a_name [LEN_PATH]);
 /*---(done)-----------------*/
 
 

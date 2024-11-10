@@ -5,8 +5,6 @@
 #include    "yENV_solo.h"
 #include    "yENV_uver.h"
 
-#include    <yLOG_solo.h>
-#include    <yLOG_uver.h>
 #include    <yURG_solo.h>
 #include    <yUNIT_solo.h>
 #include    <ySTR_solo.h>
@@ -26,7 +24,7 @@ koios_code_upeek   (char a_scrp, char a_list, char a_unit)
    getcwd  (x_cwd, LEN_FULL);
    chdir   ("/tmp/");
    yENV__unit_quiet  ();
-   yLOGS_ufile ("/tmp/apate_errors.txt");
+   /*> yLOGS_ufile ("/tmp/apate_errors.txt");                                         <*/
 
    yUNIT_mincond  ("create a data set");
    system ("echo \"# theia is the greek titan of sight and the shinning light of the clear blue sky\"  > /tmp/yurg_theia.txt");
