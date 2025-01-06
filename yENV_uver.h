@@ -75,6 +75,7 @@ yENV_ulines             (char a_name [LEN_PATH])
    /*---(locals)-----------+-----+-----+-*/
    FILE       *f           = NULL;
    int         c           =    0;
+   char        t           [LEN_RECD]  = "";
    /*---(open file)----------------------*/
    f = fopen (a_name, "rt");
    if (f == NULL)   return "(not found)";

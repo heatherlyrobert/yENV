@@ -38,8 +38,8 @@
 /*········· ··········· ´·····························´········································*/
 #define     P_VERMAJOR  "1.--, production improvements"
 #define     P_VERMINOR  "1.1-, tuning"
-#define     P_VERNUM    "1.1c"
-#define     P_VERTXT    "little fix to yENV_perms_data for better defense (caught in yJOBS)"
+#define     P_VERNUM    "1.1d"
+#define     P_VERTXT    "little fix to yENV_uver.h missing local variable"
 /*········· ··········· ´·····························´········································*/
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
