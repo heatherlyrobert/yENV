@@ -100,6 +100,10 @@ yENV_user_del           (char a_name [LEN_USER])
    snprintf (t, LEN_HUND, "userdel --remove %s >> /dev/null 2>&1", a_name);
    rc = system (t);
    --rce;  if (rc < 0)   return rce;
+   /*---(sync)---------------------------*/
+   snprintf (t, LEN_HUND, "sync");
+   rc = system (t);
+   --rce;  if (rc < 0)   return rce;
    /*---(verify)-------------------------*/
    rc = yENV_user_data ('n', a_name, NULL, NULL, NULL, NULL);
    --rce;  if (rc == 0)  return rce;
@@ -130,7 +134,10 @@ yENV_user_add           (char a_name [LEN_USER], char a_home, char a_shell)
    --rce;  if (strcmp (a_name, "shared" ) == 0) return rce;
    /*---(remove old version)-------------*/
    rc = yENV_user_data ('n', a_name, NULL, NULL, NULL, NULL);
-   --rce;  if (rc < 0)  return rce;
+   --rce;  if (rc >= 0) {
+      rc = yENV_user_del (a_name);
+      if (rc < 0)  return rce;
+   }
    /*---(remove old version)-------------*/
    sprintf (x_cmd, "useradd --gid nobody --no-user-group ");
    /*---(home dir)-----------------------*/
@@ -170,6 +177,10 @@ yENV_user_add           (char a_name [LEN_USER], char a_home, char a_shell)
    /*---(lock account)-------------------*/
    snprintf (x_cmd, LEN_RECD, "passwd -l %s >> /dev/null 2>&1", a_name);
    rc = system (x_cmd);
+   --rce;  if (rc < 0)   return rce;
+   /*---(sync)---------------------------*/
+   snprintf (t, LEN_HUND, "sync");
+   rc = system (t);
    --rce;  if (rc < 0)   return rce;
    /*---(verify)-------------------------*/
    rc = yENV_user_data ('n', a_name, NULL, NULL, &x_ahome, &x_ashell);
