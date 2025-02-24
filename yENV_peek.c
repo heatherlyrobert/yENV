@@ -5,7 +5,6 @@
 
 
 static char  s_peek    [LEN_RECD] = "";
-static char  s_pprint  [LEN_RECD] = "";
 
 
 
@@ -115,57 +114,6 @@ char* yENV_peek         (char a_name [LEN_PATH], int n) { return yENV_peekier ('
 char* yENV_peek_vis     (char a_name [LEN_PATH], int n) { return yENV_peekier ('v', a_name, n, NULL); }
 char* yENV_peek_field   (char a_name [LEN_PATH], int n) { return yENV_peekier ('f', a_name, n, NULL); }
 int   yENV_lines        (char a_name [LEN_PATH])        { int c = 0; yENV_peekier ('-', a_name, 0, &c); return c; }
-
-
-/*> char*                                                                             <* 
- *> yENV_peek_clear         (char *a_name, int n)                                    <* 
- *> {                                                                                 <* 
- *>    int         l           =    0;                                                <* 
- *>    int         i           =    0;                                                <* 
- *>    yENV_peekier (a_name, n, NULL);                                                <* 
- *>    l = strlen (s_peek);                                                           <* 
- *>    for (i = 0; i < l; ++i) {                                                      <* 
- *>       switch (s_peek [i]) {                                                       <* 
- *>       case  G_KEY_RETURN :  s_peek [i] = G_CHAR_RETURN;   break;                  <* 
- *>       case  G_KEY_ENTER  :  s_peek [i] = G_CHAR_RETURN;   break;                  <* 
- *>       case  G_KEY_ESCAPE :  s_peek [i] = G_CHAR_ESCAPE;   break;                  <* 
- *>       case  G_KEY_GROUP  :  s_peek [i] = G_CHAR_GROUP;    break;                  <* 
- *>       case  G_KEY_FIELD  :  s_peek [i] = G_CHAR_FIELD;    break;                  <* 
- *>       case  G_KEY_SPACE  :  s_peek [i] = G_CHAR_STORAGE;  break;                  <* 
- *>       }                                                                           <* 
- *>    }                                                                              <* 
- *>    return s_peek;                                                                 <* 
- *> }                                                                                 <*/
-
-/*> char*                                                                             <* 
- *> yENV_peek_fill          (char *a_name, int n)                                    <* 
- *> {                                                                                 <* 
- *>    int         i           =    0;                                                <* 
- *>    int         l           =    0;                                                <* 
- *>    strcpy (s_pprint, yENV_peekier (a_name, n, NULL));                             <* 
- *>    l = strlen (s_pprint);                                                         <* 
- *>    if (l == 0)  return "n/a";                                                     <* 
- *>    for (i = 0; i < l; ++i) {                                                      <* 
- *>       if (s_pprint [i] == ' ')   s_pprint [i] = '²';                              <* 
- *>       if (s_pprint [i] == '')  s_pprint [i] = '§';                               <* 
- *>       if (s_pprint [i] == '\t')  s_pprint [i] = 'Ú';                              <* 
- *>    }                                                                              <* 
- *>    return s_pprint;                                                               <* 
- *> }                                                                                 <*/
-
-/*> char*                                                                             <* 
- *> yENV_peek_field         (char *a_name, int n)                                    <* 
- *> {                                                                                 <* 
- *>    int         i           =    0;                                                <* 
- *>    int         l           =    0;                                                <* 
- *>    strcpy (s_pprint, yENV_peekier (a_name, n, NULL));                             <* 
- *>    l = strlen (s_pprint);                                                         <* 
- *>    for (i = 0; i < l; ++i) {                                                      <* 
- *>       if (s_pprint [i] == '')  s_pprint [i] = '§';                               <* 
- *>    }                                                                              <* 
- *>    return s_pprint;                                                               <* 
- *> }                                                                                 <*/
-
 
 
 

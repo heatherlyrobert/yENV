@@ -37,9 +37,9 @@
 #define     P_CREATED   "2024-05"
 /*········· ··········· ´·····························´········································*/
 #define     P_VERMAJOR  "1.--, production improvements"
-#define     P_VERMINOR  "1.1-, tuning"
-#define     P_VERNUM    "1.1e"
-#define     P_VERTXT    "caught/fixed some disk/data sync issues in unit testing"
+#define     P_VERMINOR  "1.2-, adding detailed audit, open, close ability"
+#define     P_VERNUM    "1.2a"
+#define     P_VERTXT    "added and unit tested code for files"
 /*········· ··········· ´·····························´········································*/
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -73,6 +73,7 @@
 #include    <yLOG.h>
 #include    <yURG.h>
 #include    <yDLST_solo.h>
+#include    <yCOLOR_solo.h>  /* CUSTOM : heatherly color constants            */
 
 
 #define     DEBUG_YENV   if (1) 
@@ -83,6 +84,8 @@ typedef struct group     tGROUP;
 typedef struct tm        tTIME;
 
 
+
+extern char  g_print   [LEN_RECD];
 
 #define     MAX_PERM         50
 typedef     struct cENV_PERM    tENV_PERM;
@@ -95,10 +98,35 @@ struct cENV_PERM {
 extern const tENV_PERM zENV_perms [MAX_PERM];
 
 
-/*===[[ koios_data.c ]]=======================================================*/
+
+/*===[[ yENV_audit.c ]]=======================================================*/
+/*········· ´······················ ´·········································*/
+/*---(parts)----------------*/
+char        yenv_audit_expect       (char b_owner [LEN_USER], char b_group [LEN_USER], char b_perms [LEN_TERSE], int *r_uid, int *r_gid, int *r_prm, char r_disp [LEN_LABEL]);
+char        yenv_audit_prepare      (char a_type, char a_dir [LEN_PATH], char a_file [LEN_PATH], char a_mode, char r_full [LEN_PATH], char r_tdesc [LEN_TERSE], char r_mode [LEN_SHORT], char r_note [LEN_LABEL]);
+char        yenv_audit_typing       (char a_etype, char a_etdesc [LEN_TERSE], char a_atype, char a_atdesc [LEN_TERSE]);
+char        yenv_audit_actual       (char a_full [LEN_PATH], char a_etype, char a_edesc [LEN_TERSE], char a_eowner [LEN_USER], char a_egroup [LEN_USER], char a_eperms [LEN_TERSE], int a_euid, int a_egid, int a_eprm, char a_adisp [LEN_LABEL], char c_force, char c_fix);
+/*---(done)-----------------*/
+
+
+
+/*===[[ yENV_data.c ]]========================================================*/
 /*········· ´······················ ´·········································*/
 char        yENV__unit_quiet        (void);
 char        yENV__unit_loud         (void);
 char        yENV__unit_end          (void);
+/*---(done)-----------------*/
+
+
+
+/*===[[ yENV_file.c ]]========================================================*/
+/*········· ´······················ ´·········································*/
+/*---(parts)----------------*/
+char        yenv_open__expect       (char b_owner [LEN_USER], char b_group [LEN_USER], char b_perms [LEN_TERSE], int *r_uid, int *r_gid, int *r_prm, char r_disp [LEN_LABEL]);
+char        yenv_open__prepare      (char a_dir [LEN_PATH], char a_file [LEN_PATH], char a_mode, char r_full [LEN_PATH], char r_mode [LEN_SHORT], char r_note [LEN_LABEL]);
+char        yenv_open__actual       (char a_full [LEN_PATH], char a_eowner [LEN_USER], char a_egroup [LEN_USER], char a_eperms [LEN_TERSE], int a_euid, int a_egid, int a_eprm, char a_adisp [LEN_LABEL], char c_force, char c_fix);
+/*---(done)-----------------*/
+
+
 
 #endif

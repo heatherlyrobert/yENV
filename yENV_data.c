@@ -67,7 +67,7 @@ yENV_user_data          (char a_type, char b_name [LEN_USER], int *b_uid, int *r
    /*---(defense)------------------------*/
    --rce;  if (a_type == '\0' || strchr ("ni", a_type) == NULL)                return rce;
    --rce;  if (a_type == 'n' && (b_name == NULL || strcmp (b_name, "") == 0))  return rce;
-   --rce;  if (a_type == 'i' && (b_uid  == NULL || *b_uid < 0))                 return rce;
+   --rce;  if (a_type == 'i' && (b_uid  == NULL || *b_uid < 0))                return rce;
    /*---(get owner record)---------------*/
    if (a_type == 'n')    x_owner = getpwnam (b_name);
    else                  x_owner = getpwuid (*b_uid);

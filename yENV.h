@@ -4,7 +4,18 @@
 
 
 
+#include    <stdio.h>        /* C_ANSI : strcpy, strlen, strchr, strcmp, ...  */
 #include <ySTR_solo.h>
+
+
+
+/*---(standard recturn codes)-------------------*/
+#define     RC_ACK          0
+#define     RC_POSITIVE     1
+#define     RC_OVERRIDE     2
+#define     RC_REPAIR       3
+#define     RC_WARNING      4
+#define     RC_FATAL        5
 
 
 
@@ -19,6 +30,11 @@
 #define     YENV_NONE        '-'
 #define     YENV_WTF         '?'
 
+
+
+
+/*===[[ yENV_audit.c ]]=======================================================*/
+/*········· ´······················ ´·········································*/
 
 
 /*===[[ koios_base.c ]]=======================================================*/
@@ -56,7 +72,8 @@ char        yENV_rm                 (char a_name [LEN_PATH]);
 char        yENV_rmdir              (char a_name [LEN_PATH]);
 /*---(checking)-------------*/
 char        yENV_exists             (char a_name [LEN_PATH]);
-char        yENV_detail             (char a_name [LEN_PATH], int *r_uid, char r_own [LEN_LABEL], int *r_gid, char r_grp [LEN_LABEL], int *r_perms, char r_pname [LEN_LABEL], char r_pdisp [LEN_TERSE], long *r_bytes, int *r_epoch, int *r_major, int *r_minor, char r_link [LEN_PATH], int *r_dev, int *r_inode, char r_hash [LEN_DESC]);
+char*       yENV_typedesc           (char a_type);
+char        yENV_detail             (char a_name [LEN_PATH], char r_tdesc [LEN_TERSE], int *r_uid, char r_own [LEN_LABEL], int *r_gid, char r_grp [LEN_LABEL], int *r_perms, char r_pname [LEN_LABEL], char r_pdisp [LEN_TERSE], long *r_bytes, int *r_epoch, int *r_major, int *r_minor, char r_link [LEN_PATH], int *r_dev, int *r_inode, char r_hash [LEN_DESC]);
 char*       yENV_detail_unit        (char a_name [LEN_PATH]);
 /*---(done)-----------------*/
 
@@ -81,6 +98,23 @@ char        yENV_diff               (char *a_actual, char *a_expect);
 /*---(myself)---------------*/
 char        yENV_whoami             (int *r_pid, int *r_ppid, int *r_uid, int *r_euid, char *r_root, char r_user [LEN_USER], char a_wheel, int *r_gid, int *r_egid, char r_group [LEN_USER]);
 /*---(done)-----------------*/
+
+
+
+/*===[[ koios_file.c ]]=======================================================*/
+/*········· ´······················ ´·········································*/
+/*---(openning)-------------*/
+char        yENV_open_full          (char a_dir [LEN_PATH], char a_file [LEN_LABEL], char a_mode, FILE **r_file, char c_check, char c_force, char c_fix, char a_owner [LEN_USER], char a_group [LEN_USER], char a_perms [LEN_TERSE]);
+char        yENV_open               (char a_dir [LEN_PATH], char a_file [LEN_LABEL], char a_mode, FILE **r_file);
+char        yENV_open_safe          (char a_dir [LEN_PATH], char a_file [LEN_LABEL], char a_mode, FILE **r_file, char a_owner [LEN_USER], char a_group [LEN_USER], char a_perms [LEN_TERSE]);
+char        yENV_open_fix           (char a_dir [LEN_PATH], char a_file [LEN_LABEL], char a_mode, FILE **r_file, char a_owner [LEN_USER], char a_group [LEN_USER], char a_perms [LEN_TERSE]);
+char        yENV_open_force         (char a_dir [LEN_PATH], char a_file [LEN_LABEL], char a_mode, FILE **r_file, char a_owner [LEN_USER], char a_group [LEN_USER], char a_perms [LEN_TERSE]);
+/*---(closing)--------------*/
+char        yENV_close_full         (char a_dir [LEN_PATH], char a_file [LEN_PATH], char a_mode, FILE **b_file, char c_check);
+char        yENV_close              (FILE **b_file);
+/*---(done)-----------------*/
+
+
 
 
 

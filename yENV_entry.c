@@ -129,8 +129,8 @@ yENV_touchier           (char a_type, char a_name [LEN_PATH], char a_own [LEN_LA
    rc = chmod (a_name, x_perms);
    --rce;  if (rc < 0)            return rce;
    /*---(verify)-------------------------*/
-   x_type = yENV_detail (a_name, &x_euid, NULL, &x_egid, NULL, &x_eperm, NULL, NULL, NULL, NULL, &x_emaj, &x_emin, x_link, NULL, NULL, NULL);
-   --rce;  if (x_type == YENV_NONE)                      return YENV_NONE;
+   x_type = yENV_detail (a_name, NULL, &x_euid, NULL, &x_egid, NULL, &x_eperm, NULL, NULL, NULL, NULL, &x_emaj, &x_emin, x_link, NULL, NULL, NULL);
+   --rce;  if (x_type == YENV_NONE)                return YENV_NONE;
    --rce;  if (x_type <  0)                        return rce;
    --rce;  if (x_type >  YENV_NONE && x_type != a_type)  return rce;
    --rce;  if (x_uid   != x_euid)                  return rce;
@@ -204,8 +204,35 @@ char yENV_rmdir         (char a_name [LEN_PATH]) { yENV_removier (YENV_DIR  , a_
 /*====================------------------------------------====================*/
 static void      o___EXAMINE____________o (void) {;}
 
+char*
+yENV_typedesc           (char a_type)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   /*---(header)-------------------------*/
+   DEBUG_FILE   yLOG_senter  (__FUNCTION__);
+   /*---(set type desc)------------------*/
+   DEBUG_FILE   yLOG_schar   (a_type);
+   switch (a_type) {
+   case YENV_NONE   :  strlcpy (g_print, "non-exist" , LEN_TERSE);  break;
+   case YENV_BLOCK  :  strlcpy (g_print, "block-dev" , LEN_TERSE);  break;
+   case YENV_CHAR   :  strlcpy (g_print, "char-dev"  , LEN_TERSE);  break;
+   case YENV_DIR    :  strlcpy (g_print, "directory" , LEN_TERSE);  break;
+   case YENV_HARD   :  strlcpy (g_print, "hardlink"  , LEN_TERSE);  break;
+   case YENV_IPSOC  :  strlcpy (g_print, "ip-socket" , LEN_TERSE);  break;
+   case YENV_PIPE   :  strlcpy (g_print, "fifo-pipe" , LEN_TERSE);  break;
+   case YENV_REG    :  strlcpy (g_print, "regular"   , LEN_TERSE);  break;
+   case YENV_SYM    :  strlcpy (g_print, "symlink"   , LEN_TERSE);  break;
+   default          :  strlcpy (g_print, "WTF"       , LEN_TERSE);  break;
+   }
+   DEBUG_FILE   yLOG_snote   (g_print);
+   /*---(complete)-----------------------*/
+   DEBUG_FILE   yLOG_sexit   (__FUNCTION__);
+   return g_print;
+}
+
 char 
-yENV_detail             (char a_name [LEN_PATH], int *r_uid, char r_own [LEN_LABEL], int *r_gid, char r_grp [LEN_LABEL], int *r_perms, char r_pname [LEN_LABEL], char r_pdisp [LEN_TERSE], long *r_bytes, int *r_epoch, int *r_major, int *r_minor, char r_link [LEN_PATH], int *r_dev, int *r_inode, char r_hash [LEN_DESC])
+yENV_detail             (char a_name [LEN_PATH], char r_tdesc [LEN_TERSE], int *r_uid, char r_own [LEN_LABEL], int *r_gid, char r_grp [LEN_LABEL], int *r_perms, char r_pname [LEN_LABEL], char r_pdisp [LEN_TERSE], long *r_bytes, int *r_epoch, int *r_major, int *r_minor, char r_link [LEN_PATH], int *r_dev, int *r_inode, char r_hash [LEN_DESC])
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -214,6 +241,7 @@ yENV_detail             (char a_name [LEN_PATH], int *r_uid, char r_own [LEN_LAB
    tPASSWD    *x_owner     = NULL;
    tGROUP     *x_group     = NULL;
    char        x_type      = YENV_NONE;
+   char        x_tdesc     [LEN_TERSE] = "WTF";
    int         x_perms     =    0;
    int         i           =    0;
    FILE       *f           = NULL;
@@ -224,6 +252,7 @@ yENV_detail             (char a_name [LEN_PATH], int *r_uid, char r_own [LEN_LAB
    int         x_bytes     = 0;
    int         x_total     = 0;
    /*---(default)------------------------*/
+   if (r_tdesc != NULL)  strcpy (r_tdesc, "");
    if (r_uid   != NULL)  *r_uid   = -1;
    if (r_own   != NULL)  strcpy (r_own  , "");
    if (r_gid   != NULL)  *r_gid   = -1;
@@ -330,11 +359,15 @@ yENV_detail             (char a_name [LEN_PATH], int *r_uid, char r_own [LEN_LAB
       r_hash [40] = '\0';
       /*---(done)------------------------*/
    }
+   /*---(set type desc)------------------*/
+   strlcpy (x_tdesc, yENV_typedesc (x_type), LEN_TERSE);
+   DEBUG_FILE   yLOG_info    ("x_tdesc"   , x_tdesc);
+   if (r_tdesc != NULL)  strlcpy (r_tdesc, x_tdesc, LEN_TERSE);
    /*---(complete)-----------------------*/
    return x_type;
 }
 
-char yENV_exists  (char a_name [LEN_PATH]) { return yENV_detail (a_name, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL); }
+char yENV_exists   (char a_name [LEN_PATH])                { return yENV_detail (a_name, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL); }
 
 char*
 yENV_detail_unit        (char a_name [LEN_PATH])
@@ -344,7 +377,7 @@ yENV_detail_unit        (char a_name [LEN_PATH])
    char        x_group     [LEN_LABEL] = "";
    char        x_perms     [LEN_TERSE] = "";
    static char x_out       [LEN_FULL]  = "";
-   x_type = yENV_detail (a_name, NULL, x_owner, NULL, x_group, NULL, NULL, x_perms, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+   x_type = yENV_detail (a_name, NULL, NULL, x_owner, NULL, x_group, NULL, NULL, x_perms, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
    if (x_type == '-') {
       sprintf (x_out, "%-45.45s  -  ·           ·           ·          ´", a_name);
    } else {
