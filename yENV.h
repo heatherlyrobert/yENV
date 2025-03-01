@@ -35,6 +35,10 @@
 
 /*===[[ yENV_audit.c ]]=======================================================*/
 /*········· ´······················ ´·········································*/
+char        yENV_audit              (char a_type, char c_flag, char a_dir [LEN_PATH], char a_file [LEN_LABEL], char a_owner [LEN_USER], char a_group [LEN_USER], char a_perms [LEN_TERSE], int a_major, int a_minor, char a_ttype, char a_target [LEN_PATH]);
+char        yENV_score_def          (void);
+char*       yENV_score              (void);
+
 
 
 /*===[[ koios_base.c ]]=======================================================*/

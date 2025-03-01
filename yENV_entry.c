@@ -175,19 +175,15 @@ yENV_removier           (char a_type, char a_name [LEN_PATH])
    --rce;  if (x_type > YENV_NONE && x_type != a_type)     return rce;
    /*---(create, if needed)--------------*/
    --rce;  switch (a_type) {
-   case YENV_BLOCK :
-      break;
-   case YENV_CHAR  :
-      break;
    case YENV_DIR   : 
       rc = rmdir   (a_name);
       break;
+   case YENV_BLOCK : case YENV_CHAR  :
    case YENV_REG   : case YENV_HARD  : case YENV_SYM   : 
+   case YENV_IPSOC : case YENV_PIPE  :
       rc = unlink (a_name);
       break;
-   case YENV_IPSOC :
       break;
-   case YENV_PIPE  :
       break;
    }
    /*---(complete)-----------------------*/
@@ -272,6 +268,7 @@ yENV_detail             (char a_name [LEN_PATH], char r_tdesc [LEN_TERSE], int *
    --rce;  if (a_name == NULL)            return rce;
    --rce;  if (strcmp (a_name, "") == 0)  return rce;
    /*---(check existance)----------------*/
+   if (r_tdesc != NULL)  strlcpy (r_tdesc, "non-exist", LEN_TERSE);
    rc = lstat (a_name, &s);
    if (rc < 0)   return YENV_NONE;
    /*---(normal types)-------------------*/
@@ -285,6 +282,10 @@ yENV_detail             (char a_name [LEN_PATH], char r_tdesc [LEN_TERSE], int *
    else                             x_type = YENV_WTF  ;
    /*---(check hard link)----------------*/
    if (x_type == YENV_REG   && s.st_nlink > 1) x_type = YENV_HARD ;
+   /*---(set type desc)------------------*/
+   strlcpy (x_tdesc, yENV_typedesc (x_type), LEN_TERSE);
+   DEBUG_FILE   yLOG_info    ("x_tdesc"   , x_tdesc);
+   if (r_tdesc != NULL)  strlcpy (r_tdesc, x_tdesc, LEN_TERSE);
    /*---(ownership)----------------------*/
    if (r_uid != NULL || r_own != NULL) {
       x_owner = getpwuid (s.st_uid);
@@ -359,10 +360,6 @@ yENV_detail             (char a_name [LEN_PATH], char r_tdesc [LEN_TERSE], int *
       r_hash [40] = '\0';
       /*---(done)------------------------*/
    }
-   /*---(set type desc)------------------*/
-   strlcpy (x_tdesc, yENV_typedesc (x_type), LEN_TERSE);
-   DEBUG_FILE   yLOG_info    ("x_tdesc"   , x_tdesc);
-   if (r_tdesc != NULL)  strlcpy (r_tdesc, x_tdesc, LEN_TERSE);
    /*---(complete)-----------------------*/
    return x_type;
 }
