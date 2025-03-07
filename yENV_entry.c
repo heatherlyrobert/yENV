@@ -5,93 +5,235 @@
 
 
 /*====================------------------------------------====================*/
-/*===----                      creating files                          ----===*/
+/*===----                      supporting functions                    ----===*/
 /*====================------------------------------------====================*/
-static void      o___CREATE_____________o (void) {;}
+static void      o___SUPPORT____________o (void) {;}
+
+char*
+yENV_typedesc           (char a_type)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   /*---(header)-------------------------*/
+   DEBUG_FILE   yLOG_senter  (__FUNCTION__);
+   /*---(set type desc)------------------*/
+   DEBUG_FILE   yLOG_schar   (a_type);
+   switch (a_type) {
+   case YENV_NONE   :  strlcpy (g_print, "non-exist" , LEN_TERSE);  break;
+   case YENV_BLOCK  :  strlcpy (g_print, "block-dev" , LEN_TERSE);  break;
+   case YENV_CHAR   :  strlcpy (g_print, "char-dev"  , LEN_TERSE);  break;
+   case YENV_DIR    :  strlcpy (g_print, "directory" , LEN_TERSE);  break;
+   case YENV_HARD   :  strlcpy (g_print, "hardlink"  , LEN_TERSE);  break;
+   case YENV_IPSOC  :  strlcpy (g_print, "ip-socket" , LEN_TERSE);  break;
+   case YENV_PIPE   :  strlcpy (g_print, "fifo-pipe" , LEN_TERSE);  break;
+   case YENV_REG    :  strlcpy (g_print, "regular"   , LEN_TERSE);  break;
+   case YENV_SYM    :  strlcpy (g_print, "symlink"   , LEN_TERSE);  break;
+   default          :  strlcpy (g_print, "WTF"       , LEN_TERSE);  break;
+   }
+   DEBUG_FILE   yLOG_snote   (g_print);
+   /*---(complete)-----------------------*/
+   DEBUG_FILE   yLOG_sexit   (__FUNCTION__);
+   return g_print;
+}
 
 char
-yENV_touchier           (char a_type, char a_name [LEN_PATH], char a_own [LEN_LABEL], char a_grp [LEN_LABEL], char a_perms [LEN_LABEL], int a_major, int a_minor, char a_link [LEN_PATH])
+yENV_exists             (char a_name [LEN_PATH])
 {
+   /*---(design notes)-------------------*/
+   /*
+    *  just a subset of the yENV_detail function, but allows extensive
+    *  use in unit testing due simplicity and to speed increase
+    *
+    */
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    char        rc          =    0;
    char        x_type      = YENV_NONE;
-   FILE       *f           = NULL;
-   tPASSWD    *x_owner     = NULL;
-   tGROUP     *x_group     = NULL;
-   int         x_uid       =   -1;
-   int         x_gid       =   -1;
-   uint        x_perms     =   -1;
-   int         i, l, x_euid, x_egid, x_eperm, x_emaj, x_emin;
-   char        x_link      [LEN_PATH];
+   tSTAT       s;
+   /*---(header)-------------------------*/
+   DEBUG_YENV    yLOG_senter  (__FUNCTION__);
    /*---(defense)------------------------*/
-   --rce;  if (a_name  == NULL)                  return rce;
-   --rce;  if (strcmp (a_name, "") == 0)         return rce;
-   --rce;  if (a_own   == NULL)                  return rce;
-   --rce;  if (a_grp   == NULL)                  return rce;
-   --rce;  if (a_perms == NULL)                  return rce;
-   /*---(check on file)------------------*/
-   x_type = yENV_exists (a_name);
-   --rce;  if (x_type < 0)                       return rce;
-   --rce;  if (x_type > YENV_NONE && x_type != a_type) return rce;
-   /*---(pre-work ownership)-------------*/
-   x_owner = getpwnam (a_own);
-   --rce;  if (x_owner == NULL)                  return rce;
-   x_uid   = x_owner->pw_uid;
-   x_group = getgrnam (a_grp);
-   --rce;  if (x_group == NULL)                  return rce;
-   x_gid   = x_group->gr_gid;
-   /*---(pre-work permissions)-----------*/
-   l = strlen (a_perms);
-   --rce;
-   if      (a_perms [0] == '0')   sscanf (a_perms, "%o", &x_perms);
-   else if (l >= 5 && a_perms [1] == '_') {
-      for (i = 0; i < MAX_PERM; ++i) {
-         if (strcmp (zENV_perms [i].name, a_perms) != 0)  continue;
-         x_perms = zENV_perms [i].value;
-         break;
-      }
-      if (x_perms == -1)                         return rce;
+   DEBUG_YENV    yLOG_spoint  (a_name);
+   --rce;  if (a_name  == NULL) {
+      DEBUG_YENV    yLOG_sexitr  (__FUNCTION__, rce);
+      return rce;
    }
-   else if (l == 9) {
-      x_perms = 0;
-      if      (a_perms [0] == '-')  ;
-      else if (a_perms [0] == 'r')  x_perms += 00400;
-      else                          return rce;
-      if      (a_perms [1] == '-')  ;
-      else if (a_perms [1] == 'w')  x_perms += 00200;
-      else                          return rce;
-      if      (a_perms [2] == '-')  ;
-      else if (a_perms [2] == 'x')  x_perms += 00100;
-      else if (a_perms [2] == 's')  x_perms += 04100;
-      else if (a_perms [2] == 'S')  x_perms += 04000;
-      else                          return rce;
-      if      (a_perms [3] == '-')  ;
-      else if (a_perms [3] == 'r')  x_perms += 00040;
-      else                          return rce;
-      if      (a_perms [4] == '-')  ;
-      else if (a_perms [4] == 'w')  x_perms += 00020;
-      else                          return rce;
-      if      (a_perms [5] == '-')  ;
-      else if (a_perms [5] == 'x')  x_perms += 00010;
-      else if (a_perms [5] == 's')  x_perms += 02010;
-      else if (a_perms [5] == 'S')  x_perms += 02000;
-      else                          return rce;
-      if      (a_perms [6] == '-')  ;
-      else if (a_perms [6] == 'r')  x_perms += 00004;
-      else                          return rce;
-      if      (a_perms [7] == '-')  ;
-      else if (a_perms [7] == 'w')  x_perms += 00002;
-      else                          return rce;
-      if      (a_perms [8] == '-')  ;
-      else if (a_perms [8] == 'x')  x_perms += 00001;
-      else if (a_perms [8] == 't')  x_perms += 01001;
-      else if (a_perms [8] == 'T')  x_perms += 01000;
-      else                          return rce;
+   DEBUG_YENV    yLOG_snote   (a_name);
+   --rce;  if (strcmp (a_name, "") == 0) {
+      DEBUG_YENV    yLOG_sexitr  (__FUNCTION__, rce);
+      return rce;
    }
-   else  return rce;
-   /*---(create, if needed)--------------*/
-   --rce;  if (x_type == YENV_NONE) {
+   /*---(check existance)----------------*/
+   rc = lstat (a_name, &s);
+   DEBUG_YENV    yLOG_sint    (rc);
+   --rce;  if (rc < 0) {
+      DEBUG_YENV    yLOG_sexitr  (__FUNCTION__, rce);
+      return YENV_NONE;
+   }
+   /*---(normal types)-------------------*/
+   if      (S_ISBLK  (s.st_mode))   x_type = YENV_BLOCK;
+   else if (S_ISCHR  (s.st_mode))   x_type = YENV_CHAR ;
+   else if (S_ISDIR  (s.st_mode))   x_type = YENV_DIR  ;
+   else if (S_ISREG  (s.st_mode))   x_type = YENV_REG  ;
+   else if (S_ISSOCK (s.st_mode))   x_type = YENV_IPSOC;
+   else if (S_ISFIFO (s.st_mode))   x_type = YENV_PIPE ;
+   else if (S_ISLNK  (s.st_mode))   x_type = YENV_SYM  ;
+   else                             x_type = YENV_WTF  ;
+   /*---(check hard link)----------------*/
+   DEBUG_YENV    yLOG_sint    (s.st_nlink);
+   if (x_type == YENV_REG   && s.st_nlink > 1) x_type = YENV_HARD ;
+   DEBUG_YENV    yLOG_schar   (x_type);
+   /*---(complete)-----------------------*/
+   DEBUG_YENV    yLOG_sexit   (__FUNCTION__);
+   return x_type;
+}
+
+
+
+/*====================------------------------------------====================*/
+/*===----                      creating files                          ----===*/
+/*====================------------------------------------====================*/
+static void      o___CREATE_____________o (void) {;}
+
+/*> char                                                                                                              <* 
+ *> yenv_ownership          (char a_type, char a_owner [LEN_USER], char a_group [LEN_USER], int *r_uid, int *r_gid)   <* 
+ *> {                                                                                                                 <* 
+ *>    /+---(locals)-----------+-----+-----+-+/                                                                       <* 
+ *>    char        rce         =  -10;                                                                                <* 
+ *>    char        x_owner     [LEN_USER]  = "";                                                                      <* 
+ *>    int         x_uid       =   -1;                                                                                <* 
+ *>    char        x_group     [LEN_USER]  = "";                                                                      <* 
+ *>    int         x_uid       =   -1;                                                                                <* 
+ *>    int         x_gid       =   -1;                                                                                <* 
+ *>    /+---(header)-------------------------+/                                                                       <* 
+ *>    DEBUG_YENV    yLOG_senter  (__FUNCTION__);                                                                     <* 
+ *>    /+---(defaults)-----------------------+/                                                                       <* 
+ *>    if (r_uid != NULL)  *r_uid = -1;                                                                               <* 
+ *>    if (r_gid != NULL)  *r_gid = -1;                                                                               <* 
+ *>    /+---(defense)------------------------+/                                                                       <* 
+ *>    DEBUG_YENV    yLOG_schar   (a_type);                                                                           <* 
+ *>    --rce;  if (a_type == 0 || strchr (YENV_REAL, a_type) == NULL) {                                               <* 
+ *>       DEBUG_YENV    yLOG_sexitr  (__FUNCTION__, rce);                                                             <* 
+ *>       return rce;                                                                                                 <* 
+ *>    }                                                                                                              <* 
+ *>    /+---(quick-out)----------------------+/                                                                       <* 
+ *>    if (a_type == YENV_NONE) {                                                                                     <* 
+ *>       DEBUG_YENV    yLOG_snote   ("nothing to be done");                                                          <* 
+ *>       DEBUG_YENV    yLOG_sexit   (__FUNCTION__);                                                                  <* 
+ *>       return 0;                                                                                                   <* 
+ *>    }                                                                                                              <* 
+ *>    if (a_type == YENV_SYM) {                                                                                      <* 
+ *>       DEBUG_YENV    yLOG_snote   ("nothing to be done");                                                          <* 
+ *>       DEBUG_YENV    yLOG_sexit   (__FUNCTION__);                                                                  <* 
+ *>       return 0;                                                                                                   <* 
+ *>    }                                                                                                              <* 
+ *>    /+---(defense)------------------------+/                                                                       <* 
+ *>    DEBUG_YENV    yLOG_point   ("a_owner"   , a_owner);                                                            <* 
+ *>    --rce;  if (a_type != YENV_SYM && a_owner == NULL) {                                                           <* 
+ *>       DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);                                                             <* 
+ *>       return rce;                                                                                                 <* 
+ *>    }                                                                                                              <* 
+ *>    DEBUG_YENV    yLOG_info    ("a_owner"   , a_owner);                                                            <* 
+ *>    DEBUG_YENV    yLOG_point   ("a_group"   , a_group);                                                            <* 
+ *>    --rce;  if (a_type != YENV_SYM && a_group == NULL) {                                                           <* 
+ *>       DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);                                                             <* 
+ *>       return rce;                                                                                                 <* 
+ *>    }                                                                                                              <* 
+ *>    DEBUG_YENV    yLOG_info    ("a_group"   , a_group);                                                            <* 
+ *>    /+---(owner by number)----------------+/                                                                       <* 
+ *>    --rce;  if (strcmp (a_owner, "0") == 0 || atoi (a_owner) > 0) {                                                <* 
+ *>       DEBUG_YENV    yLOG_snote   ("handle by owner uid");                                                         <* 
+ *>       x_uid = atoi (a_owner);                                                                                     <* 
+ *>       DEBUG_YENV    yLOG_sint    (x_uid);                                                                         <* 
+ *>       rc = yENV_user_data  ('i', x_owner, &x_uid, NULL, NULL, NULL);                                              <* 
+ *>    }                                                                                                              <* 
+ *>    /+---(owner by name)------------------+/                                                                       <* 
+ *>    else if (strcmp (a_owner, "") != 0) {                                                                          <* 
+ *>       DEBUG_YENV    yLOG_snote   ("handle by owner name");                                                        <* 
+ *>       rc = yENV_user_data  ('n', a_owner, &x_uid, NULL, NULL, NULL);                                              <* 
+ *>    }                                                                                                              <* 
+ *>    /+---(owner by current uid)-----------+/                                                                       <* 
+ *>    else {                                                                                                         <* 
+ *>       DEBUG_YENV    yLOG_snote   ("handle by current owner");                                                     <* 
+ *>       x_uid = getuid ();                                                                                          <* 
+ *>       DEBUG_YENV    yLOG_sint    (x_uid);                                                                         <* 
+ *>       rc = yENV_user_data  ('i', x_owner, &x_uid, NULL, NULL, NULL);                                              <* 
+ *>    }                                                                                                              <* 
+ *>    /+---(handle trouble)-----------------+/                                                                       <* 
+ *>    DEBUG_YENV    yLOG_sint    (rc);                                                                               <* 
+ *>    if (rc < 0) {                                                                                                  <* 
+ *>       DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);                                                             <* 
+ *>       return rce;                                                                                                 <* 
+ *>    }                                                                                                              <* 
+ *>    /+---(group by number)----------------+/                                                                       <* 
+*>    --rce;  if (strcmp (a_group, "0") == 0 || atoi (a_group) > 0) {                                                <* 
+   *>       DEBUG_YENV    yLOG_snote   ("handle by group uid");                                                         <* 
+      *>       x_gid = atoi (a_group);                                                                                     <* 
+      *>       DEBUG_YENV    yLOG_sint    (x_gid);                                                                         <* 
+      *>       rc = yENV_group_data ('i', x_group, &x_gid);                                                                <* 
+      *>    }                                                                                                              <* 
+      *>    /+---(group by name)------------------+/                                                                       <* 
+      *>    else if (strcmp (a_group, "") != 0) {                                                                          <* 
+         *>       DEBUG_YENV    yLOG_snote   ("handle by group name");                                                        <* 
+            *>       rc = yENV_group_data ('n', x_group, &x_gid);                                                                <* 
+            *>    }                                                                                                              <* 
+            *>    /+---(group by current uid)-----------+/                                                                       <* 
+            *>    else {                                                                                                         <* 
+               *>       DEBUG_YENV    yLOG_snote   ("handle by current group");                                                     <* 
+                  *>       x_gid = getgid ();                                                                                          <* 
+                  *>       DEBUG_YENV    yLOG_sint    (x_gid);                                                                         <* 
+                  *>       rc = yENV_group_data ('i', x_group, &x_gid);                                                                <* 
+                  *>    }                                                                                                              <* 
+                  *>    /+---(handle trouble)-----------------+/                                                                       <* 
+                  *>    DEBUG_YENV    yLOG_sint    (rc);                                                                               <* 
+                  *>    if (rc < 0) {                                                                                                  <* 
+                     *>       DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);                                                             <* 
+                        *>       return rce;                                                                                                 <* 
+                        *>    }                                                                                                              <* 
+                        *>    /+---(save-back)----------------------+/                                                                       <* 
+                        *>    if (r_uid != NULL)  *r_uid = x_uid;                                                                            <* 
+                        *>    if (r_gid != NULL)  *r_gid = x_gid;                                                                            <* 
+                        *>    /+---(complete)-----------------------+/                                                                       <* 
+                        *>    DEBUG_YENV    yLOG_sexit   (__FUNCTION__);                                                                     <* 
+                        *>    return 0;                                                                                                      <* 
+                        *> }                                                                                                                 <*/
+
+
+
+char
+yenv_creator            (char a_curr, char a_type, char a_name [LEN_PATH], int a_uid, int a_gid, int a_prm, int a_major, int a_minor, char a_link [LEN_PATH])
+{
+   /*---(design notes)-------------------*/
+   /*
+    *  kept creation and permission changes in one function
+    *  with no sub-function calls, to limit potential window
+    *  of inapproprite access exposure
+    *
+    */
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   FILE       *f           = NULL;
+   /*---(defense)------------------------*/
+   --rce;  if (a_curr == 0)                            return rce;
+   --rce;  if (strchr (YENV_TYPES, a_curr) == NULL)    return rce;
+   --rce;  if (a_type == 0)                            return rce;
+   --rce;  if (strchr (YENV_REAL , a_type) == NULL)    return rce;
+   --rce;  if (a_name == NULL || a_name [0] == '\0')   return rce;
+   --rce;  if (a_type != YENV_SYM  ) {
+      if (a_uid < 0 || a_uid > 65534)                  return rce;
+      if (a_gid < 0 || a_gid > 65534)                  return rce;
+      if (a_prm < 0 || a_prm > 04777)                  return rce;
+   }
+   --rce;  if (strchr ("bc", a_type) != NULL) {
+      if (a_major < 0 || a_major > 255)                return rce;
+      if (a_minor < 0 || a_minor > 255)                return rce;
+   }
+   --rce;  if (strchr ("sh", a_type) != NULL) {
+      if (a_link == NULL || a_link [0] == '\0')        return rce;
+   }
+   /*---(create)-------------------------*/
+   --rce;  if (a_curr == YENV_NONE) {
       --rce;  switch (a_type) {
       case YENV_BLOCK :
          rc = mknod   (a_name, S_IFBLK, makedev (a_major, a_minor));
@@ -122,35 +264,139 @@ yENV_touchier           (char a_type, char a_name [LEN_PATH], char a_own [LEN_LA
          break;
       }
    }
+   --rce;  if (rc < 0)  return rce;
    /*---(ownership)----------------------*/
-   rc = chown (a_name, x_uid, x_gid);
-   --rce;  if (rc < 0)            return rce;
-   /*---(permissions)--------------------*/
-   rc = chmod (a_name, x_perms);
-   --rce;  if (rc < 0)            return rce;
-   /*---(verify)-------------------------*/
-   x_type = yENV_detail (a_name, NULL, &x_euid, NULL, &x_egid, NULL, &x_eperm, NULL, NULL, NULL, NULL, &x_emaj, &x_emin, x_link, NULL, NULL, NULL);
-   --rce;  if (x_type == YENV_NONE)                return YENV_NONE;
-   --rce;  if (x_type <  0)                        return rce;
-   --rce;  if (x_type >  YENV_NONE && x_type != a_type)  return rce;
-   --rce;  if (x_uid   != x_euid)                  return rce;
-   --rce;  if (x_gid   != x_egid)                  return rce;
-   --rce;  if (x_type != YENV_SYM  ) {
-      --rce;  if (x_perms != x_eperm)              return rce;
+   --rce;  if (a_type != YENV_SYM) {
+      rc = chown (a_name, a_uid, a_gid);
+      if (rc < 0)            return rce;
    }
-   --rce;  if (strchr ("bc", x_type) != NULL) {
+   /*---(permissions)--------------------*/
+   --rce;  if (a_type != YENV_SYM) {
+      rc = chmod (a_name, a_prm);
+      if (rc < 0)            return rce;
+   }
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
+char
+yENV_create             (char a_type, char a_name [LEN_PATH], int a_uid, int a_gid, int a_prm, int a_major, int a_minor, char a_link [LEN_PATH])
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        x_curr      = YENV_NONE;
+   /*---(check on file)------------------*/
+   x_curr = yENV_exists (a_name);
+   --rce;  if (x_curr < 0)            return rce;
+   --rce;  if (x_curr != YENV_NONE)   return rce;
+   /*---(create)-------------------------*/
+   return yenv_creator (x_curr, a_type, a_name, a_uid, a_gid, a_prm, a_major, a_minor, a_link);
+}
+
+char
+yENV_touchier           (char a_type, char a_name [LEN_PATH], char a_owner [LEN_USER], char a_group [LEN_USER], char a_perms [LEN_TERSE], int a_major, int a_minor, char a_link [LEN_PATH])
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   char        x_curr      = YENV_NONE;
+   /*> FILE       *f           = NULL;                                                <*/
+   /*> tPASSWD    *x_owner     = NULL;                                                <*/
+   /*> tGROUP     *x_group     = NULL;                                                <*/
+   int         x_uid       =   -1;
+   int         x_gid       =   -1;
+   int         x_prm       =   -1;
+   int         i, l, x_euid, x_egid, x_eprm, x_emaj, x_emin;
+   char        x_link      [LEN_PATH];
+   /*---(header)-------------------------*/
+   DEBUG_YENV    yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   DEBUG_YENV    yLOG_complex ("a_type"    , "%c/%d", a_type, a_type);
+   --rce;  if (a_type == 0 || strchr (YENV_REAL, a_type) == NULL) {
+      DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_YENV    yLOG_point   ("a_name"    , a_name);
+   --rce;  if (a_name == NULL || strcmp (a_name, "") == 0) {
+      DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_YENV    yLOG_info    ("a_name"    , a_name);
+   DEBUG_YENV    yLOG_point   ("a_owner"   , a_owner);
+   --rce;  if (a_type != YENV_SYM && a_owner  == NULL) {
+      DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_YENV    yLOG_info    ("a_owner"   , a_owner);
+   DEBUG_YENV    yLOG_point   ("a_group"   , a_group);
+   --rce;  if (a_type != YENV_SYM && a_group   == NULL) {
+      DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_YENV    yLOG_info    ("a_group"   , a_group);
+   /*---(check on file)------------------*/
+   x_curr = yENV_exists (a_name);
+   DEBUG_YENV    yLOG_char    ("x_curr"    , x_curr);
+   --rce;  if (x_curr < 0)                       return rce;
+   --rce;  if (x_curr > YENV_NONE && x_curr != a_type) return rce;
+   /*---(pre-work owner)-----------------*/
+   --rce;  if (a_type != YENV_SYM) {
+      rc = yENV_user_full  (a_type, a_owner, NULL, &x_uid, NULL, NULL, NULL, NULL);
+      DEBUG_YENV    yLOG_value   ("x_uid"     , x_uid);
+      if (rc < 0 || x_uid < 0) {
+         DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
+   }
+   /*---(pre-work group)-----------------*/
+   --rce;  if (a_type != YENV_SYM) {
+      rc = yENV_group_full (a_type, a_group, NULL, &x_gid, NULL);
+      DEBUG_YENV    yLOG_value   ("x_gid"     , x_gid);
+      if (rc < 0 || x_gid < 0) {
+         DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
+   }
+   /*---(pre-work permissions)-----------*/
+   --rce;  if (a_type != YENV_SYM) {
+      rc = yENV_perms_full (a_type, a_perms, NULL, &x_prm, NULL, NULL, NULL);
+      DEBUG_YENV    yLOG_value   ("x_prm"    , x_prm);
+      if (rc < 0 || x_prm < 0) {
+         DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
+   }
+   /*---(create, if needed)--------------*/
+   rc = yenv_creator (x_curr, a_type, a_name, x_uid, x_gid, x_prm, a_major, a_minor, a_link);
+   DEBUG_YENV    yLOG_value   ("creator"  , rc);
+   --rce;  if (rc < 0) {
+      DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(verify)-------------------------*/
+   x_curr = yENV_detail (a_name, NULL, &x_euid, NULL, &x_egid, NULL, &x_eprm, NULL, NULL, NULL, NULL, &x_emaj, &x_emin, x_link, NULL, NULL, NULL);
+   --rce;  if (x_curr == YENV_NONE)                return YENV_NONE;
+   --rce;  if (x_curr <  0)                        return rce;
+   --rce;  if (x_curr >  YENV_NONE && x_curr != a_type)  return rce;
+   --rce;  if (x_curr != YENV_SYM  ) {
+      if (x_uid   != x_euid)                       return rce;
+      if (x_gid   != x_egid)                       return rce;
+      if (x_prm   != x_eprm)                       return rce;
+   }
+   --rce;  if (strchr ("bc", x_curr) != NULL) {
       if (a_major != x_emaj)                       return rce;
       if (a_minor != x_emin)                       return rce;
    }
-   --rce;  if (x_type == YENV_SYM  ) {
+   --rce;  if (x_curr == YENV_SYM  ) {
       if (strcmp (a_link, x_link) != 0)            return rce;
    }
    /*---(complete)-----------------------*/
-   return x_type;
+   DEBUG_YENV    yLOG_exit    (__FUNCTION__);
+   return x_curr;
 }
 
-char yENV_touch              (char a_name [LEN_PATH], char a_own [LEN_LABEL], char a_grp [LEN_LABEL], char a_perms [LEN_LABEL]) { return yENV_touchier (YENV_REG  , a_name, a_own, a_grp, a_perms, 0, 0, ""); }
-char yENV_mkdir              (char a_name [LEN_PATH], char a_own [LEN_LABEL], char a_grp [LEN_LABEL], char a_perms [LEN_LABEL]) { return yENV_touchier (YENV_DIR  , a_name, a_own, a_grp, a_perms, 0, 0, ""); }
+char yENV_touch              (char a_name [LEN_PATH], char a_owner [LEN_USER], char a_group [LEN_USER], char a_perms [LEN_TERSE]) { return yENV_touchier (YENV_REG  , a_name, a_owner, a_group, a_perms, 0, 0, ""); }
+char yENV_mkdir              (char a_name [LEN_PATH], char a_owner [LEN_USER], char a_group [LEN_USER], char a_perms [LEN_TERSE]) { return yENV_touchier (YENV_DIR  , a_name, a_owner, a_group, a_perms, 0, 0, ""); }
 
 
 
@@ -166,31 +412,29 @@ yENV_removier           (char a_type, char a_name [LEN_PATH])
    char        rce         =  -10;
    char        rc          =    0;
    char        x_type      =  YENV_NONE;
+   DEBUG_YENV    yLOG_exit    (__FUNCTION__);
    /*---(defense)------------------------*/
    --rce;  if (a_name == NULL)                             return rce;
    --rce;  if (strcmp (a_name, "") == 0)                   return rce;
    /*---(check on file)------------------*/
    x_type = yENV_exists (a_name);
+   if (x_type == YENV_NONE)                                return x_type;
    --rce;  if (x_type < 0)                                 return rce;
-   --rce;  if (x_type > YENV_NONE && x_type != a_type)     return rce;
+   /*> --rce;  if (a_type != YENV_ANY && x_type != a_type)     return rce;            <*/
    /*---(create, if needed)--------------*/
    --rce;  switch (a_type) {
    case YENV_DIR   : 
       rc = rmdir   (a_name);
       break;
-   case YENV_BLOCK : case YENV_CHAR  :
-   case YENV_REG   : case YENV_HARD  : case YENV_SYM   : 
-   case YENV_IPSOC : case YENV_PIPE  :
+   default :
       rc = unlink (a_name);
-      break;
-      break;
       break;
    }
    /*---(complete)-----------------------*/
    return yENV_exists (a_name);
 }
 
-char yENV_rm            (char a_name [LEN_PATH]) { yENV_removier (YENV_REG  , a_name); }
+char yENV_rm            (char a_name [LEN_PATH]) { yENV_removier (YENV_ANY  , a_name); }
 char yENV_rmdir         (char a_name [LEN_PATH]) { yENV_removier (YENV_DIR  , a_name); }
 
 
@@ -200,45 +444,102 @@ char yENV_rmdir         (char a_name [LEN_PATH]) { yENV_removier (YENV_DIR  , a_
 /*====================------------------------------------====================*/
 static void      o___EXAMINE____________o (void) {;}
 
-char*
-yENV_typedesc           (char a_type)
+char
+yENV_hash               (char a_type, char a_name [LEN_PATH], char r_hash [LEN_DESC])
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
+   char        rc          =    0;
+   FILE       *f           = NULL;
+   SHA_CTX     ctx;
+   int         i           =    0;
+   uchar       x_buf       [LEN_RECD]  = "";
+   uchar       x_hash      [LEN_DESC]  = "";
+   uchar       t           [LEN_SHORT] = "";
+   int         x_bytes     = 0;
+   int         x_total     = 0;
    /*---(header)-------------------------*/
-   DEBUG_FILE   yLOG_senter  (__FUNCTION__);
-   /*---(set type desc)------------------*/
-   DEBUG_FILE   yLOG_schar   (a_type);
-   switch (a_type) {
-   case YENV_NONE   :  strlcpy (g_print, "non-exist" , LEN_TERSE);  break;
-   case YENV_BLOCK  :  strlcpy (g_print, "block-dev" , LEN_TERSE);  break;
-   case YENV_CHAR   :  strlcpy (g_print, "char-dev"  , LEN_TERSE);  break;
-   case YENV_DIR    :  strlcpy (g_print, "directory" , LEN_TERSE);  break;
-   case YENV_HARD   :  strlcpy (g_print, "hardlink"  , LEN_TERSE);  break;
-   case YENV_IPSOC  :  strlcpy (g_print, "ip-socket" , LEN_TERSE);  break;
-   case YENV_PIPE   :  strlcpy (g_print, "fifo-pipe" , LEN_TERSE);  break;
-   case YENV_REG    :  strlcpy (g_print, "regular"   , LEN_TERSE);  break;
-   case YENV_SYM    :  strlcpy (g_print, "symlink"   , LEN_TERSE);  break;
-   default          :  strlcpy (g_print, "WTF"       , LEN_TERSE);  break;
+   DEBUG_YENV    yLOG_senter  (__FUNCTION__);
+   /*---(default)------------------------*/
+   if (r_hash  != NULL)  strcpy (r_hash , "");
+   /*---(quick-out)----------------------*/
+   if (a_type != YENV_REG && a_type != YENV_HARD) {
+      DEBUG_YENV    yLOG_snote   ("nothing to be done");
+      DEBUG_YENV    yLOG_sexit   (__FUNCTION__);
+      return 0;
    }
-   DEBUG_FILE   yLOG_snote   (g_print);
+   /*---(defense)------------------------*/
+   DEBUG_YENV    yLOG_spoint  (a_name);
+   --rce;  if (a_name == NULL || a_name [0] == '\0') {
+      DEBUG_YENV    yLOG_sexitr  (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_YENV    yLOG_snote   (a_name);
+   DEBUG_YENV    yLOG_spoint  (r_hash);
+   --rce;  if (r_hash == NULL) {
+      DEBUG_YENV    yLOG_sexitr  (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(prepare)------------------------*/
+   f = fopen (a_name, "rb");
+   --rce;  if (f == NULL) {
+      DEBUG_YENV    yLOG_sexitr  (__FUNCTION__, rce);
+      return rce;
+   }
+   rc = SHA1_Init (&ctx);
+   --rce;  if (rc != 1) {
+      DEBUG_YENV    yLOG_sexitr  (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(hash all)-----------------------*/
+   --rce;  while (1) {
+      x_bytes = fread (x_buf, 1, sizeof (x_buf), f);
+      if (x_bytes <  0)  {
+         fclose (f);
+         DEBUG_YENV    yLOG_sexitr  (__FUNCTION__, rce);
+         return rce;
+      }
+      x_total += x_bytes;
+      if (x_bytes == 0)  break;
+      rc = SHA1_Update (&ctx, x_buf, x_bytes);
+      --rce;  if (rc != 1) {
+         fclose (f);
+         DEBUG_YENV    yLOG_sexitr  (__FUNCTION__, rce);
+         return rce;
+      }
+   }
+   /*---(finalize hash)------------------*/
+   fclose (f);
+   rc = SHA1_Final (x_hash, &ctx);
+   /*> printf ("x_total = %d\n", x_total);                                         <*/
+   --rce;  if (rc != 1) {
+      DEBUG_YENV    yLOG_sexitr  (__FUNCTION__, rce);
+      return rce;
+   }
+   strcpy (r_hash, "");
+   for (i = 0; i < 20; ++i) {
+      sprintf (t, "%02x", x_hash [i]);
+      strlcat (r_hash, t, LEN_DESC);
+   }
+   r_hash [40] = '\0';
+   DEBUG_YENV    yLOG_snote   (r_hash);
    /*---(complete)-----------------------*/
-   DEBUG_FILE   yLOG_sexit   (__FUNCTION__);
-   return g_print;
+   DEBUG_YENV    yLOG_sexit   (__FUNCTION__);
+   return 1;
 }
 
 char 
-yENV_detail             (char a_name [LEN_PATH], char r_tdesc [LEN_TERSE], int *r_uid, char r_own [LEN_LABEL], int *r_gid, char r_grp [LEN_LABEL], int *r_perms, char r_pname [LEN_LABEL], char r_pdisp [LEN_TERSE], long *r_bytes, int *r_epoch, int *r_major, int *r_minor, char r_link [LEN_PATH], int *r_dev, int *r_inode, char r_hash [LEN_DESC])
+yENV_detail             (char a_name [LEN_PATH], char r_tdesc [LEN_TERSE], int *r_uid, char r_owner [LEN_USER], int *r_gid, char r_group [LEN_USER], int *r_prm, char r_perms [LEN_TERSE], char r_pdisp [LEN_TERSE], long *r_bytes, int *r_epoch, int *r_major, int *r_minor, char r_link [LEN_PATH], int *r_dev, int *r_inode, char r_hash [LEN_DESC])
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    char        rc          =    0;
    tSTAT       s;
-   tPASSWD    *x_owner     = NULL;
-   tGROUP     *x_group     = NULL;
+   /*> tPASSWD    *x_owner     = NULL;                                                <*/
+   /*> tGROUP     *x_group     = NULL;                                                <*/
    char        x_type      = YENV_NONE;
    char        x_tdesc     [LEN_TERSE] = "WTF";
-   int         x_perms     =    0;
+   int         x_prm       =    0;
    int         i           =    0;
    FILE       *f           = NULL;
    SHA_CTX     ctx;
@@ -250,11 +551,11 @@ yENV_detail             (char a_name [LEN_PATH], char r_tdesc [LEN_TERSE], int *
    /*---(default)------------------------*/
    if (r_tdesc != NULL)  strcpy (r_tdesc, "");
    if (r_uid   != NULL)  *r_uid   = -1;
-   if (r_own   != NULL)  strcpy (r_own  , "");
+   if (r_owner != NULL)  strcpy (r_owner, "");
    if (r_gid   != NULL)  *r_gid   = -1;
-   if (r_grp   != NULL)  strcpy (r_grp  , "");
-   if (r_perms != NULL)  *r_perms = -1;
-   if (r_pname != NULL)  strcpy (r_pname, "");
+   if (r_group != NULL)  strcpy (r_group, "");
+   if (r_prm   != NULL)  *r_prm   = -1;
+   if (r_perms != NULL)  strcpy (r_perms, "");
    if (r_pdisp != NULL)  strcpy (r_pdisp, "");
    if (r_bytes != NULL)  *r_bytes = -1;
    if (r_epoch != NULL)  *r_epoch = -1;
@@ -272,6 +573,7 @@ yENV_detail             (char a_name [LEN_PATH], char r_tdesc [LEN_TERSE], int *
    rc = lstat (a_name, &s);
    if (rc < 0)   return YENV_NONE;
    /*---(normal types)-------------------*/
+   /*> x_type = yenv_type (&s);                                                       <*/
    if      (S_ISBLK  (s.st_mode))   x_type = YENV_BLOCK;
    else if (S_ISCHR  (s.st_mode))   x_type = YENV_CHAR ;
    else if (S_ISDIR  (s.st_mode))   x_type = YENV_DIR  ;
@@ -286,38 +588,18 @@ yENV_detail             (char a_name [LEN_PATH], char r_tdesc [LEN_TERSE], int *
    strlcpy (x_tdesc, yENV_typedesc (x_type), LEN_TERSE);
    DEBUG_FILE   yLOG_info    ("x_tdesc"   , x_tdesc);
    if (r_tdesc != NULL)  strlcpy (r_tdesc, x_tdesc, LEN_TERSE);
-   /*---(ownership)----------------------*/
-   if (r_uid != NULL || r_own != NULL) {
-      x_owner = getpwuid (s.st_uid);
-      if (x_owner != NULL)  {
-         if (r_uid != NULL)  *r_uid   = x_owner->pw_uid;
-         if (r_own != NULL)  strlcpy (r_own, x_owner->pw_name, LEN_LABEL);
-      }
-   }
-   if (r_gid != NULL || r_grp != NULL) {
-      x_group = getgrgid (s.st_gid);
-      if (x_group != NULL)  {
-         if (r_gid != NULL)  *r_gid   = x_group->gr_gid;
-         if (r_grp != NULL)  strlcpy (r_grp, x_group->gr_name, LEN_LABEL);
-      }
-   }
+   /*---(owner)--------------------------*/
+   rc = yENV_user_uid   (x_type, s.st_uid, r_owner, r_uid);
+   /*---(group)--------------------------*/
+   rc = yENV_group_gid   (x_type, s.st_gid, r_group, r_gid);
    /*---(permissions)--------------------*/
-   x_perms = s.st_mode & 007777;
-   if (r_perms != NULL)      *r_perms = x_perms;
-   if (r_pname != NULL || r_pdisp != NULL) {
-      for (i = 0; i < MAX_PERM; ++i) {
-         if (zENV_perms [i].value != x_perms)  continue;
-         if (r_pname != NULL)   strlcpy (r_pname, zENV_perms [i].name, LEN_TERSE);
-         if (r_pdisp != NULL)   strlcpy (r_pdisp, zENV_perms [i].disp, LEN_TERSE);
-         break;
-      }
-   }
+   rc = yENV_perms_octal (x_type, s.st_mode, r_perms, r_prm, r_pdisp);
    /*---(size)---------------------------*/
-   if (r_bytes != NULL)      *r_bytes = s.st_size;
+   if (x_type != YENV_SYM && r_bytes != NULL)      *r_bytes = s.st_size;
    /*---(update)-------------------------*/
-   if (r_epoch != NULL)      *r_epoch = s.st_mtime;
+   if (x_type != YENV_SYM && r_epoch != NULL)      *r_epoch = s.st_mtime;
    /*---(device)-------------------------*/
-   if (strchr ("bc", x_type) != NULL) {
+   IF_DEV {
       if (r_major != NULL)   *r_major = major (s.st_rdev);
       if (r_minor != NULL)   *r_minor = minor (s.st_rdev);
    }
@@ -332,53 +614,36 @@ yENV_detail             (char a_name [LEN_PATH], char r_tdesc [LEN_TERSE], int *
    if (r_dev   != NULL)  *r_dev   = s.st_dev;
    if (r_inode != NULL)  *r_inode = s.st_ino;
    /*---(file hash)----------------------*/
-   if (x_type == YENV_REG   && r_hash != NULL) {
-      /*---(prepare)---------------------*/
-      f = fopen (a_name, "rb");
-      --rce;  if (f == NULL)  return rce;
-      rc = SHA1_Init (&ctx);
-      --rce;  if (rc != 1)   return rce;
-      /*---(hash all)--------------------*/
-      while (1) {
-         x_bytes = fread (x_buf, 1, sizeof (x_buf), f);
-         --rce;  if (x_bytes <  0)  { fclose (f); return rce; }
-         x_total += x_bytes;
-         if (x_bytes == 0)  break;
-         rc = SHA1_Update (&ctx, x_buf, x_bytes);
-         --rce;  if (rc != 1)       { fclose (f); return rce; }
-      }
-      /*---(finalize hash)---------------*/
-      fclose (f);
-      rc = SHA1_Final (x_hash, &ctx);
-      /*> printf ("x_total = %d\n", x_total);                                         <*/
-      --rce;  if (rc != 1)  return rce;
-      strcpy (r_hash, "");
-      for (i = 0; i < 20; ++i) {
-         sprintf (t, "%02x", x_hash [i]);
-         strlcat (r_hash, t, LEN_DESC);
-      }
-      r_hash [40] = '\0';
-      /*---(done)------------------------*/
-   }
+   rc = yENV_hash (x_type, a_name, r_hash);
    /*---(complete)-----------------------*/
    return x_type;
 }
 
-char yENV_exists   (char a_name [LEN_PATH])                { return yENV_detail (a_name, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL); }
-
 char*
 yENV_detail_unit        (char a_name [LEN_PATH])
 {
-   char        x_type      = '-';
+   char        x_type      = YENV_NONE;
    char        x_owner     [LEN_LABEL] = "";
    char        x_group     [LEN_LABEL] = "";
    char        x_perms     [LEN_TERSE] = "";
+   int         x_major     =   -1;
+   int         x_minor     =   -1;
+   char        x_ttype     = YENV_NONE;
+   char        x_target    [LEN_PATH]  = "";
    static char x_out       [LEN_FULL]  = "";
-   x_type = yENV_detail (a_name, NULL, NULL, x_owner, NULL, x_group, NULL, NULL, x_perms, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-   if (x_type == '-') {
-      sprintf (x_out, "%-45.45s  -  ·           ·           ·          ´", a_name);
-   } else {
-      sprintf (x_out, "%-45.45s  %c  %-10.10s  %-10.10s  %-10.10s ´", a_name, x_type, x_owner, x_group, x_perms);
+   x_type  = yENV_detail (a_name, NULL, NULL, x_owner, NULL, x_group, NULL, NULL, x_perms, NULL, NULL, &x_major, &x_minor, x_target, NULL, NULL, NULL);
+   if (x_type < 0) { strcpy (x_out, "(n/a)");  return x_out; }
+   if (strcmp (x_target, "") != 0)  x_ttype = yENV_detail (x_target, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+   switch (x_type) {
+   case YENV_NONE  : sprintf (x_out, "%-45.45s  -  ·           ·           ·          ´", a_name);  break;
+   case YENV_BLOCK :
+   case YENV_CHAR  : sprintf (x_out, "%-45.45s  %c  %-10.10s  %-10.10s  %-10.10s  %3d %3d ´", a_name, x_type, x_owner, x_group, x_perms, x_major, x_minor);  break;
+   case YENV_SYM   : sprintf (x_out, "%-45.45s  %c  %c  %2då%.35sæ ´", a_name, x_type, x_ttype, strlen (x_target), x_target);  break;
+   /*> case YENV_HARD  : sprintf (x_out, "%-45.45s  %c  %-10.10s  %-10.10s  %-10.10s  %c  %2då%.35sæ ´", a_name, x_type, x_owner, x_group, x_perms, x_ttype, strlen (x_target), x_target);  break;   <*/
+   case YENV_DIR   :
+   case YENV_REG   :
+   case YENV_HARD  : 
+   default         : sprintf (x_out, "%-45.45s  %c  %-10.10s  %-10.10s  %-10.10s ´", a_name, x_type, x_owner, x_group, x_perms);  break;
    }
    return x_out;
 }

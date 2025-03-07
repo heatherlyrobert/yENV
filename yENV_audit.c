@@ -104,6 +104,17 @@ static char s_score     [LEN_HUND]  = "d t·· ogp ·· ·· ···h y   ···   n --- ·· ·
 
 #define     MARK_FINAL    77
 
+/*===[[ HACKING ]]===============*/
+
+#define     MARK_AEPOCH   81
+#define     MARK_ABYTES   82
+#define     MARK_AINODE   83
+#define     MARK_AHASH    84
+
+#define     MARK_HACKED   86
+
+/*===[[ DONE ]]==================*/
+
 
 
 /*>    REQUEST LEGEND ===============================================================================================================================================================\n");   <* 
@@ -344,7 +355,7 @@ yenv_audit_prepare      (char a_type, char c_flag, char a_dir [LEN_PATH], char a
 }
 
 char
-yenv_audit_expect       (char b_owner [LEN_USER], char b_group [LEN_USER], char b_perms [LEN_TERSE], int *r_uid, int *r_gid, int *r_prm, char r_disp [LEN_LABEL])
+yenv_audit_expect       (char a_type, char b_owner [LEN_USER], char b_group [LEN_USER], char b_perms [LEN_TERSE], int *r_uid, int *r_gid, int *r_prm, char r_disp [LEN_LABEL])
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -358,8 +369,17 @@ yenv_audit_expect       (char b_owner [LEN_USER], char b_group [LEN_USER], char 
    char        x_group     [LEN_USER]  = "";
    char        x_perms     [LEN_TERSE] = "";
    char        x_disp      [LEN_LABEL] = "";
+   char        x_handle    [LEN_LABEL] = "";
+   char        t           [LEN_TERSE] = "";
    /*---(header)-------------------------*/
    DEBUG_FILE   yLOG_enter   (__FUNCTION__);
+   /*---(quick-out)----------------------*/
+   DEBUG_FILE   yLOG_char    ("a_type"    , a_type);
+   if (a_type == YENV_NONE) {
+      DEBUG_FILE    yLOG_note    ("nothing to do");
+      DEBUG_FILE    yLOG_exit    (__FUNCTION__);
+      return RC_ACK;
+   }
    /*---(default)------------------------*/
    if (r_uid   != NULL)  *r_uid = -1;
    if (b_owner != NULL)  { snprintf (x_owner, LEN_USER , "%s", b_owner); strcpy (b_owner, ""); }
@@ -372,57 +392,30 @@ yenv_audit_expect       (char b_owner [LEN_USER], char b_group [LEN_USER], char 
    s_score [MARK_EOWNER] = '-';
    --rce;  if (b_owner != NULL) {
       s_score [MARK_EOWNER] = '°';
-      if (strcmp (x_owner, "") == 0 ) {
-         DEBUG_FILE   yLOG_note    ("requested owner not provided, using current uid");
-         x_uid = getuid ();
-         rc = yENV_user_data  ('i', x_owner, &x_uid, NULL, NULL, NULL);
-         if (rc < 0) {
-            yURG_err ('f', "attempting to use illegal requested owner å%sæ, uid %d", x_owner, x_uid);
-            rc_final = rce;
-         } else {
-            DEBUG_FILE   yLOG_complex ("owner"     , "%4d, %s", x_uid, x_owner);
-            s_score [MARK_EOWNER] = 'O';
-         }
+      DEBUG_FILE   yLOG_info    ("x_owner"   , x_owner);
+      strlcpy (t, x_owner, LEN_USER);
+      rc = yENV_user_full  (a_type, t, x_owner, &x_uid, NULL, NULL, NULL, x_handle);
+      if (rc >= 0) {
+         if      (strcmp (t      , ""     ) == 0)  s_score [MARK_EOWNER] = 'O';  /* default  */
+         else                                      s_score [MARK_EOWNER] = 'o';  /* standard */
       } else {
-         DEBUG_FILE   yLOG_note    ("owner requested, getting uid");
-         rc = yENV_user_data  ('n', x_owner, &x_uid, NULL, NULL, NULL);
-         if (rc < 0) {
-            yURG_err ('f', "attempting to use illegal requested owner å%sæ, uid %d", x_owner, x_uid);
-            rc_final = rce;
-         } else {
-            DEBUG_FILE   yLOG_complex ("owner"     , "%4d, %s", x_uid, x_owner);
-            s_score [MARK_EOWNER] = 'o';
-         }
+         yURG_err ('f', "could not interpret owner å%sæ using %s", t, x_handle);
+         rc_final = rce;
       }
    }
    /*---(group ownership)----------------*/
    s_score [MARK_EGROUP] = '-';
    --rce;  if (b_group != NULL) {
       s_score [MARK_EGROUP] = '°';
-      if (strcmp (x_group, "") == 0 ) {
-         DEBUG_FILE   yLOG_note    ("requested group not provided, using current gid");
-         x_gid = getgid ();
-         DEBUG_FILE   yLOG_value   ("x_gid"     , x_gid);
-         rc = yENV_group_data ('i', x_group, &x_gid);
-         DEBUG_FILE   yLOG_value   ("group"     , rc);
-         if (rc < 0) {
-            yURG_err ('f', "attempting to use illegal requested group å%sæ, gid %d", x_group, x_gid);
-            rc_final = rce;
-         } else {
-            DEBUG_FILE   yLOG_complex ("group"     , "%4d, %s", x_gid, x_group);
-            s_score [MARK_EGROUP] = 'G';
-         }
+      DEBUG_FILE   yLOG_info    ("x_group"   , x_group);
+      strlcpy (t, x_group, LEN_USER);
+      rc = yENV_group_full (a_type, t, x_group, &x_gid, x_handle);
+      if (rc >= 0) {
+         if      (strcmp (t      , ""     ) == 0)  s_score [MARK_EGROUP] = 'G';  /* default  */
+         else                                      s_score [MARK_EGROUP] = 'g';  /* standard */
       } else {
-         DEBUG_FILE   yLOG_note    ("group requested, getting gid");
-         rc = yENV_group_data ('n', x_group, &x_gid);
-         DEBUG_FILE   yLOG_value   ("group"     , rc);
-         if (rc < 0) {
-            yURG_err ('f', "attempting to use illegal requested group å%sæ, gid %d", x_group, x_gid);
-            rc_final = rce;
-         } else {
-            DEBUG_FILE   yLOG_complex ("group"     , "%4d, %s", x_gid, x_group);
-            s_score [MARK_EGROUP] = 'g';
-         }
+         yURG_err ('f', "could not interpret group å%sæ using %s", t, x_handle);
+         rc_final = rce;
       }
    }
    /*---(permissions)--------------------*/
@@ -430,45 +423,15 @@ yenv_audit_expect       (char b_owner [LEN_USER], char b_group [LEN_USER], char 
    --rce;  if (b_perms != NULL) {
       s_score [MARK_EPERMS] = '°';
       DEBUG_FILE   yLOG_info    ("x_perms"   , x_perms);
-      sscanf (x_perms, "%o", &x);
-      x_prm = x;
-      DEBUG_FILE   yLOG_value   ("x_prm"     , x_prm);
-      if (strcmp (x_perms, "") == 0 ) {
-         DEBUG_FILE   yLOG_note    ("requested perms not provided, using f_tight (0600)");
-         x_prm = 0600;
-         DEBUG_FILE   yLOG_value   ("x_prm"     , x_prm);
-         rc = yENV_perms_data ('i', x_perms, &x_prm, x_disp);
-         DEBUG_FILE   yLOG_value   ("perms"     , rc);
-         if (rc < 0) {
-            yURG_err ('f', "attempting to use illegal requested perms å%sæ, prm %d", x_perms, x_prm);
-            rc_final = rce;
-         } else {
-            DEBUG_FILE   yLOG_complex ("perms"     , "%4o, %s", x_prm, x_perms);
-            s_score [MARK_EPERMS] = 'P';
-         }
-      } else if (x_prm > 0 || strcmp (x_perms, "0000") == 0) {
-         DEBUG_FILE   yLOG_note    ("requested perms by octal, getting name");
-         DEBUG_FILE   yLOG_value   ("x_prm"     , x_prm);
-         rc = yENV_perms_data ('i', x_perms, &x_prm, x_disp);
-         DEBUG_FILE   yLOG_value   ("perms"     , rc);
-         if (rc < 0) {
-            yURG_err ('f', "attempting to use illegal requested perms å%sæ, prm %d", x_perms, x_prm);
-            rc_final = rce;
-         } else {
-            DEBUG_FILE   yLOG_complex ("perms"     , "%4o, %s", x_prm, x_perms);
-            s_score [MARK_EPERMS] = 'p';
-         }
+      strlcpy (t, x_perms, LEN_TERSE);
+      rc = yENV_perms_full (a_type, t, x_perms, &x_prm, x_disp, NULL, x_handle);
+      if (rc >= 0) {
+         if      (strcmp (t      , ""     ) == 0)  s_score [MARK_EPERMS] = 'P';  /* default  */
+         else if (strcmp (x_perms, "(n/a)") == 0)  s_score [MARK_EPERMS] = 'P';  /* specific */
+         else                                      s_score [MARK_EPERMS] = 'p';  /* standard */
       } else {
-         DEBUG_FILE   yLOG_note    ("perms requested, getting octal");
-         rc = yENV_perms_data ('n', x_perms, &x_prm, x_disp);
-         DEBUG_FILE   yLOG_value   ("perms"     , rc);
-         if (rc < 0) {
-            yURG_err ('f', "attempting to use illegal requested perms å%sæ, prm %d", x_perms, x_prm);
-            rc_final = rce;
-         } else {
-            DEBUG_FILE   yLOG_complex ("perms"     , "%4o, %s", x_prm, x_perms);
-            s_score [MARK_EPERMS] = 'p';
-         }
+         yURG_err ('f', "could not interpret permissions å%sæ using %s", t, x_handle);
+         rc_final = rce;
       }
    }
    /*---(save-back)----------------------*/
@@ -632,10 +595,12 @@ yenv_audit_precheck     (char a_full [LEN_PATH], char a_etype, char a_eowner [LE
    char        x_add       =  '-';
    char        x_upd       =  '-';
    int         l           =    0;
+   int         i           =    0;
    /*---(quick-out)----------------------*/
    if (c_force == '-' && c_fix == '-') {
       DEBUG_FILE   yLOG_senter  (__FUNCTION__);
       DEBUG_FILE   yLOG_snote   ("no precheck requested");
+      for (i = MARK_CONFC;  i <= MARK_UPDATE;  ++i)  s_score [i] = '¬';
       DEBUG_FILE   yLOG_sexit   (__FUNCTION__);
       return RC_ACK;
    }
@@ -663,7 +628,7 @@ yenv_audit_precheck     (char a_full [LEN_PATH], char a_etype, char a_eowner [LE
       return RC_POSITIVE;
    }
    /*---(existance)----------------------       ----del----; ----add----; ----upd----;*/
-   if      (x_atype  == YENV_NONE)            {            ; x_add = 'y';            ;  strcat (x_miss, "existance, "); }
+   if      (x_atype  == YENV_NONE)            {            ; x_add = 'y';            ;  strcat (x_miss, "non-existance, "); }
    else if (a_etype  == YENV_NONE)            { x_del = 'y';            ;            ;  strcat (x_miss, "existance, "); }
    /*---(type changes)-------------------       ----del----; ----add----; ----upd----;*/
    else if (x_atype  != a_etype) {
@@ -760,6 +725,7 @@ yenv_audit_remove       (char a_full [LEN_PATH], char a_atype, char a_atdesc [LE
    rc = yENV_exists (a_full);
    DEBUG_FILE   yLOG_complex ("exists"    , "%d/%c", rc, rc);
    --rce;  if (rc < 0 || rc == YENV_NONE) {
+      s_score [MARK_FINAL ] = '°';
       yURG_err ('w', "%s (%c) removal skipped, entry does not exist" , a_atdesc, a_atype);
       DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
@@ -769,12 +735,14 @@ yenv_audit_remove       (char a_full [LEN_PATH], char a_atype, char a_atdesc [LE
       if (c_force == '!') {
          rc = yENV_removier (a_atype, a_full);
          --rce;  if (rc != YENV_NONE) {
-            yURG_err ('f', "%s (%c) requested removal (%c) failed (%d/%c)" , a_atdesc, a_atype, c_del, rc, rc);
+            yURG_err ('f', "%s (%c) conflicting entry removal (%c) failed (%d/%c)" , a_atdesc, a_atype, c_del, rc, rc);
+            s_score [MARK_FINAL ] = '°';
             DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
             return rce;
          }
       } else {
-         yURG_err ('f', "%s (%c) requested removal (%c) requires critical force (!), but used (%c)" , a_atdesc, a_atype, c_del, c_force);
+         yURG_err ('f', "%s (%c) conflicting entry removal (%c) requires critical force (!), but used (%c)" , a_atdesc, a_atype, c_del, c_force);
+         s_score [MARK_FINAL ] = '°';
          DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
          return rce;
       }
@@ -784,19 +752,21 @@ yenv_audit_remove       (char a_full [LEN_PATH], char a_atype, char a_atdesc [LE
       if (c_force != '-') {
          rc = yENV_removier (a_atype, a_full);
          --rce;  if (rc != YENV_NONE) {
-            yURG_err ('f', "%s (%c) requested removal (%c) failed (%d/%c)" , a_atdesc, a_atype, c_del, rc, rc);
+            yURG_err ('f', "%s (%c) conflicting entry removal (%c) failed (%d/%c)" , a_atdesc, a_atype, c_del, rc, rc);
+            s_score [MARK_FINAL ] = '°';
             DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
             return rce;
          }
       } else {
-         yURG_err ('f', "%s (%c) requested removal (%c) requires any force (!y), but used (%c)" , a_atdesc, a_atype, c_del, c_force);
+         yURG_err ('f', "%s (%c) conflicting entry removal (%c) requires any force (!y), but used (%c)" , a_atdesc, a_atype, c_del, c_force);
+         s_score [MARK_FINAL ] = '°';
          DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
          return rce;
       }
    }
    /*---(message)------------------------*/
    s_score [MARK_REMOVE] = 'R';
-   yURG_msg ('-', "%s (%c) entry removed successfully because of force flag (%c)", a_atdesc, a_atype, c_force);
+   yURG_msg ('-', "%s (%c) conflicting entry removed successfully because of force flag (%c)", a_atdesc, a_atype, c_force);
    /*---(complete)-----------------------*/
    DEBUG_FILE    yLOG_exit    (__FUNCTION__);
    return RC_POSITIVE;
@@ -831,6 +801,7 @@ yenv_audit_create       (char a_full [LEN_PATH], char a_etype, char a_etdesc [LE
    --rce;  if (rc != YENV_NONE) {
       strlcpy (x_tdesc, yENV_typedesc (rc), LEN_TERSE);
       yURG_err ('f', "%s (%c) creation stopped, FOUND it as %s (%c) already" , a_etdesc, a_etype, x_tdesc, rc);
+      s_score [MARK_FINAL ] = '°';
       DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
@@ -840,11 +811,13 @@ yenv_audit_create       (char a_full [LEN_PATH], char a_etype, char a_etdesc [LE
       DEBUG_FILE   yLOG_complex ("touch"     , "%d/%c", rc, rc);
       --rce;  if (rc < 0 || rc == YENV_NONE) {
          yURG_err ('f', "%s (%c) requested creation (%c) failed (%d/%c)" , a_etdesc, a_etype, c_add, rc, rc);
+         s_score [MARK_FINAL ] = '°';
          DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
          return rce;
       }
    } else {
       yURG_err ('f', "%s (%c) requested creation (%c) requires any force (!y), but used (%c)" , a_etdesc, a_etype, c_add, c_force);
+      s_score [MARK_FINAL ] = '°';
       DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
@@ -882,6 +855,7 @@ yenv_audit_update       (char a_full [LEN_PATH], char a_atype, char a_atdesc [LE
    rc = yENV_exists (a_full);
    DEBUG_FILE   yLOG_complex ("exists"    , "%d/%c", rc, rc);
    --rce;  if (rc < 0 || rc == YENV_NONE) {
+      s_score [MARK_FINAL ] = '°';
       yURG_err ('f', "%s (%c) update stopped, does not exist" , a_atdesc, a_atype);
       DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
@@ -891,11 +865,13 @@ yenv_audit_update       (char a_full [LEN_PATH], char a_atype, char a_atdesc [LE
       rc = yENV_touchier (a_atype, a_full, a_eowner, a_egroup, a_eperms, a_emajor, a_eminor, a_etarget);
       DEBUG_FILE   yLOG_complex ("touch"     , "%d/%c", rc, rc);
       --rce;  if (rc < 0 || rc == YENV_NONE) {
+         s_score [MARK_FINAL ] = '°';
          yURG_err ('f', "%s (%c) requested update (%c) failed (%d/%c)" , a_atdesc, a_atype, c_upd, rc, rc);
          DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
          return rce;
       }
    } else {
+      s_score [MARK_FINAL ] = '°';
       yURG_err ('f', "%s (%c) requested update (%c) requires fix (y), but used (%c)" , a_atdesc, a_atype, c_upd, c_fix);
       DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
@@ -1122,170 +1098,100 @@ yenv_audit_final        (char a_full [LEN_PATH], char a_etype, char a_etdesc [LE
    return rc_final;
 }
 
-/*> char                                                                                                                                                                                                                                                                                                                    <* 
- *> yenv_audit_actual       (char a_full [LEN_PATH], char a_etype, char a_etdesc [LEN_TERSE], char a_eowner [LEN_USER], char a_egroup [LEN_USER], char a_eperms [LEN_TERSE], int a_euid, int a_egid, int a_eprm, char a_adisp [LEN_LABEL], int a_emajor, int a_eminor, char a_elink [LEN_PATH], char c_force, char c_fix)   <* 
- *> {                                                                                                                                                                                                                                                                                                                       <* 
- *>    /+---(locals)-----------+-----+-----+-+/                                                                                                                                                                                                                                                                             <* 
- *>    char        rce         =  -10;                                                                                                                                                                                                                                                                                      <* 
- *>    char        rc          =    0;                                                                                                                                                                                                                                                                                      <* 
- *>    char        rc_final    = RC_POSITIVE;                                                                                                                                                                                                                                                                               <* 
- *>    char        x_atype     = YENV_NONE;                                                                                                                                                                                                                                                                                 <* 
- *>    char        x_atdesc    [LEN_TERSE] = "";                                                                                                                                                                                                                                                                            <* 
- *>    char        x_score     =    0;                                                                                                                                                                                                                                                                                      <* 
- *>    char        x_aowner    [LEN_USER]  = "";                                                                                                                                                                                                                                                                            <* 
- *>    char        x_agroup    [LEN_USER]  = "";                                                                                                                                                                                                                                                                            <* 
- *>    char        x_aperms    [LEN_TERSE] = "";                                                                                                                                                                                                                                                                            <* 
- *>    char        x_miss      [LEN_HUND]  = "";                                                                                                                                                                                                                                                                            <* 
- *>    int         x_auid      =    0;                                                                                                                                                                                                                                                                                      <* 
- *>    int         x_agid      =    0;                                                                                                                                                                                                                                                                                      <* 
- *>    uint        x_aprm      =    0;                                                                                                                                                                                                                                                                                      <* 
- *>    char        x_adisp     [LEN_LABEL] = "";                                                                                                                                                                                                                                                                            <* 
- *>    int         x_amajor    =   -1;                                                                                                                                                                                                                                                                                      <* 
- *>    int         x_aminor    =   -1;                                                                                                                                                                                                                                                                                      <* 
- *>    char        x_alink     [LEN_PATH]  = "";                                                                                                                                                                                                                                                                            <* 
- *>    int         l           =    0;                                                                                                                                                                                                                                                                                      <* 
- *>    /+---(header)-------------------------+/                                                                                                                                                                                                                                                                             <* 
- *>    DEBUG_FILE   yLOG_enter   (__FUNCTION__);                                                                                                                                                                                                                                                                            <* 
- *>    /+---(check)--------------------------+/                                                                                                                                                                                                                                                                             <* 
- *>    /+> if (c_force != '-' || c_fix != '-') {                                                                                            <*                                                                                                                                                                              <* 
- *>     *>    rc = yenv_audit_precheck  (a_full, a_etype, a_eowner, a_egroup, a_eperms, a_emajor, a_eminor, a_elink, &x_del, &x_add, &x_upd)   <*                                                                                                                                                                           <* 
- *>     *> }                                                                                                                                <+/                                                                                                                                                                             <* 
- *>                                                                                                                                                                                                                                                                                                                         <* 
- *>    x_atype = yENV_detail (a_full, x_atdesc, NULL, x_aowner, NULL, x_agroup, NULL, x_aperms, NULL, NULL, NULL, NULL, &x_amajor, &x_aminor, x_alink, NULL, NULL);                                                                                                                                                         <* 
- *>    DEBUG_FILE   yLOG_value   ("detail"    , x_atype);                                                                                                                                                                                                                                                                   <* 
- *>    --rce;  if (x_atype <= 0) {                                                                                                                                                                                                                                                                                          <* 
- *>       yURG_err ('f', "file check generated a hard error (%d)", x_atype);                                                                                                                                                                                                                                                <* 
- *>       DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);                                                                                                                                                                                                                                                                    <* 
- *>       return rce;                                                                                                                                                                                                                                                                                                       <* 
- *>    }                                                                                                                                                                                                                                                                                                                    <* 
- *>    /+---(quick out)----------------------+/                                                                                                                                                                                                                                                                             <* 
- *>    DEBUG_FILE   yLOG_char    ("x_atype"   , x_atype);                                                                                                                                                                                                                                                                   <* 
- *>    if (x_atype == YENV_NONE && a_etype == YENV_NONE) {                                                                                                                                                                                                                                                                  <* 
- *>       yURG_msg ('-', "non-existance of filesystem entry confirmed");                                                                                                                                                                                                                                                    <* 
- *>       return RC_POSITIVE;                                                                                                                                                                                                                                                                                               <* 
- *>    }                                                                                                                                                                                                                                                                                                                    <* 
- *>    /+---(pre-check)----------------------+/                                                                                                                                                                                                                                                                             <* 
- *>    DEBUG_FILE   yLOG_complex ("pre-check" , "%c force, %c fix", c_force, c_fix);                                                                                                                                                                                                                                        <* 
- *>    x_score = 0;                                                                                                                                                                                                                                                                                                         <* 
- *>    --rce;  if (c_force != '-' || c_fix != '-') {                                                                                                                                                                                                                                                                        <* 
- *>       DEBUG_FILE   yLOG_note    ("conducting pre-check");                                                                                                                                                                                                                                                               <* 
- *>       if (x_atype == YENV_NONE)               { x_score += 16;  strcat (x_miss, "existance, "); }                                                                                                                                                                                                                       <* 
- *>       if (x_atype != a_etype)                 { x_score +=  8;  strcat (x_miss, "type, " ); }                                                                                                                                                                                                                           <* 
- *>       if (strcmp (x_aowner, a_eowner) != 0)   { x_score +=  4;  strcat (x_miss, "owner, "); }                                                                                                                                                                                                                           <* 
- *>       if (strcmp (x_agroup, a_egroup) != 0)   { x_score +=  2;  strcat (x_miss, "group, "); }                                                                                                                                                                                                                           <* 
- *>       if (strcmp (x_aperms, a_eperms) != 0)   { x_score +=  1;  strcat (x_miss, "perms, "); }                                                                                                                                                                                                                           <* 
- *>       l = strlen (x_miss);                                                                                                                                                                                                                                                                                              <* 
- *>       if (l > 2)  x_miss [l - 2] = '\0';                                                                                                                                                                                                                                                                                <* 
- *>       if      (x_score >= 16)  yURG_err ('w', "troubles with entry existance (so everything)");                                                                                                                                                                                                                         <* 
- *>       else if (x_score >   0)  yURG_err ('w', "troubles with entry %s", x_miss);                                                                                                                                                                                                                                        <* 
- *>    }                                                                                                                                                                                                                                                                                                                    <* 
- *>    DEBUG_FILE   yLOG_value   ("x_score"   , x_score);                                                                                                                                                                                                                                                                   <* 
- *>    /+---(removal)------------------------+/                                                                                                                                                                                                                                                                             <* 
- *>    /+> if (x_score >= 16) {                                                                                                                 <*                                                                                                                                                                          <* 
- *>     *>    if (c_force == '!') {                                                                                                             <*                                                                                                                                                                          <* 
- *>     *>       if (x_atype != a_etype) {                                                                                                      <*                                                                                                                                                                          <* 
- *>     *>          yURG_err ('f', "wanted %s (%c) ACTUALLY refers to a %s (%c), won't force removal", a_etdesc, a_etype, a_atdesc, a_atype);   <*                                                                                                                                                                          <* 
- *>     *>          DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);                                                                              <*                                                                                                                                                                          <* 
- *>     *>          return rce;                                                                                                                 <*                                                                                                                                                                          <* 
- *>     *>       }                                                                                                                              <*                                                                                                                                                                          <* 
- *>     *>       rc = yENV_removier (x_atype, x_full);                                                                                          <*                                                                                                                                                                          <* 
- *>     *>       DEBUG_FILE   yLOG_char    ("exists"    , rc);                                                                                  <*                                                                                                                                                                          <* 
- *>     *>       --rce;  if (rc < 0 || rc != a_etype) {                                                                                         <*                                                                                                                                                                          <* 
- *>     *>          yURG_err ('f', "%s (%c) removal failed (%d/%c), check return code", x_atdesc, x_atype, rc, rc);                             <*                                                                                                                                                                          <* 
- *>     *>          DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);                                                                              <*                                                                                                                                                                          <* 
-*>     *>          return rce;                                                                                                                 <*                                                                                                                                                                          <* 
-*>     *>       }                                                                                                                              <*                                                                                                                                                                          <* 
-*>     *>       /+---(message)------------------------+/                                                                                       <*                                                                                                                                                                          <* 
-*>     *>       yURG_msg ('-', "%s (%c) entry removed successfully", a_atdesc, a_atype);                                                       <*                                                                                                                                                                          <* 
-*>     *>    }                                                                                                                                 <*                                                                                                                                                                          <* 
-*>     *> }                                                                                                                                    <+/                                                                                                                                                                         <* 
-*>    /+---(creation)-----------------------+/                                                                                                                                                                                                                                                                             <* 
-*>    /+> --rce;  if (x_score >= 16) {                                                   <*                                                                                                                                                                                                                                <* 
-   *>     *>    if (c_force != 'y') {                                                       <*                                                                                                                                                                                                                                <* 
-      *>     *>       yURG_err ('f', "file does not exist, and not in FORCE mode");            <*                                                                                                                                                                                                                                <* 
-         *>     *>       DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);                           <*                                                                                                                                                                                                                                <* 
-         *>     *>       return rce;                                                              <*                                                                                                                                                                                                                                <* 
-         *>     *>    }                                                                           <*                                                                                                                                                                                                                                <* 
-         *>     *>    rc = yENV_touch (a_full, a_eowner, a_egroup, a_eperms);                     <*                                                                                                                                                                                                                                <* 
-         *>     *>    DEBUG_FILE   yLOG_value   ("force"     , rc);                               <*                                                                                                                                                                                                                                <* 
-         *>     *>    if (rc <= 0) {                                                              <*                                                                                                                                                                                                                                <* 
-            *>     *>       yURG_err ('f', "file creation generated a hard error (%d)", rc);         <*                                                                                                                                                                                                                                <* 
-               *>     *>       DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);                           <*                                                                                                                                                                                                                                <* 
-               *>     *>       return rce;                                                              <*                                                                                                                                                                                                                                <* 
-               *>     *>    }                                                                           <*                                                                                                                                                                                                                                <* 
-               *>     *>    rc_final = RC_REPAIR;                                                       <*                                                                                                                                                                                                                                <* 
-               *>     *>    yURG_msg ('-', "system called in FORCE mode, so file created");             <*                                                                                                                                                                                                                                <* 
-               *>     *> }                                                                              <*                                                                                                                                                                                                                                <* 
-               *>     *> else if (x_score > 0) {                                                        <*                                                                                                                                                                                                                                <* 
-                  *>     *>    if (c_fix == 'y') {                                                         <*                                                                                                                                                                                                                                <* 
-                     *>     *>       rc = yENV_touch (a_full, a_eowner, a_egroup, a_eperms);                  <*                                                                                                                                                                                                                                <* 
-                        *>     *>       DEBUG_FILE   yLOG_value   ("fix"       , rc);                            <*                                                                                                                                                                                                                                <* 
-                        *>     *>       if (rc <= 0) {                                                           <*                                                                                                                                                                                                                                <* 
-                           *>     *>          yURG_err ('f', "file creation generated a hard error (%d)", rc);      <*                                                                                                                                                                                                                                <* 
-                              *>     *>          DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);                        <*                                                                                                                                                                                                                                <* 
-                              *>     *>          return rce;                                                           <*                                                                                                                                                                                                                                <* 
-                              *>     *>       }                                                                        <*                                                                                                                                                                                                                                <* 
-                              *>     *>       rc_final = RC_REPAIR;                                                    <*                                                                                                                                                                                                                                <* 
-                              *>     *>       yURG_msg ('-', "system called in FIX mode, so file updated");            <*                                                                                                                                                                                                                                <* 
-                              *>     *>    }                                                                           <*                                                                                                                                                                                                                                <* 
-                              *>     *> }                                                                              <+/                                                                                                                                                                                                                               <* 
-                              *>    /+---(re-gather data)-----------------+/                                                                                                                                                                                                                                                                             <* 
-                              *>    DEBUG_FILE   yLOG_note    ("re-gathering data");                                                                                                                                                                                                                                                                     <* 
-                              *>    x_atype = yENV_detail (a_full, x_atdesc, &x_auid, x_aowner, &x_agid, x_agroup, &x_aprm, x_aperms, x_adisp, NULL, NULL, NULL, &x_amajor, &x_aminor, x_alink, NULL, NULL);                                                                                                                                             <* 
-                              *>    DEBUG_FILE   yLOG_value   ("detail"    , x_atype);                                                                                                                                                                                                                                                                   <* 
-                              *>    --rce;  if (x_atype <= 0) {                                                                                                                                                                                                                                                                                          <* 
-                                 *>       yURG_err ('f', "file check generated a hard error (%d)", x_atype);                                                                                                                                                                                                                                                <* 
-                                    *>       DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);                                                                                                                                                                                                                                                                    <* 
-                                    *>       return rce;                                                                                                                                                                                                                                                                                                       <* 
-                                    *>    }                                                                                                                                                                                                                                                                                                                    <* 
-                                    *>    DEBUG_FILE   yLOG_char    ("detail"    , x_atype);                                                                                                                                                                                                                                                                   <* 
-                                    *>    /+---(existance check)----------------+/                                                                                                                                                                                                                                                                             <* 
-                                    *>    DEBUG_FILE   yLOG_note    ("conducting final-check");                                                                                                                                                                                                                                                                <* 
-                                    *>    rc = yenv_audit_typing (a_etype, a_etdesc, x_atype, x_atdesc);                                                                                                                                                                                                                                                       <* 
-                                    *>    DEBUG_FILE   yLOG_value   ("typing"    , rc);                                                                                                                                                                                                                                                                        <* 
-                                    *>    /+> switch (x_atype) {                                                                                                                <*                                                                                                                                                                             <* 
-                                       *>     *> case YENV_NONE   : yURG_err ('f', "file does not exist, and not in FORCE mode"        );           rc_final = RC_FATAL;  break;   <*                                                                                                                                                                             <* 
-                                          *>     *> case YENV_REG    : yURG_msg ('-', "file existance confirmed and is not a dir/symlink" );           break;                         <*                                                                                                                                                                             <* 
-                                          *>     *> case YENV_DIR    : yURG_err ('f', "actually refers to a directory (bad configuration)");           rc_final = RC_FATAL;  break;   <*                                                                                                                                                                             <* 
-                                          *>     *> case YENV_SYM    : yURG_err ('f', "actually refers to a symbolic link (security risk)");           rc_final = RC_FATAL;  break;   <*                                                                                                                                                                             <* 
-                                          *>     *> default          : yURG_err ('f', "entry is specialty type (%c) (bad configuration)"  , x_atype);  rc_final = RC_FATAL;  break;   <*                                                                                                                                                                             <* 
-                                          *>     *> }                                                                                                                                 <+/                                                                                                                                                                            <* 
-                                          *>    if (rc == RC_POSITIVE) {                                                                                                                                                                                                                                                                                             <* 
-                                             *>       DEBUG_FILE   yLOG_exit    (__FUNCTION__);                                                                                                                                                                                                                                                                         <* 
-                                                *>       return RC_POSITIVE;                                                                                                                                                                                                                                                                                               <* 
-                                                *>    }                                                                                                                                                                                                                                                                                                                    <* 
-                                                *>    if (rc == RC_FATAL) {                                                                                                                                                                                                                                                                                                <* 
-                                                   *>       DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);                                                                                                                                                                                                                                                                    <* 
-                                                      *>       return rce;                                                                                                                                                                                                                                                                                                       <* 
-                                                      *>    }                                                                                                                                                                                                                                                                                                                    <* 
-                                                      *>    /+> if (rc > rc_final)  rc_final = rc;                                             <+/                                                                                                                                                                                                                               <* 
-                                                      *>    /+---(owner)--------------------------+/                                                                                                                                                                                                                                                                             <* 
-                                                      *>    DEBUG_FILE   yLOG_complex ("owner"     , "act %s, exp %s", x_aowner, a_eowner);                                                                                                                                                                                                                                      <* 
-                                                      *>    --rce;  if (strcmp (x_aowner, a_eowner) != 0) {                                                                                                                                                                                                                                                                      <* 
-                                                         *>       yURG_err ('f', "owned by å%sæ (%d); BUT expected å%sæ (%d)", x_aowner, x_auid, a_eowner, a_euid);                                                                                                                                                                                                                 <* 
-                                                            *>       DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);                                                                                                                                                                                                                                                                    <* 
-                                                            *>       return rce;                                                                                                                                                                                                                                                                                                       <* 
-                                                            *>    }                                                                                                                                                                                                                                                                                                                    <* 
-                                                            *>    /+---(group)--------------------------+/                                                                                                                                                                                                                                                                             <* 
-                                                            *>    DEBUG_FILE   yLOG_complex ("group"     , "act %s, ext %s", x_agroup, a_egroup);                                                                                                                                                                                                                                      <* 
-                                                            *>    --rce;  if (strcmp (x_agroup, a_egroup) != 0) {                                                                                                                                                                                                                                                                      <* 
-                                                               *>       yURG_err ('f', "grouped in å%sæ (%d); BUT expected å%sæ (%d)", x_agroup, x_agid, a_egroup, a_egid);                                                                                                                                                                                                               <* 
-                                                                  *>       DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);                                                                                                                                                                                                                                                                    <* 
-                                                                  *>       return rce;                                                                                                                                                                                                                                                                                                       <* 
-                                                                  *>    }                                                                                                                                                                                                                                                                                                                    <* 
-                                                                  *>    yURG_msg ('-', "ownership confirmed, owned by å%sæ (%d) and in group å%sæ (%d)", a_eowner, a_euid, a_egroup, a_egid);                                                                                                                                                                                                <* 
-                                                                  *>    /+---(perms)--------------------------+/                                                                                                                                                                                                                                                                             <* 
-                                                                  *>    DEBUG_FILE   yLOG_complex ("perms"     , "act %s, ext %s", x_aperms, a_eperms);                                                                                                                                                                                                                                      <* 
-                                                                  *>    --rce;  if (strcmp (x_aperms, a_eperms) != 0) {                                                                                                                                                                                                                                                                      <* 
-                                                                     *>       yURG_err ('f', "permissions å%sæ, %04o, disp å%sæ; BUT expected å%sæ, %04o, disp å%sæ", x_aperms, x_aprm, x_adisp, a_eperms, a_eprm, a_adisp);                                                                                                                                                                    <* 
-                                                                        *>       DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);                                                                                                                                                                                                                                                                    <* 
-                                                                        *>       return rce;                                                                                                                                                                                                                                                                                                       <* 
-                                                                        *>    }                                                                                                                                                                                                                                                                                                                    <* 
-                                                                        *>    yURG_msg ('-', "permissions confirmed, å%sæ, %04o, disp å%sæ", a_eperms, a_eprm, a_adisp);                                                                                                                                                                                                                           <* 
-                                                                        *>    /+---(complete)-----------------------+/                                                                                                                                                                                                                                                                             <* 
-                                                                        *>    DEBUG_FILE    yLOG_exit    (__FUNCTION__);                                                                                                                                                                                                                                                                           <* 
-                                                                        *>    return rc_final;                                                                                                                                                                                                                                                                                                     <* 
-                                                                        *> }                                                                                                                                                                                                                                                                                                                       <*/
+char
+yenv_audit_hacked       (char a_full [LEN_PATH], int a_epoch, long a_bytes, int a_inode, char a_hash [LEN_DESC])
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   char        rc_final    = RC_POSITIVE;
+   char        x_atype     = YENV_NONE;
+   int         x_epoch     =   -1;
+   int         x_bytes     =   -1;
+   int         x_inode     =   -1;
+   char        x_hash      [LEN_DESC]  = "";
+   char        c           =    0;
+   /*---(header)-------------------------*/
+   DEBUG_FILE   yLOG_enter   (__FUNCTION__);
+   /*---(re-gather data)-----------------*/
+   DEBUG_FILE   yLOG_note    ("re-gathering data");
+   x_atype = yENV_detail (a_full, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &x_epoch, &x_bytes, NULL, NULL, NULL, NULL, &x_inode, x_hash);
+   DEBUG_FILE   yLOG_value   ("detail"    , x_atype);
+   --rce;  if (x_atype <= 0) {
+      s_score [MARK_HACKED ] = '°';
+      yURG_err ('f', "file check generated a hard error (%d)", x_atype);
+      DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_FILE   yLOG_char    ("detail"    , x_atype);
+   /*---(epoch)--------------------------*/
+   DEBUG_FILE   yLOG_complex ("epoch"     , "act %d, vs exp %d", x_epoch, a_epoch);
+   --rce;  if (a_epoch > 0) {
+      ++c;
+      s_score [MARK_AEPOCH] = 'e';
+      if (strchr ("rh", x_atype) != NULL) {
+         if (x_epoch != a_epoch) {
+            s_score [MARK_AEPOCH] = '°';
+            yURG_err ('f', "epoch (%d); BUT expected (%d)", x_epoch, a_epoch);
+            rc_final = rce;
+         }
+      } else {
+         s_score [MARK_AEPOCH] = '-';
+      }
+   }
+   /*---(bytes)--------------------------*/
+   DEBUG_FILE   yLOG_complex ("bytes"     , "act %d, vs exp %d", x_bytes, a_bytes);
+   --rce;  if (a_bytes > 0) {
+      ++c;
+      s_score [MARK_ABYTES] = 'b';
+      if (strchr ("rh", x_atype) != NULL) {
+         if (x_bytes != a_bytes) {
+            s_score [MARK_ABYTES] = '°';
+            yURG_err ('f', "bytes (%d); BUT expected (%d)", x_bytes, a_bytes);
+            rc_final = rce;
+            s_score [MARK_ABYTES] = '-';
+         }
+      } else {
+         s_score [MARK_ABYTES] = '-';
+      }
+   }
+   /*---(inode)--------------------------*/
+   DEBUG_FILE   yLOG_complex ("inode"     , "act %d, vs exp %d", x_inode, a_inode);
+   --rce;  if (a_inode > 0) {
+      ++c;
+      s_score [MARK_AINODE] = 'i';
+      if (x_inode != a_inode) {
+         s_score [MARK_AINODE] = '°';
+         yURG_err ('f', "inode (%d); BUT expected (%d)", x_inode, a_inode);
+         rc_final = rce;
+      }
+   }
+   /*---(hash)---------------------------*/
+   --rce;  if (a_hash != NULL && strcmp (a_hash, "") != 0) {
+      ++c;
+      s_score [MARK_AHASH ] = 'h';
+      if (strchr ("rh", x_atype) != NULL) {
+         if (strcmp (x_hash, a_hash) != 0) {
+            s_score [MARK_AHASH ] = '°';
+            yURG_err ('f', "hash å%sæ; BUT expected å%sæ", x_hash, a_hash);
+            rc_final = rce;
+         }
+      } else {
+         s_score [MARK_AHASH ] = '-';
+      }
+   }
+   /*---(finalize)-----------------------*/
+   if (rc_final < 0) {
+      s_score [MARK_HACKED ] = '°';
+   } else if (c > 0) {
+      s_score [MARK_HACKED ] = '´';
+   } else {
+      s_score [MARK_HACKED ] = '-';
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_FILE    yLOG_exit    (__FUNCTION__);
+   return rc_final;
+}
 
 char
 yENV_audit_full         (char a_type, char c_flag, char a_dir [LEN_PATH], char a_file [LEN_LABEL], char a_owner [LEN_USER], char a_group [LEN_USER], char a_perms [LEN_TERSE], int a_major, int a_minor, char a_ttype, char a_target [LEN_PATH], int a_epoch, long a_bytes, int a_inode, char a_hash [LEN_DESC], FILE **r_file)
@@ -1327,7 +1233,7 @@ yENV_audit_full         (char a_type, char c_flag, char a_dir [LEN_PATH], char a
       return rce;
    }
    /*---(expected)-----------------------*/
-   rc = yenv_audit_expect   (x_eowner, x_egroup, x_eperms, &x_euid, &x_egid, &x_eprm, x_edisp);
+   rc = yenv_audit_expect   (a_type, x_eowner, x_egroup, x_eperms, &x_euid, &x_egid, &x_eprm, x_edisp);
    DEBUG_FILE   yLOG_value   ("expect"    , rc);
    --rce;  if (rc < 0) {
       DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
@@ -1343,35 +1249,42 @@ yENV_audit_full         (char a_type, char c_flag, char a_dir [LEN_PATH], char a
    /*---(precheck)-----------------------*/
    rc = yenv_audit_precheck (x_full, a_type, x_eowner, x_egroup, x_eperms, a_major, a_minor, a_ttype, a_target, &x_atype, x_atdesc, &x_del, &x_add, &x_upd, c_force, c_fix);
    DEBUG_FILE   yLOG_value   ("check"     , rc);
-   if (rc < 0) {
+   --rce;  if (rc < 0) {
       DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(remove)-------------------------*/
    rc = yenv_audit_remove   (x_full, x_atype, x_atdesc, c_force, x_del);
    DEBUG_FILE   yLOG_value   ("remove"    , rc);
-   if (rc < 0) {
+   --rce;  if (rc < 0) {
       DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(create)-------------------------*/
    rc = yenv_audit_create   (x_full, a_type, x_etdesc, x_eowner, x_egroup, x_eperms, a_major, a_minor, a_target, c_force, x_add);
    DEBUG_FILE   yLOG_value   ("create"    , rc);
-   if (rc < 0) {
+   --rce;  if (rc < 0) {
       DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(update)-------------------------*/
    rc = yenv_audit_update   (x_full, a_type, x_etdesc, x_eowner, x_egroup, x_eperms, a_major, a_minor, a_target, c_fix, x_upd);
    DEBUG_FILE   yLOG_value   ("update"    , rc);
-   if (rc < 0) {
+   --rce;  if (rc < 0) {
       DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(final check)--------------------*/
    rc = yenv_audit_final    (x_full, a_type, x_etdesc, x_eowner, x_egroup, x_eperms, x_euid, x_egid, x_eprm, x_edisp, a_major, a_minor, a_ttype, a_target);
    DEBUG_FILE   yLOG_value   ("final"     , rc);
-   if (rc < 0) {
+   --rce;  if (rc < 0) {
+      DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(hacker check)-------------------*/
+   rc = yenv_audit_hacked       (x_full, a_epoch, a_bytes, a_inode, a_hash);
+   DEBUG_FILE   yLOG_value   ("hacked"    , rc);
+   --rce;  if (rc < 0) {
       DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
@@ -1387,27 +1300,15 @@ yENV_audit              (char a_type, char c_flag, char a_dir [LEN_PATH], char a
 }
 
 char
+yENV_audit_del          (char c_flag, char a_dir [LEN_PATH], char a_file [LEN_LABEL])
+{
+   return yENV_audit_full (YENV_NONE , c_flag, a_dir, a_file, "", "", "", -1, -1, YENV_NONE, "", -1, -1, -1, "", NULL);
+}
+
+char
 yENV_audit_reg          (char c_flag, char a_dir [LEN_PATH], char a_file [LEN_LABEL], char a_owner [LEN_USER], char a_group [LEN_USER], char a_perms [LEN_TERSE])
 {
    return yENV_audit_full (YENV_REG  , c_flag, a_dir, a_file, a_owner, a_group, a_perms, -1, -1, YENV_NONE, "", -1, -1, -1, "", NULL);
-}
-
-char
-yENV_audit_dir          (char c_flag, char a_dir [LEN_PATH], char a_owner [LEN_USER], char a_group [LEN_USER], char a_perms [LEN_TERSE])
-{
-   return yENV_audit_full (YENV_DIR  , c_flag, a_dir, "", a_owner, a_group, a_perms, -1, -1, YENV_NONE, "", -1, -1, -1, "", NULL);
-}
-
-char
-yENV_audit_sym          (char c_flag, char a_dir [LEN_PATH], char a_file [LEN_LABEL], char a_ttype, char a_target [LEN_PATH])
-{
-   return yENV_audit_full (YENV_SYM  , c_flag, a_dir, a_file, "", "", "", -1, -1, a_ttype, a_target, -1, -1, -1, "", NULL);
-}
-
-char
-yENV_audit_hard         (char c_flag, char a_dir [LEN_PATH], char a_file [LEN_LABEL], char a_ttype, char a_target [LEN_PATH])
-{
-   return yENV_audit_full (YENV_HARD , c_flag, a_dir, a_file, "", "", "", -1, -1, a_ttype, a_target, -1, -1, -1, "", NULL);
 }
 
 
