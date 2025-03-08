@@ -15,7 +15,9 @@
 #define     RC_OVERRIDE     2
 #define     RC_REPAIR       3
 #define     RC_WARNING      4
-#define     RC_FATAL        5
+#define     RC_FAILED       5
+
+#define     RC_FATAL        5   /* depricated */
 
 
 

@@ -38,8 +38,8 @@
 /*········· ··········· ´·····························´········································*/
 #define     P_VERMAJOR  "1.--, production improvements"
 #define     P_VERMINOR  "1.2-, adding detailed audit, open, close ability"
-#define     P_VERNUM    "1.2c"
-#define     P_VERTXT    "built out audit and unit tests, upgraded user, group, and perms"
+#define     P_VERNUM    "1.2d"
+#define     P_VERTXT    "fixed repair/positive final reported in audit"
 /*········· ··········· ´·····························´········································*/
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
