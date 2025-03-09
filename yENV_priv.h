@@ -38,8 +38,8 @@
 /*········· ··········· ´·····························´········································*/
 #define     P_VERMAJOR  "1.--, production improvements"
 #define     P_VERMINOR  "1.2-, adding detailed audit, open, close ability"
-#define     P_VERNUM    "1.2d"
-#define     P_VERTXT    "fixed repair/positive final reported in audit"
+#define     P_VERNUM    "1.2e"
+#define     P_VERTXT    "added all shared/common file name quality code from yJOBS (unit tested)"
 /*········· ··········· ´·····························´········································*/
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -89,6 +89,94 @@ typedef struct tm        tTIME;
 extern char  g_print   [LEN_RECD];
 
 
+extern char  g_score   [LEN_HUND];
+
+/*===[[ REQUEST ]]===============*/
+
+#define     MARK_ETYPE     0
+#define     MARK_EFULL     2
+#define     MARK_EMODE     3
+#define     MARK_EFLAG     4
+
+#define     MARK_EOWNER    6
+#define     MARK_EGROUP    7
+#define     MARK_EPERMS    8
+
+#define     MARK_EMAJOR   10
+#define     MARK_EMINOR   11
+
+#define     MARK_ETTYPE   13
+#define     MARK_ETARGET  14
+
+#define     MARK_EEPOCH   16
+#define     MARK_EBYTES   17
+#define     MARK_EINODE   18
+#define     MARK_EHASH    19
+
+#define     MARK_REQUEST  21
+
+#define     MARK_CONFC    25
+#define     MARK_CONFF    26
+#define     MARK_CONFX    27
+
+/*===[[ CHECK ]]=================*/
+
+#define     MARK_CTYPE    31
+
+#define     MARK_COWNER   33
+#define     MARK_CGROUP   34
+#define     MARK_CPERMS   35
+
+#define     MARK_CMAJOR   37
+#define     MARK_CMINOR   38
+
+#define     MARK_CTTYPE   40
+#define     MARK_CTARGET  41
+
+#define     MARK_CHECK    43
+
+#define     MARK_FDEL     47
+#define     MARK_FADD     48
+#define     MARK_FUPD     49
+
+/*===[[ UPDATES ]]===============*/
+
+#define     MARK_REMOVE   53
+#define     MARK_CREATE   55
+#define     MARK_UPDATE   57
+
+/*===[[ RECHECK ]]===============*/
+
+#define     MARK_RTYPE    61
+
+#define     MARK_ROWNER   63
+#define     MARK_RGROUP   64
+#define     MARK_RPERMS   65
+
+#define     MARK_RMAJOR   67
+#define     MARK_RMINOR   68
+
+#define     MARK_RTTYPE   70
+#define     MARK_RTARGET  71
+
+#define     MARK_RECHECK  73
+
+/*===[[ FINAL ]]=================*/
+
+#define     MARK_FINAL    77
+
+/*===[[ HACKING ]]===============*/
+
+#define     MARK_AEPOCH   81
+#define     MARK_ABYTES   82
+#define     MARK_AINODE   83
+#define     MARK_AHASH    84
+
+#define     MARK_HACKED   86
+
+/*===[[ DONE ]]==================*/
+
+
 
 #define     MAX_PERM         50
 typedef     struct cENV_PERM    tENV_PERM;
@@ -122,6 +210,14 @@ char        yenv_audit_final        (char a_full [LEN_PATH], char a_etype, char 
 char        yenv_audit_hacked       (char a_full [LEN_PATH], int a_epoch, long a_bytes, int a_inode, char a_hash [LEN_DESC]);
 /*---(driver)---------------*/
 char        yENV_audit              (char a_type, char c_flag, char a_dir [LEN_PATH], char a_file [LEN_LABEL], char a_owner [LEN_USER], char a_group [LEN_USER], char a_perms [LEN_TERSE], int a_major, int a_minor, char a_ttype, char a_target [LEN_PATH]);
+/*---(done)-----------------*/
+
+
+
+/*===[[ yENV_name.c ]]========================================================*/
+/*········· ´······················ ´·········································*/
+char        yenv_name_quality       (char a_type, char a_dir [LEN_PATH], char a_file [LEN_PATH], char *r_style, char r_full [LEN_PATH], char c_naming);
+char        yenv_name_standard      (char a_type, char a_dir [LEN_PATH], char a_file [LEN_PATH], char a_prefix [LEN_TERSE], char a_suffix [LEN_TERSE], char c_naming, char c_style);
 /*---(done)-----------------*/
 
 

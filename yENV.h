@@ -139,12 +139,15 @@ char*       yENV_detail_unit        (char a_name [LEN_PATH]);
 
 /*===[[ yENV_audit.c ]]=======================================================*/
 /*········· ´······················ ´·········································*/
-char        yENV_audit              (char a_type, char c_flag, char a_dir [LEN_PATH], char a_file [LEN_LABEL], char a_owner [LEN_USER], char a_group [LEN_USER], char a_perms [LEN_TERSE], int a_major, int a_minor, char a_ttype, char a_target [LEN_PATH]);
-char        yENV_score_def          (void);
-char*       yENV_score              (void);
+/*---(driver)---------------*/
+char        yENV_audit_full         (char a_type, char c_flag, char a_dir [LEN_PATH], char a_file [LEN_LABEL], char a_owner [LEN_USER], char a_group [LEN_USER], char a_perms [LEN_TERSE], int a_major, int a_minor, char a_ttype, char a_target [LEN_PATH], int a_epoch, long a_bytes, int a_inode, char a_hash [LEN_DESC], FILE **r_file);
 /*---(simplifiers)----------*/
+char        yENV_audit              (char a_type, char c_flag, char a_dir [LEN_PATH], char a_file [LEN_LABEL], char a_owner [LEN_USER], char a_group [LEN_USER], char a_perms [LEN_TERSE], int a_major, int a_minor, char a_ttype, char a_target [LEN_PATH]);
 char        yENV_audit_del          (char c_flag, char a_dir [LEN_PATH], char a_file [LEN_LABEL]);
 char        yENV_audit_reg          (char c_flag, char a_dir [LEN_PATH], char a_file [LEN_LABEL], char a_owner [LEN_USER], char a_group [LEN_USER], char a_perms [LEN_TERSE]);
+/*---(helpers)--------------*/
+char        yENV_score_def          (void);
+char*       yENV_score              (void);
 /*---(done)-----------------*/
 
 

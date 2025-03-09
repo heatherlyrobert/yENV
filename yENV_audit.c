@@ -6,7 +6,7 @@
 /*                                     -123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789   */
 /*                                     -------request--------   cfg   ----check----   flg   -fix-   ---recheck---   f   hacked         */
 static char s_blank     [LEN_HUND]  = "· ··· ··· ·· ·· ···· -   ···   · ··· ·· ·· -   ···   · · ·   · ··· ·· ·· -   Ï   ···· -";
-static char s_score     [LEN_HUND]  = "d t·· ogp ·· ·· ···h y   ···   n --- ·· ··     ···   · · ·   n --- ·· ··     Ï   ···· Ï";
+char        g_score     [LEN_HUND]  = "d t·· ogp ·· ·· ···h y   ···   n --- ·· ··     ···   · · ·   n --- ·· ··     Ï   ···· Ï";
 
 #define     BEG_REQUEST    0
 
@@ -30,90 +30,6 @@ static char s_score     [LEN_HUND]  = "d t·· ogp ·· ·· ···h y   ···   n --- ·· ·
 #define     BEG_HACKED    91
 #define     END_HACKED    96
 
-/*===[[ REQUEST ]]===============*/
-
-#define     MARK_ETYPE     0
-#define     MARK_EFULL     2
-#define     MARK_EMODE     3
-#define     MARK_EFLAG     4
-
-#define     MARK_EOWNER    6
-#define     MARK_EGROUP    7
-#define     MARK_EPERMS    8
-
-#define     MARK_EMAJOR   10
-#define     MARK_EMINOR   11
-
-#define     MARK_ETTYPE   13
-#define     MARK_ETARGET  14
-
-#define     MARK_EEPOCH   16
-#define     MARK_EBYTES   17
-#define     MARK_EINODE   18
-#define     MARK_EHASH    19
-
-#define     MARK_REQUEST  21
-
-#define     MARK_CONFC    25
-#define     MARK_CONFF    26
-#define     MARK_CONFX    27
-
-/*===[[ CHECK ]]=================*/
-
-#define     MARK_CTYPE    31
-
-#define     MARK_COWNER   33
-#define     MARK_CGROUP   34
-#define     MARK_CPERMS   35
-
-#define     MARK_CMAJOR   37
-#define     MARK_CMINOR   38
-
-#define     MARK_CTTYPE   40
-#define     MARK_CTARGET  41
-
-#define     MARK_CHECK    43
-
-#define     MARK_FDEL     47
-#define     MARK_FADD     48
-#define     MARK_FUPD     49
-
-/*===[[ UPDATES ]]===============*/
-
-#define     MARK_REMOVE   53
-#define     MARK_CREATE   55
-#define     MARK_UPDATE   57
-
-/*===[[ RECHECK ]]===============*/
-
-#define     MARK_RTYPE    61
-
-#define     MARK_ROWNER   63
-#define     MARK_RGROUP   64
-#define     MARK_RPERMS   65
-
-#define     MARK_RMAJOR   67
-#define     MARK_RMINOR   68
-
-#define     MARK_RTTYPE   70
-#define     MARK_RTARGET  71
-
-#define     MARK_RECHECK  73
-
-/*===[[ FINAL ]]=================*/
-
-#define     MARK_FINAL    77
-
-/*===[[ HACKING ]]===============*/
-
-#define     MARK_AEPOCH   81
-#define     MARK_ABYTES   82
-#define     MARK_AINODE   83
-#define     MARK_AHASH    84
-
-#define     MARK_HACKED   86
-
-/*===[[ DONE ]]==================*/
 
 
 
@@ -184,8 +100,8 @@ static char s_score     [LEN_HUND]  = "d t·· ogp ·· ·· ···h y   ···   n --- ·· ·
 /*====================------------------------------------====================*/
 static void      o___HELPERS____________o (void) {;}
 
-char* yENV_score      (void)  { return s_score; }
-char  yENV_score_def  (void)  { strlcpy (s_score, s_blank, LEN_HUND); return 0; }
+char* yENV_score      (void)  { return g_score; }
+char  yENV_score_def  (void)  { strlcpy (g_score, s_blank, LEN_HUND); return 0; }
 
 
 
@@ -193,6 +109,37 @@ char  yENV_score_def  (void)  { strlcpy (s_score, s_blank, LEN_HUND); return 0; 
 /*===----                       subroutines                            ----===*/
 /*====================------------------------------------====================*/
 static void      o___PARTS______________o (void) {;}
+
+
+/*
+ *
+ *  add prefix (user version too) and suffix test
+ *
+ *  add restriction to not hidden or temp (~)
+ *
+ *  should i have absolute vs relative checking also ?
+ *     maybe that's what a_dir vs a_file is
+ *     x_full must be absolute, a_file must be pathless
+ *
+ *  create call yENV_audit_yjobs that adds c_yjobs, a_prefix, a_suffix
+ *     c_yjobs (y/-) triggers these specific checks
+ *     ... char c_yjobs, char a_prefix [LEN_USER], a_suffix [LEN_USER]
+ *
+ *  add check for (yjobs) user name matching the directory home above
+ *
+ *  add check for (yjobs) that limits directories to /root/ and /home/(user)/
+ *
+ *  c_yjobs flag also triggers the additional verbosity in yURG_msg
+ *
+ *
+ *
+ *  maybe c_yjobs flag is actually c_naming, to signal name/dir checks...
+ *     '-'  loose, meaning filenames can be anything (helps with themis/helios)
+ *     'n'  normal YSTR_FILES checking, allows for singular suffix (like .gyges)
+ *     's'  yjobs or other standard with prefix (with user), suffix, not hidden
+ *
+ *
+ */
 
 char
 yenv_audit_prepare      (char a_type, char c_flag, char a_dir [LEN_PATH], char a_file [LEN_PATH], char a_mode, char r_full [LEN_PATH], char r_tdesc [LEN_TERSE], char r_mode [LEN_SHORT], char r_note [LEN_LABEL], char *r_check, char *r_force, char *r_fix)
@@ -212,9 +159,9 @@ yenv_audit_prepare      (char a_type, char c_flag, char a_dir [LEN_PATH], char a
    char        x_force     =  '-';
    char        x_fix       =  '-';
    /*---(header)-------------------------*/
-   DEBUG_FILE   yLOG_enter   (__FUNCTION__);
+   DEBUG_YENV   yLOG_enter   (__FUNCTION__);
    /*---(initialize)---------------------*/
-   strlcpy (s_score, s_blank, LEN_HUND);
+   strlcpy (g_score, s_blank, LEN_HUND);
    /*---(default)------------------------*/
    if (r_full  != NULL)  strcpy (r_full , "");
    if (r_tdesc != NULL)  strcpy (r_tdesc, "");
@@ -225,35 +172,35 @@ yenv_audit_prepare      (char a_type, char c_flag, char a_dir [LEN_PATH], char a
    if (r_fix   != NULL)  *r_fix   = '-';
    /*---(type description)---------------*/
    strlcpy (x_tdesc, yENV_typedesc (a_type), LEN_TERSE);
-   s_score [MARK_ETYPE] = '°';
-   if (strcmp (x_tdesc, "WTF") != 0)   s_score [MARK_ETYPE] = a_type;
+   g_score [MARK_ETYPE] = '°';
+   if (strcmp (x_tdesc, "WTF") != 0)   g_score [MARK_ETYPE] = a_type;
    /*---(defense)------------------------*/
-   s_score [MARK_EFULL] = '£';
-   DEBUG_FILE   yLOG_point   ("a_dir"     , a_dir);
+   g_score [MARK_EFULL] = '£';
+   DEBUG_YENV   yLOG_point   ("a_dir"     , a_dir);
    --rce;  if (a_dir       == NULL) {
-      s_score [MARK_REQUEST] = '°';
-      s_score [MARK_FINAL  ] = '°';
-      DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
+      g_score [MARK_REQUEST] = '°';
+      g_score [MARK_FINAL  ] = '°';
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   DEBUG_FILE   yLOG_info    ("a_dir"     , a_dir);
-   DEBUG_FILE   yLOG_point   ("a_file"    , a_file);
+   DEBUG_YENV   yLOG_info    ("a_dir"     , a_dir);
+   DEBUG_YENV   yLOG_point   ("a_file"    , a_file);
    --rce;  if (a_file      == NULL) {
-      s_score [MARK_REQUEST] = '°';
-      s_score [MARK_FINAL  ] = '°';
-      DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
+      g_score [MARK_REQUEST] = '°';
+      g_score [MARK_FINAL  ] = '°';
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   DEBUG_FILE   yLOG_info    ("a_file"    , a_file);
+   DEBUG_YENV   yLOG_info    ("a_file"    , a_file);
    /*---(prepare full name)--------------*/
-   s_score [MARK_EFULL] = '-';
+   g_score [MARK_EFULL] = '-';
    ld = strlen (a_dir);
    lf = strlen (a_file);
-   DEBUG_FILE    yLOG_complex ("len"       , "ld=%d, lf=%d", ld, lf);
+   DEBUG_YENV    yLOG_complex ("len"       , "ld=%d, lf=%d", ld, lf);
    if (ld + lf == 0) {
-      s_score [MARK_REQUEST] = '°';
-      s_score [MARK_FINAL  ] = '°';
-      DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
+      g_score [MARK_REQUEST] = '°';
+      g_score [MARK_FINAL  ] = '°';
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    if (ld == 0)      sprintf (x_full, "%s", a_file);
@@ -262,35 +209,35 @@ yenv_audit_prepare      (char a_type, char c_flag, char a_dir [LEN_PATH], char a
       if (a_dir [ld - 1] != '/')    sprintf (x_full, "%s/%s", a_dir, a_file);
       else                          sprintf (x_full, "%s%s" , a_dir, a_file);
    }
-   DEBUG_FILE    yLOG_info    ("x_full"    , x_full);
+   DEBUG_YENV    yLOG_info    ("x_full"    , x_full);
    /*---(absolute)-----------------------*/
-   s_score [MARK_EFULL] = '/';
-   DEBUG_FILE    yLOG_char    ("x_full [0]", x_full [0]);
+   g_score [MARK_EFULL] = '/';
+   DEBUG_YENV    yLOG_char    ("x_full [0]", x_full [0]);
    --rce;  if (x_full [0] != '/') {
       yURG_err ('f', "full name must be absolute reference, i.e., start with '/'");
-      DEBUG_YJOBS   yLOG_note    ("name must start with '/'");
-      s_score [MARK_REQUEST] = '°';
-      s_score [MARK_FINAL  ] = '°';
-      DEBUG_YJOBS   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_YENV    yLOG_note    ("name must start with '/'");
+      g_score [MARK_REQUEST] = '°';
+      g_score [MARK_FINAL  ] = '°';
+      DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(check name quality)-------------*/
-   s_score [MARK_EFULL] = '°';
+   g_score [MARK_EFULL] = '°';
    l = strlen (x_full);
    --rce;  for (i = 0; i < l; ++i) {
       if (strchr (YSTR_FILES, x_full [i]) == NULL) {
          yURG_err ('f', "full name has an illegal character (%c) at position %d (security risk)", x_full [i], i);
-         DEBUG_YJOBS   yLOG_complex ("bad char"  , "can not include %c at %d", x_full [i], i);
-         s_score [MARK_REQUEST] = '°';
-         s_score [MARK_FINAL  ] = '°';
-         DEBUG_YJOBS   yLOG_exitr   (__FUNCTION__, rce);
+         DEBUG_YENV    yLOG_complex ("bad char"  , "can not include %c at %d", x_full [i], i);
+         g_score [MARK_REQUEST] = '°';
+         g_score [MARK_FINAL  ] = '°';
+         DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
          return rce;
       }
    }
-   s_score [MARK_EFULL] = 'n';
+   g_score [MARK_EFULL] = 'n';
    /*---(set mode)-----------------------*/
-   DEBUG_FILE   yLOG_char    ("a_mode"    , a_mode);
-   s_score [MARK_EMODE] = '°';
+   DEBUG_YENV   yLOG_char    ("a_mode"    , a_mode);
+   g_score [MARK_EMODE] = '°';
    --rce;  switch (a_mode) {
    case 'r' :
       strlcpy (x_mode, "rt", LEN_TERSE);
@@ -314,16 +261,16 @@ yenv_audit_prepare      (char a_type, char c_flag, char a_dir [LEN_PATH], char a
       break;
    default  :
       yURG_err ('f', "openning mode (%c) is not legal (rRwW-) ", a_mode);
-      DEBUG_FILE   yLOG_note    ("mode not understood");
-      s_score [MARK_REQUEST] = '°';
-      s_score [MARK_FINAL  ] = '°';
-      DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_YENV   yLOG_note    ("mode not understood");
+      g_score [MARK_REQUEST] = '°';
+      g_score [MARK_FINAL  ] = '°';
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   DEBUG_FILE   yLOG_info    ("x_mode"    , x_mode);
-   s_score [MARK_EMODE] = 'm';
+   DEBUG_YENV   yLOG_info    ("x_mode"    , x_mode);
+   g_score [MARK_EMODE] = 'm';
    /*---(flags)--------------------------*/
-   s_score [MARK_EFLAG] = '°';
+   g_score [MARK_EFLAG] = '°';
    switch (c_flag) {
    case '!' :  x_check = 'y';  x_force = '!';  x_fix   = 'y';  break;
    case 'F' :  x_check = 'y';  x_force = 'y';  x_fix   = 'y';  break;
@@ -331,16 +278,16 @@ yenv_audit_prepare      (char a_type, char c_flag, char a_dir [LEN_PATH], char a
    case '-' :  x_check = '-';  x_force = '-';  x_fix   = '-';  break;
    default  :
                yURG_err ('f', "configuration flag (%c) is not legal (!Ff-) ", c_flag);
-               DEBUG_FILE   yLOG_note    ("c_flag not understood");
-               s_score [MARK_REQUEST] = '°';
-               s_score [MARK_FINAL  ] = '°';
-               DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
+               DEBUG_YENV   yLOG_note    ("c_flag not understood");
+               g_score [MARK_REQUEST] = '°';
+               g_score [MARK_FINAL  ] = '°';
+               DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
                return rce;
    }
-   s_score [MARK_EFLAG] = 'f';
-   s_score [MARK_CONFC] = x_check;
-   s_score [MARK_CONFF] = x_force;
-   s_score [MARK_CONFX] = x_fix;
+   g_score [MARK_EFLAG] = 'f';
+   g_score [MARK_CONFC] = x_check;
+   g_score [MARK_CONFF] = x_force;
+   g_score [MARK_CONFX] = x_fix;
    /*---(save-back)----------------------*/
    if (r_full  != NULL)  snprintf (r_full , LEN_PATH , "%s", x_full);
    if (r_tdesc != NULL)  snprintf (r_tdesc, LEN_TERSE, "%s", x_tdesc);
@@ -350,7 +297,7 @@ yenv_audit_prepare      (char a_type, char c_flag, char a_dir [LEN_PATH], char a
    if (r_force != NULL)  *r_force = x_force;
    if (r_fix   != NULL)  *r_fix   = x_fix;
    /*---(complete)-----------------------*/
-   DEBUG_FILE    yLOG_exit    (__FUNCTION__);
+   DEBUG_YENV    yLOG_exit    (__FUNCTION__);
    return RC_POSITIVE;
 }
 
@@ -372,12 +319,12 @@ yenv_audit_expect       (char a_type, char b_owner [LEN_USER], char b_group [LEN
    char        x_handle    [LEN_LABEL] = "";
    char        t           [LEN_TERSE] = "";
    /*---(header)-------------------------*/
-   DEBUG_FILE   yLOG_enter   (__FUNCTION__);
+   DEBUG_YENV   yLOG_enter   (__FUNCTION__);
    /*---(quick-out)----------------------*/
-   DEBUG_FILE   yLOG_char    ("a_type"    , a_type);
+   DEBUG_YENV   yLOG_char    ("a_type"    , a_type);
    if (a_type == YENV_NONE) {
-      DEBUG_FILE    yLOG_note    ("nothing to do");
-      DEBUG_FILE    yLOG_exit    (__FUNCTION__);
+      DEBUG_YENV    yLOG_note    ("nothing to do");
+      DEBUG_YENV    yLOG_exit    (__FUNCTION__);
       return RC_ACK;
    }
    /*---(default)------------------------*/
@@ -389,72 +336,72 @@ yenv_audit_expect       (char a_type, char b_owner [LEN_USER], char b_group [LEN
    if (b_perms != NULL)  { snprintf (x_perms, LEN_TERSE, "%s", b_perms); strcpy (b_perms, ""); }
    if (r_disp  != NULL)  strcpy (r_disp , "");
    /*---(user ownership)-----------------*/
-   s_score [MARK_EOWNER] = '-';
+   g_score [MARK_EOWNER] = '-';
    --rce;  if (b_owner != NULL) {
-      s_score [MARK_EOWNER] = '°';
-      DEBUG_FILE   yLOG_info    ("x_owner"   , x_owner);
+      g_score [MARK_EOWNER] = '°';
+      DEBUG_YENV   yLOG_info    ("x_owner"   , x_owner);
       strlcpy (t, x_owner, LEN_USER);
       rc = yENV_user_full  (a_type, t, x_owner, &x_uid, NULL, NULL, NULL, x_handle);
       if (rc >= 0) {
-         if      (strcmp (t      , ""     ) == 0)  s_score [MARK_EOWNER] = 'O';  /* default  */
-         else                                      s_score [MARK_EOWNER] = 'o';  /* standard */
+         if      (strcmp (t      , ""     ) == 0)  g_score [MARK_EOWNER] = 'O';  /* default  */
+         else                                      g_score [MARK_EOWNER] = 'o';  /* standard */
       } else {
          yURG_err ('f', "could not interpret owner å%sæ using %s", t, x_handle);
          rc_final = rce;
       }
    }
    /*---(group ownership)----------------*/
-   s_score [MARK_EGROUP] = '-';
+   g_score [MARK_EGROUP] = '-';
    --rce;  if (b_group != NULL) {
-      s_score [MARK_EGROUP] = '°';
-      DEBUG_FILE   yLOG_info    ("x_group"   , x_group);
+      g_score [MARK_EGROUP] = '°';
+      DEBUG_YENV   yLOG_info    ("x_group"   , x_group);
       strlcpy (t, x_group, LEN_USER);
       rc = yENV_group_full (a_type, t, x_group, &x_gid, x_handle);
       if (rc >= 0) {
-         if      (strcmp (t      , ""     ) == 0)  s_score [MARK_EGROUP] = 'G';  /* default  */
-         else                                      s_score [MARK_EGROUP] = 'g';  /* standard */
+         if      (strcmp (t      , ""     ) == 0)  g_score [MARK_EGROUP] = 'G';  /* default  */
+         else                                      g_score [MARK_EGROUP] = 'g';  /* standard */
       } else {
          yURG_err ('f', "could not interpret group å%sæ using %s", t, x_handle);
          rc_final = rce;
       }
    }
    /*---(permissions)--------------------*/
-   s_score [MARK_EPERMS] = '-';
+   g_score [MARK_EPERMS] = '-';
    --rce;  if (b_perms != NULL) {
-      s_score [MARK_EPERMS] = '°';
-      DEBUG_FILE   yLOG_info    ("x_perms"   , x_perms);
+      g_score [MARK_EPERMS] = '°';
+      DEBUG_YENV   yLOG_info    ("x_perms"   , x_perms);
       strlcpy (t, x_perms, LEN_TERSE);
       rc = yENV_perms_full (a_type, t, x_perms, &x_prm, x_disp, NULL, x_handle);
       if (rc >= 0) {
-         if      (strcmp (t      , ""     ) == 0)  s_score [MARK_EPERMS] = 'P';  /* default  */
-         else if (strcmp (x_perms, "(n/a)") == 0)  s_score [MARK_EPERMS] = 'P';  /* specific */
-         else                                      s_score [MARK_EPERMS] = 'p';  /* standard */
+         if      (strcmp (t      , ""     ) == 0)  g_score [MARK_EPERMS] = 'P';  /* default  */
+         else if (strcmp (x_perms, "(n/a)") == 0)  g_score [MARK_EPERMS] = 'P';  /* specific */
+         else                                      g_score [MARK_EPERMS] = 'p';  /* standard */
       } else {
          yURG_err ('f', "could not interpret permissions å%sæ using %s", t, x_handle);
          rc_final = rce;
       }
    }
    /*---(save-back)----------------------*/
-   if (strchr ("Oo", s_score [MARK_EOWNER]) != NULL) {
+   if (strchr ("Oo", g_score [MARK_EOWNER]) != NULL) {
       if (r_uid   != NULL)  *r_uid = x_uid;
       if (b_owner != NULL)  snprintf (b_owner, LEN_USER , "%s", x_owner);
    }
-   if (strchr ("Gg", s_score [MARK_EGROUP]) != NULL) {
+   if (strchr ("Gg", g_score [MARK_EGROUP]) != NULL) {
       if (r_gid   != NULL)  *r_gid = x_gid;
       if (b_group != NULL)  snprintf (b_group, LEN_USER , "%s", x_group);
    }
-   if (strchr ("Pp", s_score [MARK_EPERMS]) != NULL) {
+   if (strchr ("Pp", g_score [MARK_EPERMS]) != NULL) {
       if (r_prm   != NULL)  *r_prm = x_prm;
       if (b_perms != NULL)  snprintf (b_perms, LEN_TERSE, "%s", x_perms);
       if (r_disp  != NULL)  snprintf (r_disp , LEN_LABEL, "%s", x_disp );
    }
    /*---(finalize)-----------------------*/
    if (rc_final < 0) {
-      s_score [MARK_REQUEST] = '°';
-      s_score [MARK_FINAL  ] = '°';
+      g_score [MARK_REQUEST] = '°';
+      g_score [MARK_FINAL  ] = '°';
    }
    /*---(complete)-----------------------*/
-   DEBUG_FILE    yLOG_exit    (__FUNCTION__);
+   DEBUG_YENV    yLOG_exit    (__FUNCTION__);
    return rc_final;
 }
 
@@ -470,12 +417,12 @@ yenv_audit_extra        (char a_type, int a_major, int a_minor, char a_ttype, ch
    int         i           =   0;
    char        x_bad       = '-';
    /*---(header)-------------------------*/
-   DEBUG_FILE   yLOG_enter   (__FUNCTION__);
+   DEBUG_YENV   yLOG_enter   (__FUNCTION__);
    /*---(device nums)--------------------*/
    --rce;  if (strchr ("bc", a_type) != NULL) {
-      if (a_major >= 0 && a_major <= 255)    s_score [MARK_EMAJOR] = 'j';
+      if (a_major >= 0 && a_major <= 255)    g_score [MARK_EMAJOR] = 'j';
       else {
-         s_score [MARK_EMAJOR] = '°';
+         g_score [MARK_EMAJOR] = '°';
          yURG_err ('f', "attempting to use illegal major device number (%d), expeced (0-255)", a_major);
          rc_final = rce;
       }
@@ -483,9 +430,9 @@ yenv_audit_extra        (char a_type, int a_major, int a_minor, char a_ttype, ch
       yURG_err ('w', "included superfluous major device number (%d)", a_major);
    }
    --rce;  if (strchr ("bc", a_type) != NULL) {
-      if (a_minor >= 0 && a_minor <= 255)    s_score [MARK_EMINOR] = 'n';
+      if (a_minor >= 0 && a_minor <= 255)    g_score [MARK_EMINOR] = 'n';
       else {
-         s_score [MARK_EMINOR] = '°';
+         g_score [MARK_EMINOR] = '°';
          yURG_err ('f', "attempting to use illegal minor device number (%d), expeced (0-255)", a_minor);
          rc_final = rce;
       }
@@ -495,9 +442,9 @@ yenv_audit_extra        (char a_type, int a_major, int a_minor, char a_ttype, ch
    /*---(target type)--------------------*/
    --rce;  if (strchr ("sh", a_type) != NULL) {
       strlcpy (x_tdesc, yENV_typedesc (a_ttype), LEN_TERSE);
-      if (strcmp (x_tdesc, "WTF") != 0)   s_score [MARK_ETTYPE] = a_ttype;
+      if (strcmp (x_tdesc, "WTF") != 0)   g_score [MARK_ETTYPE] = a_ttype;
       else {
-         s_score [MARK_ETTYPE] = '°';
+         g_score [MARK_ETTYPE] = '°';
          yURG_err ('f', "attempting to use illegal target type %s (%c)", x_tdesc, a_ttype);
          rc_final = rce;
       }
@@ -507,23 +454,23 @@ yenv_audit_extra        (char a_type, int a_major, int a_minor, char a_ttype, ch
    --rce;  if (a_type == YENV_HARD) {
       if (a_ttype == 0 || strchr ("rh", a_ttype) == NULL) {
          strlcpy (x_tdesc, yENV_typedesc (a_ttype), LEN_TERSE);
-         s_score [MARK_ETTYPE] = '°';
+         g_score [MARK_ETTYPE] = '°';
          yURG_err ('f', "attempting to use hardlink to illegal type %s (%c), only allow (rh)", x_tdesc, a_ttype);
          rc_final = rce;
       }
    }
    /*---(target name)--------------------*/
    --rce;  if (strchr ("sh", a_type) != NULL) {
-      s_score [MARK_ETARGET] = '°';
+      g_score [MARK_ETARGET] = '°';
       if (a_target != NULL && strcmp (a_target, "") != 0) {
-         s_score [MARK_ETARGET] = '/';
-         DEBUG_FILE    yLOG_char    ("a_target", a_target [0]);
+         g_score [MARK_ETARGET] = '/';
+         DEBUG_YENV    yLOG_char    ("a_target", a_target [0]);
          if (a_target [0] != '/') {
             yURG_err ('f', "target must be absolute reference, i.e., start with '/'");
             rc_final = rce;
          } else {
             l = strlen (a_target);
-            s_score [MARK_ETARGET] = '#';
+            g_score [MARK_ETARGET] = '#';
             x_bad = '-';
             --rce;  for (i = 0; i < l; ++i) {
                if (strchr (YSTR_FILES, a_target [i]) == NULL) {
@@ -532,21 +479,21 @@ yenv_audit_extra        (char a_type, int a_major, int a_minor, char a_ttype, ch
                   x_bad = 'y';
                }
             }
-            if (x_bad != 'y')   s_score [MARK_ETARGET] = 't';
+            if (x_bad != 'y')   g_score [MARK_ETARGET] = 't';
          }
       }
    } else  if (a_target != NULL && strcmp (a_target, "") != 0) {
       yURG_err ('w', "included superfluous target name å%sæ", a_target);
    }
    /*---(specialty)----------------------*/
-   if (a_epoch > 0)                s_score [MARK_EEPOCH] = 'e';
-   if (a_bytes > 0)                s_score [MARK_EBYTES] = 'b';
-   if (a_inode > 0)                s_score [MARK_EINODE] = 'i';
+   if (a_epoch > 0)                g_score [MARK_EEPOCH] = 'e';
+   if (a_bytes > 0)                g_score [MARK_EBYTES] = 'b';
+   if (a_inode > 0)                g_score [MARK_EINODE] = 'i';
    --rce;  if (a_hash != NULL && strcmp (a_hash, "") != 0) {
-      s_score [MARK_EHASH] = '°';
+      g_score [MARK_EHASH] = '°';
       l = strlen (a_hash);
       if (l == 40) {
-         s_score [MARK_EHASH] = '#';
+         g_score [MARK_EHASH] = '#';
          x_bad = '-';
          for (i = 0; i < l; ++i) {
             if (strchr (YSTR_HEXUP, a_hash [i]) == NULL) {
@@ -555,7 +502,7 @@ yenv_audit_extra        (char a_type, int a_major, int a_minor, char a_ttype, ch
                x_bad = 'y';
             }
          }
-         if (x_bad != 'y')   s_score [MARK_EHASH] = 'h';
+         if (x_bad != 'y')   g_score [MARK_EHASH] = 'h';
       } else {
          yURG_err ('f', "hash code is the wrong length (%d) vs standard (40)", l);
          rc_final = rce;
@@ -563,13 +510,13 @@ yenv_audit_extra        (char a_type, int a_major, int a_minor, char a_ttype, ch
    }
    /*---(finalize)-----------------------*/
    if (rc_final < 0) {
-      s_score [MARK_REQUEST] = '°';
-      s_score [MARK_FINAL  ] = '°';
+      g_score [MARK_REQUEST] = '°';
+      g_score [MARK_FINAL  ] = '°';
    } else {
-      s_score [MARK_REQUEST] = '=';
+      g_score [MARK_REQUEST] = '=';
    }
    /*---(complete)-----------------------*/
-   DEBUG_FILE    yLOG_exit    (__FUNCTION__);
+   DEBUG_YENV    yLOG_exit    (__FUNCTION__);
    return rc_final;
 }
 
@@ -598,14 +545,14 @@ yenv_audit_precheck     (char a_full [LEN_PATH], char a_etype, char a_eowner [LE
    int         i           =    0;
    /*---(quick-out)----------------------*/
    if (c_force == '-' && c_fix == '-') {
-      DEBUG_FILE   yLOG_senter  (__FUNCTION__);
-      DEBUG_FILE   yLOG_snote   ("no precheck requested");
-      for (i = MARK_CONFC;  i <= MARK_UPDATE;  ++i)  s_score [i] = '¬';
-      DEBUG_FILE   yLOG_sexit   (__FUNCTION__);
+      DEBUG_YENV   yLOG_senter  (__FUNCTION__);
+      DEBUG_YENV   yLOG_snote   ("no precheck requested");
+      for (i = MARK_CONFC;  i <= MARK_UPDATE;  ++i)  g_score [i] = '¬';
+      DEBUG_YENV   yLOG_sexit   (__FUNCTION__);
       return RC_ACK;
    }
    /*---(header)-------------------------*/
-   DEBUG_FILE   yLOG_enter   (__FUNCTION__);
+   DEBUG_YENV   yLOG_enter   (__FUNCTION__);
    /*---(defaults))----------------------*/
    if (r_atype  != NULL)   *r_atype = '-';
    if (r_atdesc != NULL)   strcpy (r_atdesc, "");
@@ -614,15 +561,15 @@ yenv_audit_precheck     (char a_full [LEN_PATH], char a_etype, char a_eowner [LE
    if (r_upd    != NULL)   *r_upd   = '-';
    /*---(get data)-----------------------*/
    x_atype = yENV_detail (a_full, x_atdesc, NULL, x_aowner, NULL, x_agroup, NULL, x_aperms, NULL, NULL, NULL, &x_amajor, &x_aminor, x_alink, NULL, &x_inode, NULL);
-   DEBUG_FILE   yLOG_value   ("detail"    , x_atype);
+   DEBUG_YENV   yLOG_value   ("detail"    , x_atype);
    --rce;  if (x_atype <= 0) {
       yURG_err ('f', "file check generated a hard error (%d)", x_atype);
-      DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   s_score [MARK_CTYPE ] = x_atype;
+   g_score [MARK_CTYPE ] = x_atype;
    /*---(quick out)----------------------*/
-   DEBUG_FILE   yLOG_char    ("x_atype"   , x_atype);
+   DEBUG_YENV   yLOG_char    ("x_atype"   , x_atype);
    if (x_atype == YENV_NONE && a_etype == YENV_NONE) {
       yURG_msg ('-', "non-existance of filesystem entry confirmed");
       return RC_POSITIVE;
@@ -632,7 +579,7 @@ yenv_audit_precheck     (char a_full [LEN_PATH], char a_etype, char a_eowner [LE
    else if (a_etype  == YENV_NONE)            { x_del = 'y';            ;            ;  strcat (x_miss, "existance, "); }
    /*---(type changes)-------------------       ----del----; ----add----; ----upd----;*/
    else if (x_atype  != a_etype) {
-      s_score [MARK_CTYPE ] = toupper (x_atype);
+      g_score [MARK_CTYPE ] = toupper (x_atype);
       if (strchr ("hs", a_etype) != NULL &&
             strchr ("hs", x_atype) != NULL)   { x_del = 'y'; x_add = 'y';            ;  strcat (x_miss, "type, "     ); }
       else                                    { x_del = '!'; x_add = 'y';            ;  strcat (x_miss, "type, "     ); }
@@ -641,53 +588,53 @@ yenv_audit_precheck     (char a_full [LEN_PATH], char a_etype, char a_eowner [LE
    if (x_atype == a_etype) {
       switch (a_etype) {
       case YENV_BLOCK : case YENV_CHAR  :
-         s_score [MARK_CMAJOR] = 'j';
-         s_score [MARK_CMINOR] = 'n';
-         if (x_amajor != a_emajor)            { x_del = 'y'; x_add = 'y';            ;  strcat (x_miss, "maj, "      );  s_score [MARK_CMAJOR] = 'J'; }
-         if (x_aminor != a_eminor)            { x_del = 'y'; x_add = 'y';            ;  strcat (x_miss, "min, "      );  s_score [MARK_CMINOR] = 'N'; }
+         g_score [MARK_CMAJOR] = 'j';
+         g_score [MARK_CMINOR] = 'n';
+         if (x_amajor != a_emajor)            { x_del = 'y'; x_add = 'y';            ;  strcat (x_miss, "maj, "      );  g_score [MARK_CMAJOR] = 'J'; }
+         if (x_aminor != a_eminor)            { x_del = 'y'; x_add = 'y';            ;  strcat (x_miss, "min, "      );  g_score [MARK_CMINOR] = 'N'; }
          break;
       case YENV_SYM   :
          rc = yENV_detail (a_etarget, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-         s_score [MARK_CTTYPE] = rc;
-         if (rc != a_ettype)  s_score [MARK_CTTYPE] = toupper (rc);
-         s_score [MARK_CTARGET] = 't';
-         if (strcmp (x_alink, a_etarget) != 0) { x_del = 'y'; x_add = 'y';            ;  strcat (x_miss, "target, "   );  s_score [MARK_CTARGET] = 'T'; }
+         g_score [MARK_CTTYPE] = rc;
+         if (rc != a_ettype)  g_score [MARK_CTTYPE] = toupper (rc);
+         g_score [MARK_CTARGET] = 't';
+         if (strcmp (x_alink, a_etarget) != 0) { x_del = 'y'; x_add = 'y';            ;  strcat (x_miss, "target, "   );  g_score [MARK_CTARGET] = 'T'; }
          break;
       case YENV_HARD  :
          rc = yENV_detail (a_etarget, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &n, NULL);
-         s_score [MARK_CTTYPE] = rc;
+         g_score [MARK_CTTYPE] = rc;
          if (rc != a_ettype) {
-            if (a_ettype == YENV_REG && rc == YENV_HARD)  s_score [MARK_CTTYPE] = YENV_REG;
-            else                                          s_score [MARK_CTTYPE] = toupper (rc);
+            if (a_ettype == YENV_REG && rc == YENV_HARD)  g_score [MARK_CTTYPE] = YENV_REG;
+            else                                          g_score [MARK_CTTYPE] = toupper (rc);
          }
-         s_score [MARK_CTARGET] = 't';
-         if (x_inode != n)                    { x_del = 'y'; x_add = 'y';            ;  strcat (x_miss, "target, "   );  s_score [MARK_CTARGET] = 'T'; }
+         g_score [MARK_CTARGET] = 't';
+         if (x_inode != n)                    { x_del = 'y'; x_add = 'y';            ;  strcat (x_miss, "target, "   );  g_score [MARK_CTARGET] = 'T'; }
          break;
       }
    }
    /*---(small fixest)-------------------       ----del----; ----add----; ----upd----;*/
    if (x_atype == a_etype && x_add != 'y' && a_etype != YENV_SYM) {
-      s_score [MARK_COWNER] = 'o';
-      s_score [MARK_CGROUP] = 'g';
-      s_score [MARK_CPERMS] = 'p';
-      if (strcmp (x_aowner, a_eowner) != 0)   {            ;            ; x_upd = 'y';  strcat (x_miss, "owner, "    );  s_score [MARK_COWNER] = 'O'; }
-      if (strcmp (x_agroup, a_egroup) != 0)   {            ;            ; x_upd = 'y';  strcat (x_miss, "group, "    );  s_score [MARK_CGROUP] = 'G'; }
-      if (strcmp (x_aperms, a_eperms) != 0)   {            ;            ; x_upd = 'y';  strcat (x_miss, "perms, "    );  s_score [MARK_CPERMS] = 'P'; }
+      g_score [MARK_COWNER] = 'o';
+      g_score [MARK_CGROUP] = 'g';
+      g_score [MARK_CPERMS] = 'p';
+      if (strcmp (x_aowner, a_eowner) != 0)   {            ;            ; x_upd = 'y';  strcat (x_miss, "owner, "    );  g_score [MARK_COWNER] = 'O'; }
+      if (strcmp (x_agroup, a_egroup) != 0)   {            ;            ; x_upd = 'y';  strcat (x_miss, "group, "    );  g_score [MARK_CGROUP] = 'G'; }
+      if (strcmp (x_aperms, a_eperms) != 0)   {            ;            ; x_upd = 'y';  strcat (x_miss, "perms, "    );  g_score [MARK_CPERMS] = 'P'; }
    }
    /*---(entry fixes)--------------------       ----del----; ----add----; ----upd----;*/
    l = strlen (x_miss);
    if (l > 0) {
-      s_score [MARK_CHECK] = '!';
+      g_score [MARK_CHECK] = '!';
       if (l > 2)  x_miss [l - 2] = '\0';
       yURG_err ('w', "troubles with entry %s", x_miss);
       rc_final = RC_POSITIVE;
    } else {
-      s_score [MARK_CHECK] = '=';
+      g_score [MARK_CHECK] = '=';
    }
    /*---(finalize)-----------------------*/
-   s_score [MARK_FDEL ] = x_del;
-   s_score [MARK_FADD ] = x_add;
-   s_score [MARK_FUPD ] = x_upd;
+   g_score [MARK_FDEL ] = x_del;
+   g_score [MARK_FADD ] = x_add;
+   g_score [MARK_FUPD ] = x_upd;
    /*---(save-back)----------------------*/
    if (r_atype  != NULL)   *r_atype = x_atype;
    if (r_atdesc != NULL)   strlcpy (r_atdesc, x_atdesc, LEN_TERSE);
@@ -695,7 +642,7 @@ yenv_audit_precheck     (char a_full [LEN_PATH], char a_etype, char a_eowner [LE
    if (r_add    != NULL)   *r_add   = x_add;
    if (r_upd    != NULL)   *r_upd   = x_upd;
    /*---(complete)-----------------------*/
-   DEBUG_FILE    yLOG_exit    (__FUNCTION__);
+   DEBUG_YENV    yLOG_exit    (__FUNCTION__);
    return rc_final;
 }
 
@@ -707,27 +654,27 @@ yenv_audit_remove       (char a_full [LEN_PATH], char a_atype, char a_atdesc [LE
    char        rc          =    0;
    /*---(quick-out)----------------------*/
    if (a_atype == YENV_NONE) {
-      DEBUG_FILE   yLOG_senter  (__FUNCTION__);
-      DEBUG_FILE   yLOG_snote   ("does not exist, removal not required");
-      DEBUG_FILE   yLOG_sexit   (__FUNCTION__);
+      DEBUG_YENV   yLOG_senter  (__FUNCTION__);
+      DEBUG_YENV   yLOG_snote   ("does not exist, removal not required");
+      DEBUG_YENV   yLOG_sexit   (__FUNCTION__);
       return RC_ACK;
    }
    if (c_del == '-') {
-      DEBUG_FILE   yLOG_senter  (__FUNCTION__);
-      DEBUG_FILE   yLOG_snote   ("no removal necessary");
-      DEBUG_FILE   yLOG_sexit   (__FUNCTION__);
+      DEBUG_YENV   yLOG_senter  (__FUNCTION__);
+      DEBUG_YENV   yLOG_snote   ("no removal necessary");
+      DEBUG_YENV   yLOG_sexit   (__FUNCTION__);
       return RC_ACK;
    }
    /*---(header)-------------------------*/
-   DEBUG_FILE   yLOG_enter   (__FUNCTION__);
-   s_score [MARK_REMOVE] = '°';
+   DEBUG_YENV   yLOG_enter   (__FUNCTION__);
+   g_score [MARK_REMOVE] = '°';
    /*---(does not exist)-----------------*/
    rc = yENV_exists (a_full);
-   DEBUG_FILE   yLOG_complex ("exists"    , "%d/%c", rc, rc);
+   DEBUG_YENV   yLOG_complex ("exists"    , "%d/%c", rc, rc);
    --rce;  if (rc < 0 || rc == YENV_NONE) {
-      s_score [MARK_FINAL ] = '°';
+      g_score [MARK_FINAL ] = '°';
       yURG_err ('w', "%s (%c) removal skipped, entry does not exist" , a_atdesc, a_atype);
-      DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(critical removals)--------------*/
@@ -736,14 +683,14 @@ yenv_audit_remove       (char a_full [LEN_PATH], char a_atype, char a_atdesc [LE
          rc = yENV_removier (a_atype, a_full);
          --rce;  if (rc != YENV_NONE) {
             yURG_err ('f', "%s (%c) conflicting entry removal (%c) failed (%d/%c)" , a_atdesc, a_atype, c_del, rc, rc);
-            s_score [MARK_FINAL ] = '°';
-            DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
+            g_score [MARK_FINAL ] = '°';
+            DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
             return rce;
          }
       } else {
          yURG_err ('f', "%s (%c) conflicting entry removal (%c) requires critical force (!), but used (%c)" , a_atdesc, a_atype, c_del, c_force);
-         s_score [MARK_FINAL ] = '°';
-         DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
+         g_score [MARK_FINAL ] = '°';
+         DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
          return rce;
       }
    }
@@ -753,22 +700,22 @@ yenv_audit_remove       (char a_full [LEN_PATH], char a_atype, char a_atdesc [LE
          rc = yENV_removier (a_atype, a_full);
          --rce;  if (rc != YENV_NONE) {
             yURG_err ('f', "%s (%c) conflicting entry removal (%c) failed (%d/%c)" , a_atdesc, a_atype, c_del, rc, rc);
-            s_score [MARK_FINAL ] = '°';
-            DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
+            g_score [MARK_FINAL ] = '°';
+            DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
             return rce;
          }
       } else {
          yURG_err ('f', "%s (%c) conflicting entry removal (%c) requires any force (!y), but used (%c)" , a_atdesc, a_atype, c_del, c_force);
-         s_score [MARK_FINAL ] = '°';
-         DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
+         g_score [MARK_FINAL ] = '°';
+         DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
          return rce;
       }
    }
    /*---(message)------------------------*/
-   s_score [MARK_REMOVE] = 'R';
+   g_score [MARK_REMOVE] = 'R';
    yURG_msg ('-', "%s (%c) conflicting entry removed successfully because of force flag (%c)", a_atdesc, a_atype, c_force);
    /*---(complete)-----------------------*/
-   DEBUG_FILE    yLOG_exit    (__FUNCTION__);
+   DEBUG_YENV    yLOG_exit    (__FUNCTION__);
    return RC_REPAIR;
 }
 
@@ -781,51 +728,51 @@ yenv_audit_create       (char a_full [LEN_PATH], char a_etype, char a_etdesc [LE
    char        x_tdesc     [LEN_TERSE] = "";
    /*---(quick-out)----------------------*/
    if (a_etype == YENV_NONE) {
-      DEBUG_FILE   yLOG_senter  (__FUNCTION__);
-      DEBUG_FILE   yLOG_snote   ("requested non-exist, creation not required");
-      DEBUG_FILE   yLOG_sexit   (__FUNCTION__);
+      DEBUG_YENV   yLOG_senter  (__FUNCTION__);
+      DEBUG_YENV   yLOG_snote   ("requested non-exist, creation not required");
+      DEBUG_YENV   yLOG_sexit   (__FUNCTION__);
       return RC_ACK;
    }
    if (c_add == '-') {
-      DEBUG_FILE   yLOG_senter  (__FUNCTION__);
-      DEBUG_FILE   yLOG_snote   ("no creation necessary");
-      DEBUG_FILE   yLOG_sexit   (__FUNCTION__);
+      DEBUG_YENV   yLOG_senter  (__FUNCTION__);
+      DEBUG_YENV   yLOG_snote   ("no creation necessary");
+      DEBUG_YENV   yLOG_sexit   (__FUNCTION__);
       return RC_ACK;
    }
    /*---(header)-------------------------*/
-   DEBUG_FILE   yLOG_enter   (__FUNCTION__);
-   s_score [MARK_CREATE] = '°';
+   DEBUG_YENV   yLOG_enter   (__FUNCTION__);
+   g_score [MARK_CREATE] = '°';
    /*---(already exists)-----------------*/
    rc = yENV_exists (a_full);
-   DEBUG_FILE   yLOG_complex ("exists"    , "%d/%c", rc, rc);
+   DEBUG_YENV   yLOG_complex ("exists"    , "%d/%c", rc, rc);
    --rce;  if (rc != YENV_NONE) {
       strlcpy (x_tdesc, yENV_typedesc (rc), LEN_TERSE);
       yURG_err ('f', "%s (%c) creation stopped, FOUND it as %s (%c) already" , a_etdesc, a_etype, x_tdesc, rc);
-      s_score [MARK_FINAL ] = '°';
-      DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
+      g_score [MARK_FINAL ] = '°';
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(additions)----------------------*/
    if (c_force != '-') {
       rc = yENV_touchier (a_etype, a_full, a_eowner, a_egroup, a_eperms, a_emajor, a_eminor, a_etarget);
-      DEBUG_FILE   yLOG_complex ("touch"     , "%d/%c", rc, rc);
+      DEBUG_YENV   yLOG_complex ("touch"     , "%d/%c", rc, rc);
       --rce;  if (rc < 0 || rc == YENV_NONE) {
          yURG_err ('f', "%s (%c) requested creation (%c) failed (%d/%c)" , a_etdesc, a_etype, c_add, rc, rc);
-         s_score [MARK_FINAL ] = '°';
-         DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
+         g_score [MARK_FINAL ] = '°';
+         DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
          return rce;
       }
    } else {
       yURG_err ('f', "%s (%c) requested creation (%c) requires any force (!y), but used (%c)" , a_etdesc, a_etype, c_add, c_force);
-      s_score [MARK_FINAL ] = '°';
-      DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
+      g_score [MARK_FINAL ] = '°';
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(message)------------------------*/
-   s_score [MARK_CREATE] = 'C';
+   g_score [MARK_CREATE] = 'C';
    yURG_msg ('-', "%s (%c) entry created successfully because of force flag (%c)", a_etdesc, a_etype, c_force);
    /*---(complete)-----------------------*/
-   DEBUG_FILE    yLOG_exit    (__FUNCTION__);
+   DEBUG_YENV    yLOG_exit    (__FUNCTION__);
    return RC_REPAIR;
 }
 
@@ -837,50 +784,50 @@ yenv_audit_update       (char a_full [LEN_PATH], char a_atype, char a_atdesc [LE
    char        rc          =    0;
    /*---(quick-out)----------------------*/
    if (a_atype == YENV_NONE) {
-      DEBUG_FILE   yLOG_senter  (__FUNCTION__);
-      DEBUG_FILE   yLOG_snote   ("requested non-exist, update not required");
-      DEBUG_FILE   yLOG_sexit   (__FUNCTION__);
+      DEBUG_YENV   yLOG_senter  (__FUNCTION__);
+      DEBUG_YENV   yLOG_snote   ("requested non-exist, update not required");
+      DEBUG_YENV   yLOG_sexit   (__FUNCTION__);
       return RC_ACK;
    }
    if (c_upd == '-') {
-      DEBUG_FILE   yLOG_senter  (__FUNCTION__);
-      DEBUG_FILE   yLOG_snote   ("no update necessary");
-      DEBUG_FILE   yLOG_sexit   (__FUNCTION__);
+      DEBUG_YENV   yLOG_senter  (__FUNCTION__);
+      DEBUG_YENV   yLOG_snote   ("no update necessary");
+      DEBUG_YENV   yLOG_sexit   (__FUNCTION__);
       return RC_ACK;
    }
    /*---(header)-------------------------*/
-   DEBUG_FILE   yLOG_enter   (__FUNCTION__);
-   s_score [MARK_UPDATE] = '°';
+   DEBUG_YENV   yLOG_enter   (__FUNCTION__);
+   g_score [MARK_UPDATE] = '°';
    /*---(does not exist)-----------------*/
    rc = yENV_exists (a_full);
-   DEBUG_FILE   yLOG_complex ("exists"    , "%d/%c", rc, rc);
+   DEBUG_YENV   yLOG_complex ("exists"    , "%d/%c", rc, rc);
    --rce;  if (rc < 0 || rc == YENV_NONE) {
-      s_score [MARK_FINAL ] = '°';
+      g_score [MARK_FINAL ] = '°';
       yURG_err ('f', "%s (%c) update stopped, does not exist" , a_atdesc, a_atype);
-      DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(update)-------------------------*/
    if (c_fix != '-') {
       rc = yENV_touchier (a_atype, a_full, a_eowner, a_egroup, a_eperms, a_emajor, a_eminor, a_etarget);
-      DEBUG_FILE   yLOG_complex ("touch"     , "%d/%c", rc, rc);
+      DEBUG_YENV   yLOG_complex ("touch"     , "%d/%c", rc, rc);
       --rce;  if (rc < 0 || rc == YENV_NONE) {
-         s_score [MARK_FINAL ] = '°';
+         g_score [MARK_FINAL ] = '°';
          yURG_err ('f', "%s (%c) requested update (%c) failed (%d/%c)" , a_atdesc, a_atype, c_upd, rc, rc);
-         DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
+         DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
          return rce;
       }
    } else {
-      s_score [MARK_FINAL ] = '°';
+      g_score [MARK_FINAL ] = '°';
       yURG_err ('f', "%s (%c) requested update (%c) requires fix (y), but used (%c)" , a_atdesc, a_atype, c_upd, c_fix);
-      DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(message)------------------------*/
-   s_score [MARK_UPDATE] = 'U';
+   g_score [MARK_UPDATE] = 'U';
    yURG_msg ('-', "%s (%c) entry updated successfully because of fix flag (%c)", a_atdesc, a_atype, c_fix);
    /*---(complete)-----------------------*/
-   DEBUG_FILE    yLOG_exit    (__FUNCTION__);
+   DEBUG_YENV    yLOG_exit    (__FUNCTION__);
    return RC_REPAIR;
 }
 
@@ -895,11 +842,11 @@ yenv_audit_typing       (char a_etype, char a_etdesc [LEN_TERSE], char a_atype, 
    --rce;  if (a_atype  == 0)     return rce;
    --rce;  if (a_atdesc == NULL)  return rce;
    /*---(prepare)------------------------*/
-   s_score [MARK_RTYPE]  = '°';
+   g_score [MARK_RTYPE]  = '°';
    /*---(non-existance)------------------*/
    if (a_atype == YENV_NONE) {
       if (a_etype == YENV_NONE) {
-         s_score [MARK_RTYPE]  = a_atype;
+         g_score [MARK_RTYPE]  = a_atype;
          yURG_msg ('-', "non-existance of filesystem entry confirmed");
          return RC_POSITIVE;
       } else {
@@ -909,7 +856,7 @@ yenv_audit_typing       (char a_etype, char a_etdesc [LEN_TERSE], char a_atype, 
    }
    /*---(match)--------------------------*/
    if (a_atype == a_etype) {
-      s_score [MARK_RTYPE]  = a_atype;
+      g_score [MARK_RTYPE]  = a_atype;
       switch (a_atype) {
       case YENV_SYM  :
          yURG_msg ('-', "%s (%c) entry existance confirmed, AND not a normal/hardlink"  , a_etdesc, a_etype);
@@ -952,57 +899,57 @@ yenv_audit_final        (char a_full [LEN_PATH], char a_etype, char a_etdesc [LE
    int         x_inode     =   -1;
    int         n           =   -1;
    /*---(header)-------------------------*/
-   DEBUG_FILE   yLOG_enter   (__FUNCTION__);
+   DEBUG_YENV   yLOG_enter   (__FUNCTION__);
    /*---(re-gather data)-----------------*/
-   DEBUG_FILE   yLOG_note    ("re-gathering data");
+   DEBUG_YENV   yLOG_note    ("re-gathering data");
    x_atype = yENV_detail (a_full, x_atdesc, &x_auid, x_aowner, &x_agid, x_agroup, &x_aprm, x_aperms, x_adisp, NULL, NULL, &x_amajor, &x_aminor, x_atarget, NULL, &x_inode, NULL);
-   DEBUG_FILE   yLOG_value   ("detail"    , x_atype);
+   DEBUG_YENV   yLOG_value   ("detail"    , x_atype);
    --rce;  if (x_atype <= 0) {
-      s_score [MARK_RECHECK] = '°';
-      s_score [MARK_FINAL  ] = '°';
+      g_score [MARK_RECHECK] = '°';
+      g_score [MARK_FINAL  ] = '°';
       yURG_err ('f', "file check generated a hard error (%d)", x_atype);
-      DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   DEBUG_FILE   yLOG_char    ("detail"    , x_atype);
+   DEBUG_YENV   yLOG_char    ("detail"    , x_atype);
    /*---(existance check)----------------*/
-   DEBUG_FILE   yLOG_note    ("conducting final-check");
+   DEBUG_YENV   yLOG_note    ("conducting final-check");
    rc = yenv_audit_typing (a_etype, a_etdesc, x_atype, x_atdesc);
-   DEBUG_FILE   yLOG_value   ("typing"    , rc);
+   DEBUG_YENV   yLOG_value   ("typing"    , rc);
    if (rc == RC_POSITIVE) {
-      s_score [MARK_RECHECK] = '=';
-      s_score [MARK_FINAL  ] = 'Y';
-      DEBUG_FILE   yLOG_exit    (__FUNCTION__);
+      g_score [MARK_RECHECK] = '=';
+      g_score [MARK_FINAL  ] = 'Y';
+      DEBUG_YENV   yLOG_exit    (__FUNCTION__);
       return RC_POSITIVE;
    }
    if (rc == RC_FAILED) {
-      s_score [MARK_RECHECK] = '°';
-      s_score [MARK_FINAL  ] = '°';
-      DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
+      g_score [MARK_RECHECK] = '°';
+      g_score [MARK_FINAL  ] = '°';
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(major/minor)--------------------*/
-   DEBUG_FILE   yLOG_complex ("device"    , "act %d:%d, exp %d:%d", x_amajor, x_aminor, a_emajor, a_eminor);
+   DEBUG_YENV   yLOG_complex ("device"    , "act %d:%d, exp %d:%d", x_amajor, x_aminor, a_emajor, a_eminor);
    --rce;  if (strchr ("bc", x_atype) != NULL) {
-      s_score [MARK_RMAJOR] = 'j';
+      g_score [MARK_RMAJOR] = 'j';
       if (x_amajor != a_emajor) {
-         s_score [MARK_RMAJOR] = '°';
+         g_score [MARK_RMAJOR] = '°';
          yURG_err ('f', "device id (%d:%d); BUT expected (%d:%d)", x_amajor, x_aminor, a_emajor, a_eminor);
          rc_final = rce;
       }
-      s_score [MARK_RMINOR] = 'n';
+      g_score [MARK_RMINOR] = 'n';
       if (x_aminor != a_eminor) {
-         s_score [MARK_RMINOR] = '°';
+         g_score [MARK_RMINOR] = '°';
          yURG_err ('f', "device id (%d:%d); BUT expected (%d:%d)", x_amajor, x_aminor, a_emajor, a_eminor);
          rc_final = rce;
       }
    }
    /*---(symlink)------------------------*/
-   DEBUG_FILE   yLOG_info    ("target act", x_atarget);
-   DEBUG_FILE   yLOG_info    ("target exp", a_etarget);
+   DEBUG_YENV   yLOG_info    ("target act", x_atarget);
+   DEBUG_YENV   yLOG_info    ("target exp", a_etarget);
    --rce;  if (x_atype == YENV_SYM) { 
-      s_score [MARK_RTTYPE ] = '°';
-      s_score [MARK_RTARGET] = '°';
+      g_score [MARK_RTTYPE ] = '°';
+      g_score [MARK_RTARGET] = '°';
       if (x_atarget != NULL && a_etarget != NULL) {
          /*---(type/exist)---------------*/
          rc = yENV_detail (x_atarget, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
@@ -1013,11 +960,11 @@ yenv_audit_final        (char a_full [LEN_PATH], char a_etype, char a_etdesc [LE
             yURG_err ('f', "symlink target actual type (%c) does not match expected (%c)", rc, a_ettype);
             rc_final = rce;
          } else {
-            s_score [MARK_RTTYPE ] = rc;
+            g_score [MARK_RTTYPE ] = rc;
          }
          /*---(target)-------------------*/
          if (strcmp (x_atarget, a_etarget) == 0) {
-            s_score [MARK_RTARGET] = 't';
+            g_score [MARK_RTARGET] = 't';
          } else {
             yURG_err ('f', "symlink %2då%-30.30s]; BUT expected %2då%-30.30sæ", strlen (x_atarget), x_atarget, strlen (a_etarget), a_etarget);
             rc_final = rce;
@@ -1027,8 +974,8 @@ yenv_audit_final        (char a_full [LEN_PATH], char a_etype, char a_etdesc [LE
    }
    /*---(hardlink)-----------------------*/
    --rce;  if (x_atype == YENV_HARD) { 
-      s_score [MARK_RTTYPE ] = '°';
-      s_score [MARK_RTARGET] = '°';
+      g_score [MARK_RTTYPE ] = '°';
+      g_score [MARK_RTARGET] = '°';
       if (x_atarget != NULL && a_etarget != NULL) {
          rc = yENV_detail (x_atarget, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
          /*---(type/exist)---------------*/
@@ -1040,13 +987,13 @@ yenv_audit_final        (char a_full [LEN_PATH], char a_etype, char a_etdesc [LE
             yURG_err ('f', "hardlink target actual type (%c) does not match expected (%c)", rc, a_ettype);
             rc_final = rce;
          } else {
-            if (a_ettype == YENV_REG && rc == YENV_HARD)  s_score [MARK_RTTYPE] = YENV_REG;
-            else                                          s_score [MARK_RTTYPE] = rc;
+            if (a_ettype == YENV_REG && rc == YENV_HARD)  g_score [MARK_RTTYPE] = YENV_REG;
+            else                                          g_score [MARK_RTTYPE] = rc;
          }
          /*---(target)-------------------*/
          rc = yENV_detail (a_etarget, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &n, NULL);
          if (x_inode == n) {
-            s_score [MARK_RTARGET] = 't';
+            g_score [MARK_RTARGET] = 't';
          } else {
             yURG_err ('f', "hardlink %2då%-30.30s] idode is (%d); BUT actually points at inode (%d)", strlen (a_etarget), a_etarget, n, x_inode);
             rc_final = rce;
@@ -1054,47 +1001,47 @@ yenv_audit_final        (char a_full [LEN_PATH], char a_etype, char a_etdesc [LE
       }
    }
    /*---(owner)--------------------------*/
-   DEBUG_FILE   yLOG_complex ("owner"     , "act %s, exp %s", x_aowner, a_eowner);
-   s_score [MARK_ROWNER] = '°';
+   DEBUG_YENV   yLOG_complex ("owner"     , "act %s, exp %s", x_aowner, a_eowner);
+   g_score [MARK_ROWNER] = '°';
    --rce;  if (strcmp (x_aowner, a_eowner) != 0) {
       yURG_err ('f', "owned by å%sæ (%d); BUT expected å%sæ (%d)", x_aowner, x_auid, a_eowner, a_euid);
       rc_final = rce;
    } else {
-      s_score [MARK_ROWNER] = 'o';
+      g_score [MARK_ROWNER] = 'o';
    }
    /*---(group)--------------------------*/
-   DEBUG_FILE   yLOG_complex ("group"     , "act %s, ext %s", x_agroup, a_egroup);
-   s_score [MARK_RGROUP] = '°';
+   DEBUG_YENV   yLOG_complex ("group"     , "act %s, ext %s", x_agroup, a_egroup);
+   g_score [MARK_RGROUP] = '°';
    --rce;  if (strcmp (x_agroup, a_egroup) != 0) {
       yURG_err ('f', "grouped in å%sæ (%d); BUT expected å%sæ (%d)", x_agroup, x_agid, a_egroup, a_egid);
       rc_final = rce;
    } else {
-      s_score [MARK_RGROUP] = 'g';
+      g_score [MARK_RGROUP] = 'g';
    }
    /*---(owner/group summary)------------*/
-   if (s_score [MARK_ROWNER] == 'o' && s_score [MARK_RGROUP] == 'g') {
+   if (g_score [MARK_ROWNER] == 'o' && g_score [MARK_RGROUP] == 'g') {
       yURG_msg ('-', "ownership confirmed, owned by å%sæ (%d) and in group å%sæ (%d)", a_eowner, a_euid, a_egroup, a_egid);
    }
    /*---(perms)--------------------------*/
-   DEBUG_FILE   yLOG_complex ("perms"     , "act %s, ext %s", x_aperms, a_eperms);
-   s_score [MARK_RPERMS] = '°';
+   DEBUG_YENV   yLOG_complex ("perms"     , "act %s, ext %s", x_aperms, a_eperms);
+   g_score [MARK_RPERMS] = '°';
    --rce;  if (strcmp (x_aperms, a_eperms) != 0) {
       yURG_err ('f', "permissions å%sæ, %04o, disp å%sæ; BUT expected å%sæ, %04o, disp å%sæ", x_aperms, x_aprm, x_adisp, a_eperms, a_eprm, a_adisp);
       rc_final = rce;
    } else {
-      s_score [MARK_RPERMS] = 'p';
+      g_score [MARK_RPERMS] = 'p';
       yURG_msg ('-', "permissions confirmed, å%sæ, %04o, disp å%sæ", a_eperms, a_eprm, a_adisp);
    }
    /*---(finalize)-----------------------*/
    if (rc_final < 0) {
-      s_score [MARK_RECHECK] = '°';
-      s_score [MARK_FINAL  ] = '°';
+      g_score [MARK_RECHECK] = '°';
+      g_score [MARK_FINAL  ] = '°';
    } else {
-      s_score [MARK_RECHECK] = '=';
-      s_score [MARK_FINAL  ] = 'Y';
+      g_score [MARK_RECHECK] = '=';
+      g_score [MARK_FINAL  ] = 'Y';
    }
    /*---(complete)-----------------------*/
-   DEBUG_FILE    yLOG_exit    (__FUNCTION__);
+   DEBUG_YENV    yLOG_exit    (__FUNCTION__);
    return rc_final;
 }
 
@@ -1112,56 +1059,56 @@ yenv_audit_hacked       (char a_full [LEN_PATH], int a_epoch, long a_bytes, int 
    char        x_hash      [LEN_DESC]  = "";
    char        c           =    0;
    /*---(header)-------------------------*/
-   DEBUG_FILE   yLOG_enter   (__FUNCTION__);
+   DEBUG_YENV   yLOG_enter   (__FUNCTION__);
    /*---(re-gather data)-----------------*/
-   DEBUG_FILE   yLOG_note    ("re-gathering data");
+   DEBUG_YENV   yLOG_note    ("re-gathering data");
    x_atype = yENV_detail (a_full, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &x_epoch, &x_bytes, NULL, NULL, NULL, NULL, &x_inode, x_hash);
-   DEBUG_FILE   yLOG_value   ("detail"    , x_atype);
+   DEBUG_YENV   yLOG_value   ("detail"    , x_atype);
    --rce;  if (x_atype <= 0) {
-      s_score [MARK_HACKED ] = '°';
+      g_score [MARK_HACKED ] = '°';
       yURG_err ('f', "file check generated a hard error (%d)", x_atype);
-      DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   DEBUG_FILE   yLOG_char    ("detail"    , x_atype);
+   DEBUG_YENV   yLOG_char    ("detail"    , x_atype);
    /*---(epoch)--------------------------*/
-   DEBUG_FILE   yLOG_complex ("epoch"     , "act %d, vs exp %d", x_epoch, a_epoch);
+   DEBUG_YENV   yLOG_complex ("epoch"     , "act %d, vs exp %d", x_epoch, a_epoch);
    --rce;  if (a_epoch > 0) {
       ++c;
-      s_score [MARK_AEPOCH] = 'e';
+      g_score [MARK_AEPOCH] = 'e';
       if (strchr ("rh", x_atype) != NULL) {
          if (x_epoch != a_epoch) {
-            s_score [MARK_AEPOCH] = '°';
+            g_score [MARK_AEPOCH] = '°';
             yURG_err ('f', "epoch (%d); BUT expected (%d)", x_epoch, a_epoch);
             rc_final = rce;
          }
       } else {
-         s_score [MARK_AEPOCH] = '-';
+         g_score [MARK_AEPOCH] = '-';
       }
    }
    /*---(bytes)--------------------------*/
-   DEBUG_FILE   yLOG_complex ("bytes"     , "act %d, vs exp %d", x_bytes, a_bytes);
+   DEBUG_YENV   yLOG_complex ("bytes"     , "act %d, vs exp %d", x_bytes, a_bytes);
    --rce;  if (a_bytes > 0) {
       ++c;
-      s_score [MARK_ABYTES] = 'b';
+      g_score [MARK_ABYTES] = 'b';
       if (strchr ("rh", x_atype) != NULL) {
          if (x_bytes != a_bytes) {
-            s_score [MARK_ABYTES] = '°';
+            g_score [MARK_ABYTES] = '°';
             yURG_err ('f', "bytes (%d); BUT expected (%d)", x_bytes, a_bytes);
             rc_final = rce;
-            s_score [MARK_ABYTES] = '-';
+            g_score [MARK_ABYTES] = '-';
          }
       } else {
-         s_score [MARK_ABYTES] = '-';
+         g_score [MARK_ABYTES] = '-';
       }
    }
    /*---(inode)--------------------------*/
-   DEBUG_FILE   yLOG_complex ("inode"     , "act %d, vs exp %d", x_inode, a_inode);
+   DEBUG_YENV   yLOG_complex ("inode"     , "act %d, vs exp %d", x_inode, a_inode);
    --rce;  if (a_inode > 0) {
       ++c;
-      s_score [MARK_AINODE] = 'i';
+      g_score [MARK_AINODE] = 'i';
       if (x_inode != a_inode) {
-         s_score [MARK_AINODE] = '°';
+         g_score [MARK_AINODE] = '°';
          yURG_err ('f', "inode (%d); BUT expected (%d)", x_inode, a_inode);
          rc_final = rce;
       }
@@ -1169,27 +1116,27 @@ yenv_audit_hacked       (char a_full [LEN_PATH], int a_epoch, long a_bytes, int 
    /*---(hash)---------------------------*/
    --rce;  if (a_hash != NULL && strcmp (a_hash, "") != 0) {
       ++c;
-      s_score [MARK_AHASH ] = 'h';
+      g_score [MARK_AHASH ] = 'h';
       if (strchr ("rh", x_atype) != NULL) {
          if (strcmp (x_hash, a_hash) != 0) {
-            s_score [MARK_AHASH ] = '°';
+            g_score [MARK_AHASH ] = '°';
             yURG_err ('f', "hash å%sæ; BUT expected å%sæ", x_hash, a_hash);
             rc_final = rce;
          }
       } else {
-         s_score [MARK_AHASH ] = '-';
+         g_score [MARK_AHASH ] = '-';
       }
    }
    /*---(finalize)-----------------------*/
    if (rc_final < 0) {
-      s_score [MARK_HACKED ] = '°';
+      g_score [MARK_HACKED ] = '°';
    } else if (c > 0) {
-      s_score [MARK_HACKED ] = '´';
+      g_score [MARK_HACKED ] = '´';
    } else {
-      s_score [MARK_HACKED ] = '-';
+      g_score [MARK_HACKED ] = '-';
    }
    /*---(complete)-----------------------*/
-   DEBUG_FILE    yLOG_exit    (__FUNCTION__);
+   DEBUG_YENV    yLOG_exit    (__FUNCTION__);
    return rc_final;
 }
 
@@ -1220,7 +1167,7 @@ yENV_audit_full         (char a_type, char c_flag, char a_dir [LEN_PATH], char a
    char        x_add       =  '-';
    char        x_upd       =  '-';
    /*---(header)-------------------------*/
-   DEBUG_FILE   yLOG_enter   (__FUNCTION__);
+   DEBUG_YENV   yLOG_enter   (__FUNCTION__);
    /*---(defaults)-----------------------*/
    if (a_owner != NULL)   strlcpy (x_eowner, a_owner, LEN_USER);
    if (a_group != NULL)   strlcpy (x_egroup, a_group, LEN_USER);
@@ -1228,77 +1175,77 @@ yENV_audit_full         (char a_type, char c_flag, char a_dir [LEN_PATH], char a
    /*---(prepare)------------------------*/
    rc = yenv_audit_prepare (a_type, c_flag, a_dir, a_file, '-', x_full, x_etdesc, x_mode, x_note, &c_check, &c_force, &c_fix);
    if (rc > rc_final)  rc_final = rc;
-   DEBUG_FILE   yLOG_complex ("prepare"   , "%4d rc, %4d final", rc, rc_final);
+   DEBUG_YENV   yLOG_complex ("prepare"   , "%4d rc, %4d final", rc, rc_final);
    --rce;  if (rc < 0) {
-      DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(expected)-----------------------*/
    rc = yenv_audit_expect   (a_type, x_eowner, x_egroup, x_eperms, &x_euid, &x_egid, &x_eprm, x_edisp);
    if (rc > rc_final)  rc_final = rc;
-   DEBUG_FILE   yLOG_complex ("expect"    , "%4d rc, %4d final", rc, rc_final);
+   DEBUG_YENV   yLOG_complex ("expect"    , "%4d rc, %4d final", rc, rc_final);
    --rce;  if (rc < 0) {
-      DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(extra)--------------------------*/
    rc = yenv_audit_extra    (a_type, a_major, a_minor, a_ttype, a_target, a_epoch, a_bytes, a_inode, a_hash);
    if (rc > rc_final)  rc_final = rc;
-   DEBUG_FILE   yLOG_complex ("extra"     , "%4d rc, %4d final", rc, rc_final);
+   DEBUG_YENV   yLOG_complex ("extra"     , "%4d rc, %4d final", rc, rc_final);
    --rce;  if (rc < 0) {
-      DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(precheck)-----------------------*/
    rc = yenv_audit_precheck (x_full, a_type, x_eowner, x_egroup, x_eperms, a_major, a_minor, a_ttype, a_target, &x_atype, x_atdesc, &x_del, &x_add, &x_upd, c_force, c_fix);
    if (rc > rc_final)  rc_final = rc;
-   DEBUG_FILE   yLOG_complex ("check"     , "%4d rc, %4d final", rc, rc_final);
+   DEBUG_YENV   yLOG_complex ("check"     , "%4d rc, %4d final", rc, rc_final);
    --rce;  if (rc < 0) {
-      DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(remove)-------------------------*/
    rc = yenv_audit_remove   (x_full, x_atype, x_atdesc, c_force, x_del);
    if (rc > rc_final)  rc_final = rc;
-   DEBUG_FILE   yLOG_complex ("remove"    , "%4d rc, %4d final", rc, rc_final);
+   DEBUG_YENV   yLOG_complex ("remove"    , "%4d rc, %4d final", rc, rc_final);
    --rce;  if (rc < 0) {
-      DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(create)-------------------------*/
    rc = yenv_audit_create   (x_full, a_type, x_etdesc, x_eowner, x_egroup, x_eperms, a_major, a_minor, a_target, c_force, x_add);
    if (rc > rc_final)  rc_final = rc;
-   DEBUG_FILE   yLOG_complex ("create"    , "%4d rc, %4d final", rc, rc_final);
+   DEBUG_YENV   yLOG_complex ("create"    , "%4d rc, %4d final", rc, rc_final);
    --rce;  if (rc < 0) {
-      DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(update)-------------------------*/
    rc = yenv_audit_update   (x_full, a_type, x_etdesc, x_eowner, x_egroup, x_eperms, a_major, a_minor, a_target, c_fix, x_upd);
    if (rc > rc_final)  rc_final = rc;
-   DEBUG_FILE   yLOG_complex ("update"    , "%4d rc, %4d final", rc, rc_final);
+   DEBUG_YENV   yLOG_complex ("update"    , "%4d rc, %4d final", rc, rc_final);
    --rce;  if (rc < 0) {
-      DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(final check)--------------------*/
    rc = yenv_audit_final    (x_full, a_type, x_etdesc, x_eowner, x_egroup, x_eperms, x_euid, x_egid, x_eprm, x_edisp, a_major, a_minor, a_ttype, a_target);
    if (rc > rc_final)  rc_final = rc;
-   DEBUG_FILE   yLOG_complex ("final"     , "%4d rc, %4d final", rc, rc_final);
+   DEBUG_YENV   yLOG_complex ("final"     , "%4d rc, %4d final", rc, rc_final);
    --rce;  if (rc < 0) {
-      DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(hacker check)-------------------*/
    rc = yenv_audit_hacked       (x_full, a_epoch, a_bytes, a_inode, a_hash);
    if (rc > rc_final)  rc_final = rc;
-   DEBUG_FILE   yLOG_complex ("hacked"    , "%4d rc, %4d final", rc, rc_final);
+   DEBUG_YENV   yLOG_complex ("hacked"    , "%4d rc, %4d final", rc, rc_final);
    --rce;  if (rc < 0) {
-      DEBUG_FILE   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(complete)-----------------------*/
-   DEBUG_FILE    yLOG_exit    (__FUNCTION__);
+   DEBUG_YENV    yLOG_exit    (__FUNCTION__);
    return rc_final;
 }
 
