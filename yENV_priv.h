@@ -38,8 +38,8 @@
 /*········· ··········· ´·····························´········································*/
 #define     P_VERMAJOR  "1.--, production improvements"
 #define     P_VERMINOR  "1.2-, adding detailed audit, open, close ability"
-#define     P_VERNUM    "1.2e"
-#define     P_VERTXT    "added all shared/common file name quality code from yJOBS (unit tested)"
+#define     P_VERNUM    "1.2f"
+#define     P_VERTXT    "scoring done sweetly.  everything unit tested again"
 /*········· ··········· ´·····························´········································*/
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -89,90 +89,88 @@ typedef struct tm        tTIME;
 extern char  g_print   [LEN_RECD];
 
 
-extern char  g_score   [LEN_HUND];
 
 /*===[[ REQUEST ]]===============*/
 
 #define     MARK_ETYPE     0
-#define     MARK_EFULL     2
-#define     MARK_EMODE     3
-#define     MARK_EFLAG     4
 
-#define     MARK_EOWNER    6
-#define     MARK_EGROUP    7
-#define     MARK_EPERMS    8
+#define     MARK_EFLAG     5
 
-#define     MARK_EMAJOR   10
-#define     MARK_EMINOR   11
+#define     MARK_EOWNER    7
+#define     MARK_EGROUP    8
+#define     MARK_EPERMS    9
 
-#define     MARK_ETTYPE   13
-#define     MARK_ETARGET  14
+#define     MARK_EMAJOR   11
+#define     MARK_EMINOR   12
 
-#define     MARK_EEPOCH   16
-#define     MARK_EBYTES   17
-#define     MARK_EINODE   18
-#define     MARK_EHASH    19
+#define     MARK_ETTYPE   14
+#define     MARK_ETARGET  15
 
-#define     MARK_REQUEST  21
+#define     MARK_EEPOCH   17
+#define     MARK_EBYTES   18
+#define     MARK_EINODE   19
+#define     MARK_EHASH    20
 
-#define     MARK_CONFC    25
-#define     MARK_CONFF    26
-#define     MARK_CONFX    27
+#define     MARK_REQUEST  22
+
+#define     MARK_CONFC    26
+#define     MARK_CONFF    27
+#define     MARK_CONFX    28
 
 /*===[[ CHECK ]]=================*/
 
-#define     MARK_CTYPE    31
+#define     MARK_CTYPE    32
 
-#define     MARK_COWNER   33
-#define     MARK_CGROUP   34
-#define     MARK_CPERMS   35
+#define     MARK_COWNER   34
+#define     MARK_CGROUP   35
+#define     MARK_CPERMS   36
 
-#define     MARK_CMAJOR   37
-#define     MARK_CMINOR   38
+#define     MARK_CMAJOR   38
+#define     MARK_CMINOR   39
 
-#define     MARK_CTTYPE   40
-#define     MARK_CTARGET  41
+#define     MARK_CTTYPE   41
+#define     MARK_CTARGET  42
 
-#define     MARK_CHECK    43
+#define     MARK_CHECK    44
 
-#define     MARK_FDEL     47
-#define     MARK_FADD     48
-#define     MARK_FUPD     49
+#define     MARK_FDEL     48
+#define     MARK_FADD     49
+#define     MARK_FUPD     50
 
 /*===[[ UPDATES ]]===============*/
 
-#define     MARK_REMOVE   53
+#define     MARK_REMOVE   54
 #define     MARK_CREATE   55
-#define     MARK_UPDATE   57
+#define     MARK_UPDATE   56
 
 /*===[[ RECHECK ]]===============*/
 
-#define     MARK_RTYPE    61
+#define     MARK_RTYPE    62
 
-#define     MARK_ROWNER   63
-#define     MARK_RGROUP   64
-#define     MARK_RPERMS   65
+#define     MARK_ROWNER   64
+#define     MARK_RGROUP   65
+#define     MARK_RPERMS   66
 
-#define     MARK_RMAJOR   67
-#define     MARK_RMINOR   68
+#define     MARK_RMAJOR   68
+#define     MARK_RMINOR   69
 
-#define     MARK_RTTYPE   70
-#define     MARK_RTARGET  71
+#define     MARK_RTTYPE   71
+#define     MARK_RTARGET  72
 
-#define     MARK_RECHECK  73
+#define     MARK_RECHECK  74
 
 /*===[[ FINAL ]]=================*/
 
-#define     MARK_FINAL    77
+#define     MARK_FINAL    78
 
 /*===[[ HACKING ]]===============*/
 
-#define     MARK_AEPOCH   81
-#define     MARK_ABYTES   82
-#define     MARK_AINODE   83
-#define     MARK_AHASH    84
+#define     MARK_AEPOCH   82
+#define     MARK_ABYTES   83
+#define     MARK_AINODE   84
+#define     MARK_AHASH    85
 
-#define     MARK_HACKED   86
+#define     MARK_HACKED   87
 
 /*===[[ DONE ]]==================*/
 
@@ -195,29 +193,42 @@ extern const tENV_PERM zENV_perms [MAX_PERM];
 
 
 
-/*===[[ yENV_audit.c ]]=======================================================*/
+/*===[[ yENV_audit_beg.c ]]===================================================*/
 /*········· ´······················ ´·········································*/
-/*---(parts)----------------*/
-char        yenv_audit_prepare      (char a_type, char c_flag, char a_dir [LEN_PATH], char a_file [LEN_PATH], char a_mode, char r_full [LEN_PATH], char r_tdesc [LEN_TERSE], char r_mode [LEN_SHORT], char r_note [LEN_LABEL], char *r_check, char *r_force, char *r_fix);
+char        yenv_audit_fatal        (char a_label [LEN_LABEL], char a_msg [LEN_HUND]);
+char        yenv_audit_prepare      (char a_type, char c_flag, char r_tdesc [LEN_TERSE], char *r_check, char *r_force, char *r_fix);
 char        yenv_audit_expect       (char a_type, char b_owner [LEN_USER], char b_group [LEN_USER], char b_perms [LEN_TERSE], int *r_uid, int *r_gid, int *r_prm, char r_disp [LEN_LABEL]);
 char        yenv_audit_extra        (char a_type, int a_major, int a_minor, char a_ttype, char a_target [LEN_PATH], int a_epoch, long a_bytes, int a_inode, char a_hash [LEN_DESC]);
+/*---(done)-----------------*/
+
+
+
+/*===[[ yENV_audit_chg.c ]]===================================================*/
+/*········· ´······················ ´·········································*/
 char        yenv_audit_precheck     (char a_full [LEN_PATH], char a_etype, char a_eowner [LEN_USER], char a_egroup [LEN_USER], char a_eperms [LEN_TERSE], int a_emajor, int a_eminor, char a_ettype, char a_etarget [LEN_PATH], char *r_atype, char r_atdesc [LEN_TERSE], char *r_del, char *r_add, char *r_upd, char c_force, char c_fix);
 char        yenv_audit_remove       (char a_full [LEN_PATH], char a_atype, char a_atdesc [LEN_TERSE], char c_force, char c_del);
 char        yenv_audit_create       (char a_full [LEN_PATH], char a_etype, char a_etdesc [LEN_TERSE], char a_eowner [LEN_USER], char a_egroup [LEN_USER], char a_eperms [LEN_TERSE], int a_emajor, int a_eminor, char a_etarget [LEN_PATH], char c_force, char c_add);
 char        yenv_audit_update       (char a_full [LEN_PATH], char a_atype, char a_atdesc [LEN_TERSE], char a_eowner [LEN_USER], char a_egroup [LEN_USER], char a_eperms [LEN_TERSE], int a_emajor, int a_eminor, char a_etarget [LEN_PATH], char c_fix, char c_upd);
+/*---(done)-----------------*/
+
+
+
+/*===[[ yENV_audit_end.c ]]===================================================*/
+/*········· ´······················ ´·········································*/
 char        yenv_audit_typing       (char a_etype, char a_etdesc [LEN_TERSE], char a_atype, char a_atdesc [LEN_TERSE]);
 char        yenv_audit_final        (char a_full [LEN_PATH], char a_etype, char a_etdesc [LEN_TERSE], char a_eowner [LEN_USER], char a_egroup [LEN_USER], char a_eperms [LEN_TERSE], int a_euid, int a_egid, int a_eprm, char a_adisp [LEN_LABEL], int a_emajor, int a_eminor, char a_ettype, char a_etarget [LEN_PATH]);
 char        yenv_audit_hacked       (char a_full [LEN_PATH], int a_epoch, long a_bytes, int a_inode, char a_hash [LEN_DESC]);
-/*---(driver)---------------*/
-char        yENV_audit              (char a_type, char c_flag, char a_dir [LEN_PATH], char a_file [LEN_LABEL], char a_owner [LEN_USER], char a_group [LEN_USER], char a_perms [LEN_TERSE], int a_major, int a_minor, char a_ttype, char a_target [LEN_PATH]);
 /*---(done)-----------------*/
 
 
 
 /*===[[ yENV_name.c ]]========================================================*/
 /*········· ´······················ ´·········································*/
-char        yenv_name_quality       (char a_type, char a_dir [LEN_PATH], char a_file [LEN_PATH], char *r_style, char r_full [LEN_PATH], char c_naming);
-char        yenv_name_standard      (char a_type, char a_dir [LEN_PATH], char a_file [LEN_PATH], char a_prefix [LEN_TERSE], char a_suffix [LEN_TERSE], char c_naming, char c_style);
+char        yenv_name_quality       (char a_type, char c_naming, char a_dir [LEN_PATH], char a_file [LEN_PATH], char *r_style, char r_full [LEN_PATH]);
+char        yenv_name_standard      (char a_type, char c_naming, char c_style, char a_dir [LEN_PATH], char a_file [LEN_PATH], char a_prefix [LEN_TERSE], char a_suffix [LEN_TERSE]);
+char        yenv_name_local         (char c_naming, int a_ruid, char a_ruser [LEN_USER], char a_full [LEN_PATH], char b_owner [LEN_USER], char b_group [LEN_USER], char b_perms [LEN_TERSE]);
+char        yenv_name_central       (char c_naming, int a_ruid, char a_ruser [LEN_USER], char a_full [LEN_PATH], char b_owner [LEN_USER], char b_group [LEN_USER], char b_perms [LEN_TERSE]);
+char        yenv_name_location      (char a_type, char c_naming, char a_full [LEN_PATH], char b_owner [LEN_USER], char b_group [LEN_USER], char b_perms [LEN_TERSE]);
 /*---(done)-----------------*/
 
 
@@ -227,13 +238,6 @@ char        yenv_name_standard      (char a_type, char a_dir [LEN_PATH], char a_
 char        yENV__unit_quiet        (void);
 char        yENV__unit_loud         (void);
 char        yENV__unit_end          (void);
-/*---(done)-----------------*/
-
-
-
-/*===[[ yENV_data.c ]]========================================================*/
-/*········· ´······················ ´·········································*/
-int         yenv_perms              (char a_type, char a_name [LEN_LABEL]);
 /*---(done)-----------------*/
 
 
@@ -263,10 +267,33 @@ char        yENV_perms              (char a_text [LEN_TERSE], char r_name [LEN_T
 
 /*===[[ yENV_file.c ]]========================================================*/
 /*········· ´······················ ´·········································*/
-/*---(parts)----------------*/
-char        yenv_open__expect       (char b_owner [LEN_USER], char b_group [LEN_USER], char b_perms [LEN_TERSE], int *r_uid, int *r_gid, int *r_prm, char r_disp [LEN_LABEL]);
-char        yenv_open__prepare      (char a_dir [LEN_PATH], char a_file [LEN_PATH], char a_mode, char r_full [LEN_PATH], char r_mode [LEN_SHORT], char r_note [LEN_LABEL]);
-char        yenv_open__actual       (char a_full [LEN_PATH], char a_eowner [LEN_USER], char a_egroup [LEN_USER], char a_eperms [LEN_TERSE], int a_euid, int a_egid, int a_eprm, char a_adisp [LEN_LABEL], char c_force, char c_fix);
+char        yENV_open_full          (char a_label [LEN_LABEL], char a_dir [LEN_PATH], char a_file [LEN_PATH], char a_mode, char r_mode [LEN_SHORT], char r_note [LEN_LABEL], char r_full [LEN_PATH], FILE **b_file);
+char        yENV_open               (char a_dir [LEN_PATH], char a_file [LEN_PATH], char a_mode, FILE **b_file);
+char        yENV_close_full         (char a_label [LEN_LABEL], FILE **b_file, char c_sync);
+char        yENV_close              (FILE **b_file);
+/*---(done)-----------------*/
+
+
+
+/*===[[ yENV_score.c ]]=======================================================*/
+/*········· ´······················ ´·········································*/
+char        yenv_score_clear        (void);
+
+char*       yenv_score_terse        (void);
+char*       yenv_score              (void);
+char*       yenv_score_full         (void);
+char*       yenv_score_report       (void);
+
+char        yenv_score_pos          (char a_label [LEN_TERSE], short *r_norm, short *r_terse, short *r_report);
+char        yenv_score_mark         (char a_label [LEN_TERSE], uchar a_mark);
+char        yenv_score_value        (char a_label [LEN_TERSE]);
+
+char*       yenv_score_title        (char a_type);
+char*       yenv_score_rpt_heads    (char n);
+
+char        yenv_score_mask         (char a_beg [LEN_TERSE], char a_end [LEN_TERSE]);
+char        yenv_score_nocheck      (void);
+char        yenv_score_nohacked     (void);
 /*---(done)-----------------*/
 
 

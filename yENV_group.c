@@ -185,12 +185,18 @@ yENV_group_full         (char a_type, char a_text [LEN_USER], char r_name [LEN_U
    if (a_type == YENV_NONE) {
       DEBUG_YENV    yLOG_snote   ("nothing to be done");
       DEBUG_YENV    yLOG_sexit   (__FUNCTION__);
-      return 0;
+      return RC_ACK;
    }
    if (a_type == YENV_SYM) {
       DEBUG_YENV    yLOG_snote   ("nothing to be done");
       DEBUG_YENV    yLOG_sexit   (__FUNCTION__);
-      return 0;
+      return RC_ACK;
+   }
+   if (a_text != NULL && strcmp (a_text, "-") == 0) {
+      DEBUG_YENV    yLOG_snote   ("ignore request");
+      if (r_handle != NULL)  strlcpy (r_handle, "ignore", LEN_LABEL);
+      DEBUG_YENV    yLOG_sexit   (__FUNCTION__);
+      return RC_ACK;
    }
    /*---(defense)------------------------*/
    DEBUG_YENV    yLOG_schar   (a_type);
@@ -210,10 +216,17 @@ yENV_group_full         (char a_type, char a_text [LEN_USER], char r_name [LEN_U
    x_gid = atoi (a_text);
    if (x_gid <= 0)                 x_gid = -1;
    if (strcmp (a_text, "0") == 0)  x_gid = 0;
-   /*---(group by number)----------------*/
+   /*---(group by gid)-------------------*/
    --rce;  if (x_gid >= 0) {
       DEBUG_YENV    yLOG_snote   ("handle by group uid");
       if (r_handle != NULL)  strlcpy (r_handle, "gid", LEN_LABEL);
+      rc = yENV_group_data ('i', x_group, &x_gid);
+   }
+   /*---(group by current gid)-----------*/
+   --rce;  if (x_gid < 0 && strcmp (a_text, "@") == 0) {
+      DEBUG_YENV    yLOG_snote   ("handle using current group");
+      if (r_handle != NULL)  strlcpy (r_handle, "current", LEN_LABEL);
+      x_gid = getgid ();
       rc = yENV_group_data ('i', x_group, &x_gid);
    }
    /*---(group by name)------------------*/
@@ -221,13 +234,6 @@ yENV_group_full         (char a_type, char a_text [LEN_USER], char r_name [LEN_U
       DEBUG_YENV    yLOG_snote   ("handle by group name");
       if (r_handle != NULL)  strlcpy (r_handle, "name", LEN_LABEL);
       rc = yENV_group_data ('n', x_group, &x_gid);
-   }
-   /*---(group by current gid)-----------*/
-   --rce;  if (x_gid < 0 && strcmp (a_text, "") == 0) {
-      DEBUG_YENV    yLOG_snote   ("handle by current group");
-      if (r_handle != NULL)  strlcpy (r_handle, "current", LEN_LABEL);
-      x_gid = getgid ();
-      rc = yENV_group_data ('i', x_group, &x_gid);
    }
    /*---(trouble)------------------------*/
    DEBUG_YENV    yLOG_sint    (rc);
@@ -241,7 +247,7 @@ yENV_group_full         (char a_type, char a_text [LEN_USER], char r_name [LEN_U
    if (r_gid    != NULL)  *r_gid   = x_gid;
    /*---(complete)-----------------------*/
    DEBUG_YENV    yLOG_sexit   (__FUNCTION__);
-   return 0;
+   return RC_POSITIVE;
 }
 
 

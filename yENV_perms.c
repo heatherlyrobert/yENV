@@ -420,133 +420,6 @@ yenv_perms_by_octal     (char a_text [LEN_TERSE], char r_name [LEN_TERSE], int *
 /*====================------------------------------------====================*/
 static void      o___DRIVER_____________o (void) {;}
 
-int 
-yenv_perms              (char a_type, char a_perms [LEN_LABEL])
-{
-   /*---(locals)-----------+-----+-----+-*/
-   char        rce         =  -10;
-   uint        x_perms     =   -1;
-   int         l           =    0;
-   int         i           =    0;
-   char        x_boom      =  '-';
-   /*---(header)-------------------------*/
-   DEBUG_YENV    yLOG_senter  (__FUNCTION__);
-   /*---(defense)------------------------*/
-   DEBUG_YENV    yLOG_schar   (a_type);
-   --rce;  if (a_type == 0 || strchr (YENV_REAL, a_type) == NULL) {
-      DEBUG_YENV    yLOG_sexitr  (__FUNCTION__, rce);
-      return rce;
-   }
-   /*---(quick-out)----------------------*/
-   if (a_type == YENV_NONE) {
-      DEBUG_YENV    yLOG_snote   ("nothing to be done");
-      DEBUG_YENV    yLOG_sexit   (__FUNCTION__);
-      return 0;
-   }
-   if (a_type == YENV_SYM) {
-      DEBUG_YENV    yLOG_snote   ("nothing to be done");
-      DEBUG_YENV    yLOG_sexit   (__FUNCTION__);
-      return 0;
-   }
-   /*---(defense)------------------------*/
-   DEBUG_YENV    yLOG_spoint  (a_perms);
-   --rce;  if (a_type != YENV_SYM && a_perms == NULL) {
-      DEBUG_YENV    yLOG_sexitr  (__FUNCTION__, rce);
-      return rce;
-   }
-   DEBUG_YENV    yLOG_snote   (a_perms);
-   /*---(prepare)------------------------*/
-   l = strlen (a_perms);
-   DEBUG_YENV    yLOG_sint    (l);
-   --rce;  if (l < 4) {
-      DEBUG_YENV    yLOG_sexitr  (__FUNCTION__, rce);
-      return rce;
-   }
-   /*---(octal)--------------------------*/
-   --rce;  if (a_perms [0] == '0' && l >= 4 && l <= 5) {
-      DEBUG_YENV    yLOG_snote   ("handle as octal");
-      sscanf (a_perms, "%o", &x_perms);
-      DEBUG_YENV    yLOG_sint    (x_perms);
-      if (x_perms < 0 || x_perms > 04777) {
-         DEBUG_YENV    yLOG_sexitr  (__FUNCTION__, rce);
-         return rce;
-      }
-      DEBUG_YENV    yLOG_sexit   (__FUNCTION__);
-      return x_perms;
-   }
-   /*---(standard)-----------------------*/
-   --rce;  if (l >= 5 && a_perms [1] == '_') {
-      DEBUG_YENV    yLOG_snote   ("handle as standard");
-      for (i = 0; i < MAX_PERM; ++i) {
-         if (strcmp (zENV_perms [i].name, a_perms) != 0)  continue;
-         DEBUG_YENV    yLOG_snote   ("FOUND");
-         x_perms = zENV_perms [i].value;
-         break;
-      }
-      DEBUG_YENV    yLOG_sint    (x_perms);
-      if (x_perms == -1) {
-         DEBUG_YENV    yLOG_sexitr  (__FUNCTION__, rce);
-         return rce;
-      }
-      DEBUG_YENV    yLOG_sexit   (__FUNCTION__);
-      return x_perms;
-   }
-   /*---(display)------------------------*/
-   --rce;  if (l == 9) {
-      DEBUG_YENV    yLOG_snote   ("handle as displayed");
-      x_perms = 0;
-      /*---(owner)-----------------------*/
-      if      (a_perms [0] == '-')  ;
-      else if (a_perms [0] == 'r')  x_perms += 00400;
-      else                          x_boom  = '0';
-      if      (a_perms [1] == '-')  ;
-      else if (a_perms [1] == 'w')  x_perms += 00200;
-      else                          x_boom  = '1';
-      if      (a_perms [2] == '-')  ;
-      else if (a_perms [2] == 'x')  x_perms += 00100;
-      else if (a_perms [2] == 's')  x_perms += 04100;
-      else if (a_perms [2] == 'S')  x_perms += 04000;
-      else                          x_boom  = '2';
-      /*---(group)-----------------------*/
-      if      (a_perms [3] == '-')  ;
-      else if (a_perms [3] == 'r')  x_perms += 00040;
-      else                          x_boom  = '3';
-      if      (a_perms [4] == '-')  ;
-      else if (a_perms [4] == 'w')  x_perms += 00020;
-      else                          x_boom  = '4';
-      if      (a_perms [5] == '-')  ;
-      else if (a_perms [5] == 'x')  x_perms += 00010;
-      else if (a_perms [5] == 's')  x_perms += 02010;
-      else if (a_perms [5] == 'S')  x_perms += 02000;
-      else                          x_boom  = '5';
-      /*---(other)-----------------------*/
-      if      (a_perms [6] == '-')  ;
-      else if (a_perms [6] == 'r')  x_perms += 00004;
-      else                          x_boom  = '6';
-      if      (a_perms [7] == '-')  ;
-      else if (a_perms [7] == 'w')  x_perms += 00002;
-      else                          x_boom  = '7';
-      if      (a_perms [8] == '-')  ;
-      else if (a_perms [8] == 'x')  x_perms += 00001;
-      else if (a_perms [8] == 't')  x_perms += 01001;
-      else if (a_perms [8] == 'T')  x_perms += 01000;
-      else                          x_boom  = '8';
-      /*---(done)------------------------*/
-      DEBUG_YENV    yLOG_schar   (x_boom);
-      if (x_boom != '-') {
-         DEBUG_YENV    yLOG_sexitr  (__FUNCTION__, rce);
-         return rce;
-      }
-      DEBUG_YENV    yLOG_sexit   (__FUNCTION__);
-      return x_perms;
-   }
-   /*---(trouble)------------------------*/
-   --rce;
-   DEBUG_YENV    yLOG_snote   ("handling method not understood");
-   DEBUG_YENV    yLOG_sexitr  (__FUNCTION__, rce);
-   return rce;
-}
-
 char
 yENV_perms_full         (char a_type, char a_text [LEN_TERSE], char r_name [LEN_TERSE], int *r_perms, char r_disp [LEN_TERSE], char r_desc [LEN_HUND], char r_handle [LEN_LABEL])
 {
@@ -567,12 +440,18 @@ yENV_perms_full         (char a_type, char a_text [LEN_TERSE], char r_name [LEN_
    if (a_type == YENV_NONE) {
       DEBUG_YENV    yLOG_snote   ("nothing to be done");
       DEBUG_YENV    yLOG_sexit   (__FUNCTION__);
-      return 0;
+      return RC_ACK;
    }
    if (a_type == YENV_SYM) {
       DEBUG_YENV    yLOG_snote   ("nothing to be done");
       DEBUG_YENV    yLOG_sexit   (__FUNCTION__);
-      return 0;
+      return RC_ACK;
+   }
+   if (a_text != NULL && strcmp (a_text, "-") == 0) {
+      DEBUG_YENV    yLOG_snote   ("ignore request");
+      if (r_handle != NULL)  strlcpy (r_handle, "ignore", LEN_LABEL);
+      DEBUG_YENV    yLOG_sexit   (__FUNCTION__);
+      return RC_ACK;
    }
    /*---(defense)------------------------*/
    DEBUG_YENV    yLOG_schar   (a_type);
@@ -609,7 +488,7 @@ yENV_perms_full         (char a_type, char a_text [LEN_TERSE], char r_name [LEN_
       rc = yenv_perms_by_disp  (a_text, r_name, r_perms, r_disp, r_desc);
    }
    /*---(default)------------------------*/
-   --rce;  if (rc < 0 && l == 0) {
+   --rce;  if (rc < 0 && strcmp (a_text, "@") == 0) {
       DEBUG_YENV    yLOG_snote   ("handle as default");
       if (r_handle != NULL)  strlcpy (r_handle, "default", LEN_LABEL);
       if (a_type == YENV_DIR)    rc = yenv_perms_by_name  ("d_tight", r_name, r_perms, r_disp, r_desc);
@@ -623,7 +502,7 @@ yENV_perms_full         (char a_type, char a_text [LEN_TERSE], char r_name [LEN_
    }
    /*---(complete)-----------------------*/
    DEBUG_YENV    yLOG_sexit   (__FUNCTION__);
-   return 0;
+   return RC_POSITIVE;
 }
 
 

@@ -67,7 +67,7 @@ yENV_exists             (char a_name [LEN_PATH])
    rc = lstat (a_name, &s);
    DEBUG_YENV    yLOG_sint    (rc);
    --rce;  if (rc < 0) {
-      DEBUG_YENV    yLOG_sexitr  (__FUNCTION__, rce);
+      DEBUG_YENV    yLOG_sexit   (__FUNCTION__);
       return YENV_NONE;
    }
    /*---(normal types)-------------------*/
@@ -195,9 +195,6 @@ yENV_touchier           (char a_type, char a_name [LEN_PATH], char a_owner [LEN_
    char        rce         =  -10;
    char        rc          =    0;
    char        x_curr      = YENV_NONE;
-   /*> FILE       *f           = NULL;                                                <*/
-   /*> tPASSWD    *x_owner     = NULL;                                                <*/
-   /*> tGROUP     *x_group     = NULL;                                                <*/
    int         x_uid       =   -1;
    int         x_gid       =   -1;
    int         x_prm       =   -1;
@@ -232,8 +229,14 @@ yENV_touchier           (char a_type, char a_name [LEN_PATH], char a_owner [LEN_
    /*---(check on file)------------------*/
    x_curr = yENV_exists (a_name);
    DEBUG_YENV    yLOG_char    ("x_curr"    , x_curr);
-   --rce;  if (x_curr < 0)                       return rce;
-   --rce;  if (x_curr > YENV_NONE && x_curr != a_type) return rce;
+   --rce;  if (x_curr < 0) {
+      DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   --rce;  if (x_curr > YENV_NONE && x_curr != a_type) {
+      DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(pre-work owner)-----------------*/
    --rce;  if (a_type != YENV_SYM) {
       rc = yENV_user_full  (a_type, a_owner, NULL, &x_uid, NULL, NULL, NULL, NULL);
@@ -270,20 +273,47 @@ yENV_touchier           (char a_type, char a_name [LEN_PATH], char a_owner [LEN_
    }
    /*---(verify)-------------------------*/
    x_curr = yENV_detail (a_name, NULL, &x_euid, NULL, &x_egid, NULL, &x_eprm, NULL, NULL, NULL, NULL, &x_emaj, &x_emin, x_link, NULL, NULL, NULL);
-   --rce;  if (x_curr == YENV_NONE)                return YENV_NONE;
-   --rce;  if (x_curr <  0)                        return rce;
-   --rce;  if (x_curr >  YENV_NONE && x_curr != a_type)  return rce;
+   --rce;  if (x_curr == YENV_NONE) {
+      DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+      return YENV_NONE;
+   }
+   --rce;  if (x_curr <  0) {
+      DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   --rce;  if (x_curr >  YENV_NONE && x_curr != a_type) {
+      DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    --rce;  if (x_curr != YENV_SYM  ) {
-      if (x_uid   != x_euid)                       return rce;
-      if (x_gid   != x_egid)                       return rce;
-      if (x_prm   != x_eprm)                       return rce;
+      if (x_uid   != x_euid) {
+         DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
+      if (x_gid   != x_egid) {
+         DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
+      if (x_prm   != x_eprm) {
+         DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
    }
    --rce;  if (strchr ("bc", x_curr) != NULL) {
-      if (a_major != x_emaj)                       return rce;
-      if (a_minor != x_emin)                       return rce;
+      if (a_major != x_emaj) {
+         DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
+      if (a_minor != x_emin) {
+         DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
    }
    --rce;  if (x_curr == YENV_SYM  ) {
-      if (strcmp (a_link, x_link) != 0)            return rce;
+      if (strcmp (a_link, x_link) != 0) {
+         DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
    }
    /*---(complete)-----------------------*/
    DEBUG_YENV    yLOG_exit    (__FUNCTION__);
@@ -307,30 +337,93 @@ yENV_removier           (char a_type, char a_name [LEN_PATH])
    char        rce         =  -10;
    char        rc          =    0;
    char        x_type      =  YENV_NONE;
-   DEBUG_YENV    yLOG_exit    (__FUNCTION__);
+   /*---(header)-------------------------*/
+   DEBUG_YENV    yLOG_enter   (__FUNCTION__);
+   DEBUG_YENV    yLOG_complex ("a_type"    , "%3d/%c", a_type, a_type);
    /*---(defense)------------------------*/
-   --rce;  if (a_name == NULL)                             return rce;
-   --rce;  if (strcmp (a_name, "") == 0)                   return rce;
+   DEBUG_YENV    yLOG_point   ("a_name"    , a_name);
+   --rce;  if (a_name == NULL) {
+      DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_YENV    yLOG_info    ("a_name"    , a_name);
+   --rce;  if (strcmp (a_name, "") == 0) {
+      DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(check on file)------------------*/
    x_type = yENV_exists (a_name);
-   if (x_type == YENV_NONE)                                return x_type;
-   --rce;  if (x_type < 0)                                 return rce;
+   DEBUG_YENV    yLOG_complex ("exists"    , "%d/%c", x_type, x_type);
+   if (x_type == YENV_NONE) {
+      DEBUG_YENV    yLOG_exit    (__FUNCTION__);
+      return x_type;
+   }
+   --rce;  if (x_type < 0) {
+      DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    /*> --rce;  if (a_type != YENV_ANY && x_type != a_type)     return rce;            <*/
    /*---(create, if needed)--------------*/
+   DEBUG_YENV    yLOG_char    ("a_type"    , a_type);
    --rce;  switch (a_type) {
    case YENV_DIR   : 
+      DEBUG_YENV    yLOG_note    ("handle as directory");
       rc = rmdir   (a_name);
       break;
    default :
+      DEBUG_YENV    yLOG_note    ("handle as non-directory");
       rc = unlink (a_name);
       break;
    }
    /*---(complete)-----------------------*/
+   DEBUG_YENV    yLOG_exit    (__FUNCTION__);
    return yENV_exists (a_name);
 }
 
 char yENV_rm            (char a_name [LEN_PATH]) { yENV_removier (YENV_ANY  , a_name); }
 char yENV_rmdir         (char a_name [LEN_PATH]) { yENV_removier (YENV_DIR  , a_name); }
+
+char
+yENV_rmdir_and_files    (char a_name [LEN_PATH])
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   char        x_name      [LEN_DESC]  = "";
+   int         l           =    0;
+   char        x_cmd       [LEN_FULL]  = "";
+   /*---(header)-------------------------*/
+   DEBUG_YENV    yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   DEBUG_YENV    yLOG_point   ("a_name"    , a_name);
+   --rce;  if (a_name == NULL) {
+      DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_YENV    yLOG_info    ("a_name"    , a_name);
+   /*---(quick-out)----------------------*/
+   --rce;  if (strncmp (a_name, "/tmp/", 5) != 0) {
+      DEBUG_YENV    yLOG_note    ("can't mess around with or outside å/tmp/æ");
+      DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(prepare)------------------------*/
+   strlcpy (x_name, a_name, LEN_PATH);
+   l = strlen (x_name);
+   if (x_name [l - 1] != '/')  strlcat (x_name, "/", LEN_PATH);
+   DEBUG_YENV    yLOG_info    ("x_name"    , x_name);
+   /*---(remove files in dir)------------*/
+   snprintf (x_cmd, LEN_FULL, "rm -f %s*.*  > /dev/null  2>&1", x_name);
+   DEBUG_YENV    yLOG_info    ("x_cmd"     , x_cmd);
+   rc = system (x_cmd);
+   DEBUG_YENV    yLOG_value   ("rc"        , rc);
+   /*---(remove directory)---------------*/
+   rc = yENV_removier (YENV_DIR  , x_name);
+   DEBUG_YENV    yLOG_value   ("rc"        , rc);
+   /*---(complete)-----------------------*/
+   DEBUG_YENV    yLOG_exit    (__FUNCTION__);
+   return rc;
+}
 
 
 

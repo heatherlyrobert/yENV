@@ -237,12 +237,18 @@ yENV_user_full          (char a_type, char a_text [LEN_USER], char r_name [LEN_U
    if (a_type == YENV_NONE) {
       DEBUG_YENV    yLOG_snote   ("nothing to be done");
       DEBUG_YENV    yLOG_sexit   (__FUNCTION__);
-      return 0;
+      return RC_ACK;
    }
    if (a_type == YENV_SYM) {
       DEBUG_YENV    yLOG_snote   ("nothing to be done");
       DEBUG_YENV    yLOG_sexit   (__FUNCTION__);
-      return 0;
+      return RC_ACK;
+   }
+   if (a_text != NULL && strcmp (a_text, "-") == 0) {
+      DEBUG_YENV    yLOG_snote   ("ignore request");
+      if (r_handle != NULL)  strlcpy (r_handle, "ignore", LEN_LABEL);
+      DEBUG_YENV    yLOG_sexit   (__FUNCTION__);
+      return RC_ACK;
    }
    /*---(defense)------------------------*/
    DEBUG_YENV    yLOG_schar   (a_type);
@@ -268,18 +274,18 @@ yENV_user_full          (char a_type, char a_text [LEN_USER], char r_name [LEN_U
       if (r_handle != NULL)  strlcpy (r_handle, "uid", LEN_LABEL);
       rc = yENV_user_data  ('i', x_name, &x_uid, &x_gid, x_dir, x_shell);
    }
+   /*---(user by current uid)------------*/
+   --rce;  if (x_uid < 0 && strcmp (a_text, "@") == 0) {
+      DEBUG_YENV    yLOG_snote   ("handle using current user");
+      if (r_handle != NULL)  strlcpy (r_handle, "current", LEN_LABEL);
+      x_uid = geteuid ();
+      rc = yENV_user_data  ('i', x_name, &x_uid, &x_gid, x_dir, x_shell);
+   }
    /*---(user by name)-------------------*/
    --rce;  if (x_uid < 0 && strcmp (a_text, "") != 0) {
       DEBUG_YENV    yLOG_snote   ("handle by user name");
       if (r_handle != NULL)  strlcpy (r_handle, "name", LEN_LABEL);
       rc = yENV_user_data  ('n', a_text, &x_uid, &x_gid, x_dir, x_shell);
-   }
-   /*---(user by current uid)------------*/
-   --rce;  if (x_uid < 0 && strcmp (a_text, "") == 0) {
-      DEBUG_YENV    yLOG_snote   ("handle by current user");
-      if (r_handle != NULL)  strlcpy (r_handle, "current", LEN_LABEL);
-      x_uid = geteuid ();
-      rc = yENV_user_data  ('i', x_name, &x_uid, &x_gid, x_dir, x_shell);
    }
    /*---(handle trouble)-----------------*/
    DEBUG_YENV    yLOG_sint    (rc);
@@ -296,7 +302,7 @@ yENV_user_full          (char a_type, char a_text [LEN_USER], char r_name [LEN_U
    if (r_shell  != NULL)  strlcpy (r_shell, x_shell, LEN_HUND);
    /*---(complete)-----------------------*/
    DEBUG_YENV    yLOG_sexit   (__FUNCTION__);
-   return 0;
+   return RC_POSITIVE;
 }
 
 
@@ -318,80 +324,6 @@ yENV_user_uid           (char a_type, int a_value, char r_name [LEN_USER], int *
    char        x_text      [LEN_TERSE] = "";
    snprintf (x_text, LEN_TERSE, "%d", a_value);
    return yENV_user_full (a_type, x_text, r_name, r_uid, NULL, NULL, NULL, NULL);
-}
-
-/*> int                                                                               <* 
- *> yenv_user               (char a_type, char a_name [LEN_USER])                     <* 
- *> {                                                                                 <* 
- *>    /+---(locals)-----------+-----+-----+-+/                                       <* 
- *>    char        rce         =  -10;                                                <* 
- *>    char        rc          =    0;                                                <* 
- *>    char        x_user      [LEN_USER]  = "";                                      <* 
- *>    int         x_uid       =   -1;                                                <* 
- *>    /+---(header)-------------------------+/                                       <* 
- *>    DEBUG_YENV    yLOG_senter  (__FUNCTION__);                                     <* 
- *>    /+---(defense)------------------------+/                                       <* 
- *>    DEBUG_YENV    yLOG_schar   (a_type);                                           <* 
- *>    --rce;  if (a_type == 0 || strchr (YENV_REAL, a_type) == NULL) {               <* 
- *>       DEBUG_YENV    yLOG_sexitr  (__FUNCTION__, rce);                             <* 
- *>       return rce;                                                                 <* 
- *>    }                                                                              <* 
- *>    /+---(quick-out)----------------------+/                                       <* 
- *>    if (a_type == YENV_NONE) {                                                     <* 
- *>       DEBUG_YENV    yLOG_snote   ("nothing to be done");                          <* 
- *>       DEBUG_YENV    yLOG_sexit   (__FUNCTION__);                                  <* 
- *>       return 0;                                                                   <* 
- *>    }                                                                              <* 
- *>    if (a_type == YENV_SYM) {                                                      <* 
- *>       DEBUG_YENV    yLOG_snote   ("nothing to be done");                          <* 
- *>       DEBUG_YENV    yLOG_sexit   (__FUNCTION__);                                  <* 
- *>       return 0;                                                                   <* 
- *>    }                                                                              <* 
- *>    /+---(defense)------------------------+/                                       <* 
- *>    DEBUG_YENV    yLOG_point   ("b_name"    , a_name);                             <* 
- *>    --rce;  if (a_type != YENV_SYM && a_name == NULL) {                            <* 
- *>       DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);                             <* 
- *>       return rce;                                                                 <* 
- *>    }                                                                              <* 
- *>    DEBUG_YENV    yLOG_info    ("b_name"    , a_name);                             <* 
- *>    /+---(user by number)-----------------+/                                       <* 
- *>    --rce;  if (strcmp (a_name, "0") == 0 || atoi (a_name) > 0) {                  <* 
- *>       DEBUG_YENV    yLOG_snote   ("handle by user uid");                          <* 
- *>       x_uid = atoi (a_name);                                                      <* 
- *>       rc = yENV_user_data  ('i', x_user, &x_uid, NULL, NULL, NULL);               <* 
- *>    }                                                                              <* 
- *>    /+---(user by name)-------------------+/                                       <* 
- *>    else if (strcmp (a_name, "") != 0) {                                           <* 
- *>       DEBUG_YENV    yLOG_snote   ("handle by user name");                         <* 
- *>       rc = yENV_user_data  ('n', a_name, &x_uid, NULL, NULL, NULL);               <* 
- *>    }                                                                              <* 
- *>    /+---(user by current uid)------------+/                                       <* 
- *>    else {                                                                         <* 
- *>       DEBUG_YENV    yLOG_snote   ("handle by current user");                      <* 
- *>       x_uid = geteuid ();                                                         <* 
- *>       rc = yENV_user_data  ('i', x_user, &x_uid, NULL, NULL, NULL);               <* 
- *>    }                                                                              <* 
- *>    /+---(handle trouble)-----------------+/                                       <* 
- *>    DEBUG_YENV    yLOG_sint    (rc);                                               <* 
- *>    if (rc < 0) {                                                                  <* 
- *>       DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);                             <* 
- *>       return rce;                                                                 <* 
- *>    }                                                                              <* 
- *>    DEBUG_YENV    yLOG_sint    (x_uid);                                            <* 
- *>    /+---(complete)-----------------------+/                                       <* 
- *>    DEBUG_YENV    yLOG_sexit   (__FUNCTION__);                                     <* 
- *>    return x_uid;                                                                  <* 
- *> }                                                                                 <*/
-
-int
-yenv_user_check        (char a_name [LEN_PATH])
-{
-   /*---(locals)-----------+-----+-----+-*/
-   /*> char        rc          =    0;                                                <* 
-    *> tSTAT       s;                                                                 <* 
-    *> rc = lstat (a_name, &s);                                                       <* 
-    *> if (rc < 0)   return YENV_NONE;                                                <* 
-    *> return s.st_uid;                                                               <*/
 }
 
 char
