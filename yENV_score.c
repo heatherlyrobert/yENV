@@ -28,143 +28,142 @@
  *
  */
 
-
 const static tENV_SCORE s_audits [LEN_FULL] = {
 
    /*===[[ NAME ]]==========================================================*/
-   { "NMá "            , ' ' ,  0  , "NAME"            , ""                                 , ""                                                                                },
+   { "NMá "     , ' ' ,  0  , "NAME"     , ""                                 , ""                                                                                },
    /*===[[ REQUEST TYPE ]]==================================================*/
-   { "NCONF"           , '·' , 'c' , "conf"            , "naming standard applied"          , "-) loose     n) normal    s) standard  l) local     c) central"                  }, 
-   { " "               , ' ' ,  1  , ""                , ""                                 , ""                                                                                },
+   { "NCONF"    , '·' , 'c' , "conf"     , "naming standard applied"          , "-) loose     n) normal    s) standard  l) local     c) central"                  }, 
+   { " "        , ' ' ,  1  , ""         , ""                                 , ""                                                                                },
    /*===[[ NAMING ]]========================================================*/
-   { "NFULL"           , '·' , 'n' , "name"            , "name quality checking"            , "-) no dir    =) no file   /) not abs   ´) hidden    ¢) bad char  n) passed"      },
-   { "NSTYLE"          , '·' , 'b' , "style"           , "dir, file, or both"               , "d) dir-only    f) file-only   b) both"                                           },
-   { " "               , ' ' ,  1  , ""                , ""                                 , ""                                                                                },
+   { "NFULL"    , '·' , 'n' , "name"     , "name quality checking"            , "-) no dir    =) no file   /) not abs   ´) hidden    ¢) bad char  n) passed"      },
+   { "NSTYLE"   , '·' , 'b' , "style"    , "dir, file, or both"               , "d) dir-only    f) file-only   b) both"                                           },
+   { " "        , ' ' ,  1  , ""         , ""                                 , ""                                                                                },
    /*===[[ STANDARDS ]]=====================================================*/
-   { "NFIXES"          , '·' , 'N' , "fixes"           , "prefix/suffix checking"           , "-) skipped   #) dot count P) pre bad   S) suf bad   ¢) rem bad   N) passed"      },
-   { "NLOC"            , '·' , 'l' , "locs"            , "location  checking"               , "rR) root   hH) home   eE) etc    sS) spool    [ upper case passed]"              },
-   { " "               , ' ' ,  1  , ""                , ""                                 , ""                                                                                },
+   { "NFIXES"   , '·' , 'N' , "fixes"    , "prefix/suffix checking"           , "-) skipped   #) dot count P) pre bad   S) suf bad   ¢) rem bad   N) passed"      },
+   { "NLOC"     , '·' , 'l' , "locs"     , "location  checking"               , "rR) root   hH) home   eE) etc    sS) spool    [ upper case passed]"              },
+   { " "        , ' ' ,  1  , ""         , ""                                 , ""                                                                                },
    /*===[[ REQUEST ]]=======================================================*/
-   { "NAME"            , '-' , '´' , "ŒŒŒŒŒŒ"          , "judgement on naming"              , "´) passed"                                                                       },
-   { "   "             , '·' ,  3  , ""                , ""                                 , ""                                                                                },
+   { "NAME"     , '-' , '´' , "ŒŒŒŒŒŒ"   , "judgement on naming"              , "´) passed"                                                                       },
+   { "   "      , ' ' ,  3  , ""         , ""                                 , ""                                                                                },
 
    /*===[[ REQUEST ]]=======================================================*/
-   { "EXá "            , ' ' ,  0  , "EXPECT"          , ""                                 , ""                                                                                },
+   { "EXá "     , ' ' ,  0  , "EXPECT"   , ""                                 , ""                                                                                },
    /*===[[ REQUEST TYPE ]]==================================================*/
-   { "ETYPE"           , '·' , 'r' , "type"            , "expected file type"               , "d) dir   r) reg   s) sym   h) hard  c) char  b) block p) pipe  i) ipsoc ?) WTF"  },
-   { " "               , ' ' ,  1  , ""                , ""                                 , ""                                                                                },
+   { "ETYPE"    , '·' , 'r' , "type"     , "expected file type"               , "d) dir   r) reg   s) sym   h) hard  c) char  b) block p) pipe  i) ipsoc ?) WTF"  },
+   { " "        , ' ' ,  1  , ""         , ""                                 , ""                                                                                },
    /*===[[ REQUEST CHARS ]]=================================================*/
-   { "EOWNER"          , '·' , 'o' , "owner"           , "expected owner"                   , "o) standard   ö) numeric    O) default    -) skipped"                            },
-   { "EGROUP"          , '·' , 'g' , "group"           , "expected group"                   , "g) standard   ò) numeric    G) default    -) skipped"                            },
-   { "EPERMS"          , '·' , 'p' , "perms"           , "expected permissions"             , "p) standard   ÷) non-std    P) default    -) skipped"                            },
-   { " "               , ' ' ,  1  , ""                , ""                                 , ""                                                                                },
+   { "EOWNER"   , '·' , 'o' , "owner"    , "expected owner"                   , "o) standard   ö) numeric    O) default    -) skipped"                            },
+   { "EGROUP"   , '·' , 'g' , "group"    , "expected group"                   , "g) standard   ò) numeric    G) default    -) skipped"                            },
+   { "EPERMS"   , '·' , 'p' , "perms"    , "expected permissions"             , "p) standard   ÷) non-std    P) default    -) skipped"                            },
+   { " "        , ' ' ,  1  , ""         , ""                                 , ""                                                                                },
    /*===[[ REQUEST DEVICE ]]================================================*/
-   { "EMAJOR"          , '·' , 'j' , "major"           , "expected owner"                   , "j) in-range   -) skipped"                                                        },
-   { "EMINOR"          , '·' , 'n' , "minor"           , "expected group"                   , "n) in-range   -) skipped"                                                        },
-   { " "               , ' ' ,  1  , ""                , ""                                 , ""                                                                                },
+   { "EMAJOR"   , '·' , 'j' , "major"    , "expected owner"                   , "j) in-range   -) skipped"                                                        },
+   { "EMINOR"   , '·' , 'n' , "minor"    , "expected group"                   , "n) in-range   -) skipped"                                                        },
+   { " "        , ' ' ,  1  , ""         , ""                                 , ""                                                                                },
    /*===[[ REQUEST LINK ]]==================================================*/
-   { "ETTYPE"          , '·' , 'r' , "ttype"           , "expected link target type"        , "d) dir   r) reg   s) sym   h) hard  c) char  b) block p) pipe  i) ipsoc ?) WTF"  },
-   { "ETARGET"         , '·' , 't' , "target"          , "expected link target"             , "/) not-abs    #) bad chars  t) accepted   -) skipped"                            },
-   { " "               , ' ' ,  1  , ""                , ""                                 , ""                                                                                },
+   { "ETTYPE"   , '·' , 'r' , "ttype"    , "expected link target type"        , "d) dir   r) reg   s) sym   h) hard  c) char  b) block p) pipe  i) ipsoc ?) WTF"  },
+   { "ETARGET"  , '·' , 't' , "target"   , "expected link target"             , "/) not-abs    #) bad chars  t) accepted   -) skipped"                            },
+   { " "        , ' ' ,  1  , ""         , ""                                 , ""                                                                                },
    /*===[[ REQUEST EXTENDED ]]==============================================*/
-   { "EEPOCH"          , '·' , 'e' , "epoch"           , "expected update time"             , "e) accepted   -) skipped"                                                        },
-   { "EBYTES"          , '·' , 'b' , "bytes"           , "expected size in bytes"           , "b) accepted   -) skipped"                                                        },
-   { "EINODE"          , '·' , 'i' , "inode"           , "expected inode"                   , "i) accepted   -) skipped"                                                        },
-   { "EHASH"           , '·' , 'h' , "hash"            , "expected file SHA hash"           , "h) accepted   -) skipped"                                                        },
-   { " "               , ' ' ,  1  , ""                , ""                                 , ""                                                                                },
+   { "EEPOCH"   , '·' , 'e' , "epoch"    , "expected update time"             , "e) accepted   -) skipped"                                                        },
+   { "EBYTES"   , '·' , 'b' , "bytes"    , "expected size in bytes"           , "b) accepted   -) skipped"                                                        },
+   { "EINODE"   , '·' , 'i' , "inode"    , "expected inode"                   , "i) accepted   -) skipped"                                                        },
+   { "EHASH"    , '·' , 'h' , "hash"     , "expected file SHA hash"           , "h) accepted   -) skipped"                                                        },
+   { " "        , ' ' ,  1  , ""         , ""                                 , ""                                                                                },
    /*===[[ REQUEST ]]=======================================================*/
-   { "EXPECT"          , '-' , '´' , "ŒŒŒŒŒŒ"          , "judgement on request"             , "´) passed"                                                                       },
-   { "   "             , '·' ,  3  , ""                , ""                                 , ""                                                                                },
+   { "EXPECT"   , '-' , '´' , "ŒŒŒŒŒŒ"   , "judgement on request"             , "´) passed"                                                                       },
+   { "   "      , ' ' ,  3  , ""         , ""                                 , ""                                                                                },
 
    /*===[[ PRECHECK ]]======================================================*/
-   { "PRá "            , ' ' ,  0  , "CHECK"           , ""                                 , ""                                                                                },
+   { "PRá "     , ' ' ,  0  , "CHECK"    , ""                                 , ""                                                                                },
    /*===[[ CHECK TYPE ]]====================================================*/
-   { "CTYPE"           , '·' , 'r' , "type"            , "checked file type"                , "same as expected type, lower case if matching, upper case if not-match"          },
-   { " "               , ' ' ,  1  , ""                , ""                                 , ""                                                                                },
+   { "CTYPE"    , '·' , 'r' , "type"     , "checked file type"                , "same as expected type, lower case if matching, upper case if not-match"          },
+   { " "        , ' ' ,  1  , ""         , ""                                 , ""                                                                                },
    /*===[[ CHECK CHARS ]]===================================================*/
-   { "COWNER"          , '·' , 'o' , "owner"           , "checked owner"                    , "o) match      O) not-match"                                                      },
-   { "CGROUP"          , '·' , 'g' , "group"           , "checked group"                    , "g) match      G) not-match"                                                      },
-   { "CPERMS"          , '·' , 'p' , "perms"           , "checked permissions"              , "p) match      P) not-match"                                                      },
-   { " "               , ' ' ,  1  , ""                , ""                                 , ""                                                                                },
+   { "COWNER"   , '·' , 'o' , "owner"    , "checked owner"                    , "o) match      O) not-match"                                                      },
+   { "CGROUP"   , '·' , 'g' , "group"    , "checked group"                    , "g) match      G) not-match"                                                      },
+   { "CPERMS"   , '·' , 'p' , "perms"    , "checked permissions"              , "p) match      P) not-match"                                                      },
+   { " "        , ' ' ,  1  , ""         , ""                                 , ""                                                                                },
    /*===[[ CHECK DEVICE ]]==================================================*/
-   { "CMAJOR"          , '·' , 'j' , "major"           , "checked owner"                    , "j) match      J) not-match"                                                      },
-   { "CMINOR"          , '·' , 'n' , "minor"           , "checked group"                    , "n) match      N) not-match"                                                      },
-   { " "               , ' ' ,  1  , ""                , ""                                 , ""                                                                                },
+   { "CMAJOR"   , '·' , 'j' , "major"    , "checked owner"                    , "j) match      J) not-match"                                                      },
+   { "CMINOR"   , '·' , 'n' , "minor"    , "checked group"                    , "n) match      N) not-match"                                                      },
+   { " "        , ' ' ,  1  , ""         , ""                                 , ""                                                                                },
    /*===[[ CHECK LINK ]]====================================================*/
-   { "CTTYPE"          , '·' , 'r' , "ttype"           , "checked link target type"         , "t) match      T) not-match"                                                      },
-   { "CTARGET"         , '·' , 't' , "target"          , "checked link target"              , "t) match      T) not-match"                                                      },
-   { " "               , ' ' ,  1  , ""                , ""                                 , ""                                                                                },
+   { "CTTYPE"   , '·' , 'r' , "ttype"    , "checked link target type"         , "t) match      T) not-match"                                                      },
+   { "CTARGET"  , '·' , 't' , "target"   , "checked link target"              , "t) match      T) not-match"                                                      },
+   { " "        , ' ' ,  1  , ""         , ""                                 , ""                                                                                },
    /*===[[ CHECK JUDGE ]]===================================================*/
-   { "CHECK"           , '-' , '´' , "ŒŒŒŒŒŒ"          , "judgement on check"               , "-) skipped    ´) passed"                                                         },
-   { "   "             , '·' ,  3  , ""                , ""                                 , ""                                                                                },
+   { "CHECK"    , '-' , '´' , "ŒŒŒŒŒŒ"   , "judgement on check"               , "-) skipped    ´) passed"                                                         },
+   { "   "      , ' ' ,  3  , ""         , ""                                 , ""                                                                                },
 
    /*===[[ FIXES ]]=========================================================*/
-   { "FXá "            , ' ' ,  0  , "FIXES"           , ""                                 , ""                                                                                },
+   { "FXá "     , ' ' ,  0  , "FIXES"    , ""                                 , ""                                                                                },
    /*===[[ REQUEST ]]=======================================================*/
-   { "EFLAG"           , '·' , 'F' , "flag"            , "fix/forcing flag interpretation"  , "-) none allowed  f) allow fix     F) allow create  !) can even remove"           },
-   { " "               , ' ' ,  1  , ""                , ""                                 , ""                                                                                },
+   { "EFLAG"    , '·' , 'F' , "flag"     , "fix/forcing flag interpretation"  , "-) none allowed  f) allow fix     F) allow create  !) can even remove"           },
+   { " "        , ' ' ,  1  , ""         , ""                                 , ""                                                                                },
    /*===[[ CONFIGURATION ]]=================================================*/
-   { "CONFC"           , '·' , 'y' , "check"           , "judgement on request"             , "y) precheck    -) not-requested"                                                 },
-   { "CONFF"           , '·' , 'y' , "force"           , "judgement on request"             , "y) create, if must   !) remove, if must   -) not-requested"                      },
-   { "CONFX"           , '·' , 'y' , "fix"             , "judgement on request"             , "y) fix, if must      -) not-requested"                                           },
-   { " "               , ' ' ,  1  , ""                , ""                                 , ""                                                                                },
+   { "CONFC"    , '·' , 'y' , "check"    , "judgement on request"             , "y) precheck    -) not-requested"                                                 },
+   { "CONFF"    , '·' , 'y' , "force"    , "judgement on request"             , "y) create, if must   !) remove, if must   -) not-requested"                      },
+   { "CONFX"    , '·' , 'y' , "fix"      , "judgement on request"             , "y) fix, if must      -) not-requested"                                           },
+   { " "        , ' ' ,  1  , ""         , ""                                 , ""                                                                                },
    /*===[[ FIX/FORCES ]]====================================================*/
-   { "FDEL"            , '·' , 'r' , "remove"          , "need forced deletion"             , "r) requires deletion   -) not needed"                                            },
-   { "FADD"            , '·' , 'c' , "create"          , "need forced creation"             , "c) requires creation   -) not needed"                                            },
-   { "FUPD"            , '·' , 'u' , "update"          , "need forced updates"              , "u) requires updates    -) not needed"                                            },
-   { " "               , ' ' ,  1  , ""                , ""                                 , ""                                                                                },
+   { "FDEL"     , '·' , 'r' , "remove"   , "need forced deletion"             , "r) requires deletion   -) not needed"                                            },
+   { "FADD"     , '·' , 'c' , "create"   , "need forced creation"             , "c) requires creation   -) not needed"                                            },
+   { "FUPD"     , '·' , 'u' , "update"   , "need forced updates"              , "u) requires updates    -) not needed"                                            },
+   { " "        , ' ' ,  1  , ""         , ""                                 , ""                                                                                },
    /*===[[ ACTUAL ]]========================================================*/
-   { "REMOVE"          , '·' , 'R' , "REMOVE"          , "actual deletion"                  , "R) really removed    ?) non-existant      !) not enough force  -) not needed"    },
-   { " "               , ' ' ,  1  , ""                , ""                                 , ""                                                                                },
-   { "CREATE"          , '·' , 'C' , "CREATE"          , "actual creation"                  , "C) really created    ?) already exists    !) not enough force  -) not needed"    },
-   { " "               , ' ' ,  1  , ""                , ""                                 , ""                                                                                },
-   { "UPDATE"          , '·' , 'U' , "UPDATE"          , "actual updates"                   , "U) really updated    !) not enough force  -) not needed"                         },
-   { " "               , ' ' ,  1  , ""                , ""                                 , ""                                                                                },
+   { "REMOVE"   , '·' , 'R' , "REMOVE"   , "actual deletion"                  , "R) really removed    ?) non-existant      !) not enough force  -) not needed"    },
+   { " "        , ' ' ,  1  , ""         , ""                                 , ""                                                                                },
+   { "CREATE"   , '·' , 'C' , "CREATE"   , "actual creation"                  , "C) really created    ?) already exists    !) not enough force  -) not needed"    },
+   { " "        , ' ' ,  1  , ""         , ""                                 , ""                                                                                },
+   { "UPDATE"   , '·' , 'U' , "UPDATE"   , "actual updates"                   , "U) really updated    !) not enough force  -) not needed"                         },
+   { " "        , ' ' ,  1  , ""         , ""                                 , ""                                                                                },
    /*===[[ RE-CHECK JUDGE ]]================================================*/
-   { "FIXES"           , '-' , '´' , "ŒŒŒŒŒŒ"          , "judgement on fixes"               , "-) skipped    ´) passed"                                                         },
-   { "   "             , ' ' ,  3  , ""                , ""                                 , ""                                                                                },
+   { "FIXES"    , '-' , '´' , "ŒŒŒŒŒŒ"   , "judgement on fixes"               , "-) skipped    ´) passed"                                                         },
+   { "   "      , ' ' ,  3  , ""         , ""                                 , ""                                                                                },
 
    /*===[[ RECHECK ]]=======================================================*/
-   { "REá "            , ' ' ,  0  , "RECHECK"         , ""                                 , ""                                                                                },
+   { "REá "     , ' ' ,  0  , "RECHECK"  , ""                                 , ""                                                                                },
    /*===[[ RE-CHECK TYPE ]]=================================================*/
-   { "RTYPE"           , '·' , 'r' , "type"            , "checked file type"                , "same as expected type, lower case if matching, upper case if not-match"          },
-   { " "               , ' ' ,  1  , ""                , ""                                 , ""                                                                                },
+   { "RTYPE"    , '·' , 'r' , "type"     , "checked file type"                , "same as expected type, lower case if matching, upper case if not-match"          },
+   { " "        , ' ' ,  1  , ""         , ""                                 , ""                                                                                },
    /*===[[ RE-CHECK CHARS ]]================================================*/
-   { "ROWNER"          , '·' , 'o' , "owner"           , "re-checked owner"                 , "o) match      O) not-match"                                                      },
-   { "RGROUP"          , '·' , 'g' , "group"           , "re-checked group"                 , "g) match      G) not-match"                                                      },
-   { "RPERMS"          , '·' , 'p' , "perms"           , "re-checked permissions"           , "p) match      P) not-match"                                                      },
-   { " "               , ' ' ,  1  , ""                , ""                                 , ""                                                                                },
+   { "ROWNER"   , '·' , 'o' , "owner"    , "re-checked owner"                 , "o) match      O) not-match"                                                      },
+   { "RGROUP"   , '·' , 'g' , "group"    , "re-checked group"                 , "g) match      G) not-match"                                                      },
+   { "RPERMS"   , '·' , 'p' , "perms"    , "re-checked permissions"           , "p) match      P) not-match"                                                      },
+   { " "        , ' ' ,  1  , ""         , ""                                 , ""                                                                                },
    /*===[[ RE-CHECK DEVICE ]]===============================================*/
-   { "RMAJOR"          , '·' , 'j' , "major"           , "re-checked owner"                 , "j) match      J) not-match"                                                      },
-   { "RMINOR"          , '·' , 'n' , "minor"           , "re-checked group"                 , "n) match      N) not-match"                                                      },
-   { " "               , ' ' ,  1  , ""                , ""                                 , ""                                                                                },
+   { "RMAJOR"   , '·' , 'j' , "major"    , "re-checked owner"                 , "j) match      J) not-match"                                                      },
+   { "RMINOR"   , '·' , 'n' , "minor"    , "re-checked group"                 , "n) match      N) not-match"                                                      },
+   { " "        , ' ' ,  1  , ""         , ""                                 , ""                                                                                },
    /*===[[ RE-CHECK LINK ]]=================================================*/
-   { "RTTYPE"          , '·' , 'r' , "ttype"           , "re-checked link target type"      , "t) match      T) not-match"                                                      },
-   { "RTARGET"         , '·' , 't' , "target"          , "re-checked link target"           , "t) match      T) not-match"                                                      },
-   { " "               , ' ' ,  1  , ""                , ""                                 , ""                                                                                },
+   { "RTTYPE"   , '·' , 'r' , "ttype"    , "re-checked link target type"      , "t) match      T) not-match"                                                      },
+   { "RTARGET"  , '·' , 't' , "target"   , "re-checked link target"           , "t) match      T) not-match"                                                      },
+   { " "        , ' ' ,  1  , ""         , ""                                 , ""                                                                                },
    /*===[[ RE-CHECK JUDGE ]]================================================*/
-   { "RECHECK"         , '-' , '´' , "ŒŒŒŒŒŒ"          , "judgement on re-check"            , "´) passed"                                                                       },
-   { "   "             , ' ' ,  3  , ""                , ""                                 , ""                                                                                },
+   { "RECHECK"  , '-' , '´' , "ŒŒŒŒŒŒ"   , "judgement on re-check"            , "´) passed"                                                                       },
+   { "   "      , ' ' ,  3  , ""         , ""                                 , ""                                                                                },
 
    /*===[[ FINAL ]]=========================================================*/
-   { "JDá "            , ' ' ,  0  , "³"               , ""                                 , ""                                                                                },
+   { "JDá "     , ' ' ,  0  , "³"        , ""                                 , ""                                                                                },
    /*===[[ FINAL JUDGE ]]===================================================*/
-   { "FINAL"           , ' ' , 'Ï' , "FINAL"           , "final judgement"                  , "Ï) passed"                                                                       },
-   { "   "             , ' ' ,  3  , ""                , ""                                 , ""                                                                                },
+   { "FINAL"    , ' ' , 'Ï' , "FINAL"    , "final judgement"                  , "Ï) passed"                                                                       },
+   { "   "      , ' ' ,  3  , ""         , ""                                 , ""                                                                                },
 
    /*===[[ HACKED ]]========================================================*/
-   { "HKá "            , ' ' ,  0  , "HACK"            , ""                                 , ""                                                                                },
+   { "HKá "     , ' ' ,  0  , "HACK"     , ""                                 , ""                                                                                },
    /*===[[ HACKING CHECK ]]=================================================*/
-   { "AEPOCH"          , '·' , 'e' , "epoch"           , "check update time"                , "e) matches    E) not-match"                                                      },
-   { "ABYTES"          , '·' , 'b' , "bytes"           , "check size in bytes"              , "b) matches    B) not-match"                                                      },
-   { "AINODE"          , '·' , 'i' , "inode"           , "check inode"                      , "i) matches    I) not-match"                                                      },
-   { "AHASH"           , '·' , 'h' , "hash"            , "check file SHA hash"              , "h) matches    H) not-match"                                                      },
-   { " "               , ' ' ,  1  , ""                , ""                                 , ""                                                                                },
+   { "AEPOCH"   , '·' , 'e' , "epoch"    , "check update time"                , "e) matches    E) not-match"                                                      },
+   { "ABYTES"   , '·' , 'b' , "bytes"    , "check size in bytes"              , "b) matches    B) not-match"                                                      },
+   { "AINODE"   , '·' , 'i' , "inode"    , "check inode"                      , "i) matches    I) not-match"                                                      },
+   { "AHASH"    , '·' , 'h' , "hash"     , "check file SHA hash"              , "h) matches    H) not-match"                                                      },
+   { " "        , ' ' ,  1  , ""         , ""                                 , ""                                                                                },
    /*===[[ HACKING FINAL ]]=================================================*/
-   { "HACKED"          , '-' , '´' , "ŒŒŒŒŒŒ"          , "final hacking judgement"          , "-) skipped    ´) passed"                                                         },
+   { "HACKED"   , '-' , '´' , "ŒŒŒŒŒŒ"   , "final hacking judgement"          , "-) skipped    ´) passed"                                                         },
 
    /*===[[ END-OF-LIST ]]===================================================*/
-   { "end-list"        , '·' , '·' , ""                , "end-of-entries"                   , ""                                                                                },
+   { "end-list" , '·' , '·' , ""         , "end-of-entries"                   , ""                                                                                },
 
    /*===[[ DONE ]]==========================================================*/
 };
@@ -776,5 +775,248 @@ char yENV_score_mask         (char a_beg [LEN_TERSE], char a_end [LEN_TERSE])  {
 char yenv_score_nocheck      (void) { return yenv_score_mask ("PRá "      , "FIXES"     ); }
 char yenv_score_nohacked     (void) { return yenv_score_mask ("HKá "      , "HACKED"    ); }
 
+
+
+/*====================------------------------------------====================*/
+/*===----                      auditing tables                         ----===*/
+/*====================------------------------------------====================*/
+static void      o___AUDITING______o (void) {;};
+
+char
+yenv_score__asample     (short n, uchar a_sample)
+{
+   char        rce         =  -10;
+   --rce;  if (a_sample >= 127 && a_sample <= 159) {
+      yURG_err ('w', "%3d) bad sample character, (%3d) char, line drawing characters disallowed", n, a_sample);
+      return rce;
+   }
+   if (a_sample == 0 )  return RC_POSITIVE;
+   if (a_sample == 1 )  return RC_POSITIVE;
+   if (a_sample == 3 )  return RC_POSITIVE;
+   --rce;  if (a_sample <= 32) {
+      yURG_err ('w', "%3d) bad sample character, (%3d) char, control characters disallowed (0 - 32), except 0, 1, and 3", n, a_sample);
+      return rce;
+   }
+   return RC_POSITIVE;
+}
+
+char
+yenv_score__adefault    (short n, uchar a_sample, uchar a_default)
+{
+   char        rce         =  -10;
+   --rce;  if (a_default >= 127 && a_default <= 159) {
+      yURG_err ('w', "%3d) bad default character, (%3d) sample, (%3d) char, line drawing characters disallowed", n, a_sample, a_default);
+      return rce;
+   }
+   --rce;  if (a_default < 32) {
+      yURG_err ('w', "%3d) bad default character, (%3d) sample, (%3d) char, control characters disallowed (0 - 31)", n, a_sample, a_default);
+      return rce;
+   }
+   --rce;  if (a_sample < 32 && a_default != ' ') {
+      yURG_err ('w', "%3d) must use space as default, (%3d) sample", n, a_sample);
+      return rce;
+   }
+   --rce;  if (a_sample > 32 && a_default == ' ') {
+      yURG_err ('w', "%3d) space default character, (%3d) sample, not allowed for normal lines", n, a_sample);
+      return rce;
+   }
+   return RC_POSITIVE;
+}
+
+char
+yenv_score__alabel      (short n, uchar a_sample, char a_label [LEN_TERSE])
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   int         i           =    0;
+   int         l           =    0;
+   char       *x_valid     = NULL;
+   /*---(defense)------------------------*/
+   --rce;  if (a_label == NULL) {
+      yURG_err ('w', "%3d) label NULL, %3d line, %c sample", n, a_sample);
+      return rce;
+   }
+   /*---(lengths)------------------------*/
+   l = strlen (a_label);
+   --rce;  if (l > 9) {
+      yURG_err ('w', "%3d) label too long (> 9), (%3d) sample, (%d) len", n, a_sample, l);
+      return rce;
+   }
+   --rce;  if (a_sample > 32 && l < 1) {
+      yURG_err ('w', "%3d) label too short, (%3d) sample, (%d) len", n, a_sample, l);
+      return rce;
+   }
+   --rce;  if (a_sample == 0 && l != 4) {
+      yURG_err ('w', "%3d) 0 label not 4 long, (%3d) sample, (%d) len", n, a_sample, l);
+      return rce;
+   }
+   --rce;  if (a_sample == 1 && l != 1) {
+      yURG_err ('w', "%3d) 1 label not 1 long, (%3d) sample, (%d) len", n, a_sample, l);
+      return rce;
+   }
+   --rce;  if (a_sample == 3 && l != 3) {
+      yURG_err ('w', "%3d) 3 label not 3 long, (%3d) sample, (%d) len", n, a_sample, l);
+      return rce;
+   }
+   /*---(characters)---------------------*/
+   switch (a_sample) {
+   case  0  : x_valid = "ABCDEFGHIJKLMNOPQRSTUVWXYZá ";  break;
+   case  1  : x_valid = " ·";                            break;
+   case  3  : x_valid = " ·";                            break;
+   default  : x_valid = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";    break;
+   }
+   for (i = 0; i < l; ++i) {
+      if (strchr (x_valid, a_label [i]) == NULL) {
+         yURG_err ('w', "%3d) bad label character, (%3d) sample, (%d) pos, (%3d) char not allowed å%sæ", n, a_sample, i, a_label [i], x_valid);
+         return rce;
+      }
+   }
+   /*---(specific)-----------------------*/
+   x_valid = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+   --rce;  if (a_sample == 0 && strchr (x_valid, a_label [0]) == NULL) {
+      yURG_err ('w', "%3d) 0 label char one must be upper case, (%3d) sample, (%c) char", n, a_sample, a_label [0]);
+      return rce;
+   }
+   --rce;  if (a_sample == 0 && strchr (x_valid, a_label [1]) == NULL) {
+      yURG_err ('w', "%3d) 0 label char two must be upper case, (%3d) sample, (%c) char", n, a_sample, a_label [1]);
+      return rce;
+   }
+   --rce;  if (a_sample == 0 && a_label [2] != 'á') {
+      yURG_err ('w', "%3d) 0 label char two must be tick (á), (%3d) sample, (%c) char", n, a_sample, a_label [2]);
+      return rce;
+   }
+   --rce;  if (a_sample == 0 && a_label [3] != ' ') {
+      yURG_err ('w', "%3d) 0 label char four must be space, (%3d) sample, (%c) char", n, a_sample, a_label [3]);
+      return rce;
+   }
+   /*---(complete)-----------------------*/
+   return RC_POSITIVE;
+}
+
+char
+yenv_score__aprint      (short n, uchar a_sample, char a_print [LEN_TERSE])
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   int         i           =    0;
+   int         l           =    0;
+   char       *x_valid     = NULL;
+   /*---(defense)------------------------*/
+   --rce;  if (a_print == NULL) {
+      yURG_err ('w', "%3d) print NULL, (%3d) sample", n, a_sample);
+      return rce;
+   }
+   /*---(lengths)------------------------*/
+   l = strlen (a_print);
+   --rce;  if (l > 9) {
+      yURG_err ('w', "%3d) print too long (> 9), (%3d) sample, (%d) len", n, a_sample, l);
+      return rce;
+   }
+   --rce;  if (a_sample != 0 && l > 6) {
+      yURG_err ('w', "%3d) normal print too long (> 6), (%3d) sample, (%d) len", n, a_sample, l);
+      return rce;
+   }
+   --rce;  if ((a_sample == 0 || a_sample > 32) && l < 1) {
+      yURG_err ('w', "%3d) print too short, (%3d) sample, (%d) len", n, a_sample, l);
+      return rce;
+   }
+   --rce;  if (a_sample == 1 && l != 0) {
+      yURG_err ('w', "%3d) 1 print not zero, (%3d) sample, (%d) len", n, a_sample, l);
+      return rce;
+   }
+   --rce;  if (a_sample == 3 && l != 0) {
+      yURG_err ('w', "%3d) 3 print not zero, (%3d) sample, (%d) len", n, a_sample, l);
+      return rce;
+   }
+   /*---(characters)---------------------*/
+   switch (a_sample) {
+   case  0  : x_valid = "ABCDEFGHIJKLMNOPQRSTUVWXYZ³";  break;
+   default  : x_valid = "abcdefghijklmnopqrstuvwxyzŒABCDEFGHIJKLMNOPQRSTUVWXYZ";  break;
+   }
+   for (i = 0; i < l; ++i) {
+      if (strchr (x_valid, a_print [i]) == NULL) {
+         yURG_err ('w', "%3d) bad print character, (%3d) sample, (%d) pos, (%3d) char not allowed å%sæ", n, a_sample, i, a_print [i], x_valid);
+         return rce;
+      }
+   }
+   /*---(complete)-----------------------*/
+   return RC_POSITIVE;
+}
+
+char
+yenv_score__aline       (short n, char a_label [LEN_LABEL], char a_default, char a_sample, char a_print [LEN_TERSE], char a_desc [LEN_TERSE], char a_legend [LEN_TERSE])
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rc          =    0;
+   char        rc_final    = RC_POSITIVE;
+   /*---(checks)----------------------*/
+   rc = yenv_score__asample  (n, a_sample);
+   if (rc < 0)  rc_final = rc;
+   rc = yenv_score__adefault (n, a_sample, a_default);
+   if (rc < 0)  rc_final = rc;
+   rc = yenv_score__alabel   (n, a_sample, a_label);
+   if (rc < 0)  rc_final = rc;
+   rc = yenv_score__aprint   (n, a_sample, a_print);
+   if (rc < 0)  rc_final = rc;
+   /*---(complete)-----------------------*/
+   return rc_final;
+}
+
+char
+yenv_score__audit       (tENV_SCORE *a_table)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   char        rc_final    = RC_POSITIVE;
+   char        x_block     =    0;
+   int         i           =    0;
+   char        x_end       =  '-';
+   /*---(header)-------------------------*/
+   DEBUG_YENV   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   DEBUG_YENV   yLOG_point   ("a_table"   , a_table);
+   --rce;  if (a_table == NULL) {
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(line-by-line)-------------------*/
+   --rce;  for (i = 0; i < LEN_FULL; ++i) {
+      /*---(label)-----------------------*/
+      switch (a_table [i].s_sample) {
+      case  0 : yURG_msg ('>', "auditing å%sæ block on line (%d)...", a_table [i].s_label, i);  break;
+      default : yURG_msg ('-', "%3d) reviewing å%sæ", i, a_table [i].s_label);                  break;
+      }
+      /*---(test for end-list)-----------*/
+      if (strncmp (a_table [i].s_label, "end-", 4) == 0) {
+         x_end = 'y';
+         break;
+      }
+      /*---(checks)----------------------*/
+      rc = yenv_score__aline    (i, a_table [i].s_label, a_table [i].s_default, a_table [i].s_sample, a_table [i].s_print, a_table [i].s_desc, a_table [i].s_legend);
+      if (rc < 0)  rc_final = rc;
+      /*---(done)------------------------*/
+   }
+   /*---(list end)-----------------------*/
+   DEBUG_YENV   yLOG_char    ("x_end"     , x_end);
+   --rce;  if (x_end != 'y') {
+      yURG_err ('w', "table does not complete with end-line item");
+      rc_final = rce;
+   }
+   /*---(trouble)------------------------*/
+   if (rc_final < 0) {
+      yURG_msg ('F', "scoring table has multiple warnings that may make its functioning erratic or erroneous");
+   } else {
+      yURG_msg ('P', "scoring table appears proper, all lines checked");
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_YENV    yLOG_exit    (__FUNCTION__);
+   return rc_final;
+}
+
+char yenv_score_audit   (void)  { return yenv_score__audit (s_audits); }
+char yENV_score_audit   (void)  { return yenv_score__audit (s_TABLE); }
 
 

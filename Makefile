@@ -17,11 +17,11 @@ INST_DIR   =
 
 #===(optional)=============================================#
 # extra include directories required
-INC_MINE   = 
+INC_MINE   =
 # utilities generated, separate from main program
-NAME_UTIL  = 
+NAME_UTIL  = yenv
 # libraries only for the utilities
-LIB_UTIL   = 
+LIB_UTIL   =
 
 
 

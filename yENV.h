@@ -52,9 +52,9 @@ struct cENV_SCORE {
    char        s_label     [LEN_TERSE];
    char        s_default;
    char        s_sample;  
-   char        s_print     [LEN_DESC];  
+   char        s_print     [LEN_TERSE];  
    char        s_desc      [LEN_DESC];
-   char        s_long      [LEN_FULL];
+   char        s_legend    [LEN_FULL];
 };
 typedef   struct   cENV_SCORE   tENV_SCORE;
 
@@ -195,6 +195,7 @@ char*       yENV_score_rpt_heads    (char n);
 
 char        yENV_score_mask         (char a_beg [LEN_TERSE], char a_end [LEN_TERSE]);
 
+char        yENV_score_audit        (void);
 
 
 #endif
