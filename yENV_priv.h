@@ -10,8 +10,8 @@
 /*········· ··········· ´·····························´········································*/
 #define     P_FOCUS     "RS (run-time support)"
 #define     P_NICHE     "de (debugging/logging control)"
-#define     P_SUBJECT   "linux filesystem and configuration"
-#define     P_PURPOSE   "provide low-level linux filesystem and configuration services"
+#define     P_SUBJECT   "linux filesystem and security"
+#define     P_PURPOSE   "provide low-level linux filesystem and security services"
 /*········· ··········· ´·····························´········································*/
 #define     P_NAMESAKE  "tartarus-eeroeis (murky one)"
 #define     P_PRONOUNCE "tar·tar·uhs"
@@ -38,8 +38,8 @@
 /*········· ··········· ´·····························´········································*/
 #define     P_VERMAJOR  "1.--, production improvements"
 #define     P_VERMINOR  "1.2-, adding detailed audit, open, close ability"
-#define     P_VERNUM    "1.2g"
-#define     P_VERTXT    "scoring audit working, including in polymnia"
+#define     P_VERNUM    "1.2h"
+#define     P_VERTXT    "ported scoring to yJOBS and adding warning messages about labels"
 /*········· ··········· ´·····························´········································*/
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -297,9 +297,10 @@ char        yenv_score_nohacked     (void);
 /*---(auditing)-------------*/
 char        yenv_score__asample     (short n, uchar a_sample);
 char        yenv_score__adefault    (short n, uchar a_sample, uchar a_default);
-char        yenv_score__alabel      (short n, uchar s_sample, char s_label [LEN_LABEL]);
+char        yenv_score__alabel      (short n, uchar s_sample, char s_label [LEN_TERSE]);
 char        yenv_score__aprint      (short n, uchar a_sample, char a_print [LEN_TERSE]);
-char        yenv_score__aline       (short n, char a_label [LEN_LABEL], char a_default, char a_sample, char a_print [LEN_TERSE], char a_desc [LEN_TERSE], char a_legend [LEN_TERSE]);
+char        yenv_score__aline       (short n, char a_label [LEN_TERSE], char a_default, char a_sample, char a_print [LEN_TERSE], char a_desc [LEN_TERSE], char a_legend [LEN_TERSE]);
+char        yenv_score__adup        (tENV_SCORE *a_table, char n, char a_label [LEN_TERSE]);
 char        yenv_score_audit        (void);
 /*---(done)-----------------*/
 

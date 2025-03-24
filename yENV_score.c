@@ -271,8 +271,6 @@ char* yENV_score_full   (void)  { return s_FULL; }
 char* yenv_score_report (void)  { return s_report; }
 char* yENV_score_report (void)  { return s_REPORT; }
 
-char* yENV_score_ttile  (void)  { return ""; }
-char* yENV_score_rtile  (void)  { return ""; }
 
 
 
@@ -307,6 +305,7 @@ yenv_score__clear       (tENV_SCORE *a_table, char r_terse [LEN_FULL], char r_sc
    /*---(defense)------------------------*/
    DEBUG_YENV   yLOG_spoint  (a_table);
    --rce;  if (a_table == NULL) {
+      yURG_err ('w', "scoring clear called without scoring table");
       DEBUG_YENV   yLOG_sexitr  (__FUNCTION__, rce);
       return rce;
    }
@@ -448,6 +447,7 @@ yenv_score__pos         (tENV_SCORE *a_table, char a_label [LEN_TERSE], short *r
    /*---(defense)------------------------*/
    DEBUG_YENV   yLOG_point   ("a_table"   , a_table);
    --rce;  if (a_table == NULL) {
+      yURG_err ('w', "scoring pos called without scoring table");
       DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
@@ -512,17 +512,18 @@ yenv_score__mark         (tENV_SCORE *a_table, char a_label [LEN_TERSE], uchar a
    char        rc          =    0;
    short       t           =   -1;
    short       s           =   -1;
-   short       r           =   -1;
-   /*---(header)-------------------------*/
+   short       r           =   -1; /*---(header)-------------------------*/
    DEBUG_YENV   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
    DEBUG_YENV   yLOG_point   ("a_table"   , a_table);
    --rce;  if (a_table == NULL) {
+      yURG_err ('w', "scoring mark å%sæ, called without scoring table", a_label);
       DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    DEBUG_YENV   yLOG_value   ("a_mark"    , a_mark);
-   --rce;  if (a_mark    < 32) {
+   --rce;  if (a_mark    <= 32 || (a_mark >= 127 && a_mark <= 159)) {
+      yURG_err ('w', "scoring mark å%sæ, called with illegal value (%3d)", a_label, a_mark);
       DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
@@ -531,6 +532,7 @@ yenv_score__mark         (tENV_SCORE *a_table, char a_label [LEN_TERSE], uchar a
    rc = yenv_score__pos (a_table, a_label, &t, &s, &r);
    DEBUG_YENV   yLOG_value   ("pos"       , rc);
    --rce;  if (rc < 0) {
+      yURG_err ('w', "scoring mark å%sæ, label does not exist in scoring table", a_label);
       DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
@@ -573,6 +575,7 @@ yenv_score__value       (tENV_SCORE *a_table, char a_label [LEN_TERSE], char a_s
    /*---(defense)------------------------*/
    DEBUG_YENV   yLOG_point   ("a_table"   , a_table);
    --rce;  if (a_table == NULL) {
+      yURG_err ('w', "scoring value å%sæ, called without scoring table", a_label);
       DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
@@ -585,6 +588,7 @@ yenv_score__value       (tENV_SCORE *a_table, char a_label [LEN_TERSE], char a_s
    rc = yenv_score__pos (a_table, a_label, NULL, &s, NULL);
    DEBUG_YENV   yLOG_value   ("pos"       , rc);
    --rce;  if (rc < 0) {
+      yURG_err ('w', "scoring value å%sæ, label does not exist in scoring table", a_label);
       DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
@@ -621,6 +625,7 @@ yenv_score__rpt_heads   (tENV_SCORE *a_table, char n)
    /*---(defense)------------------------*/
    DEBUG_YENV   yLOG_point   ("a_table"   , a_table);
    --rce;  if (a_table == NULL) {
+      yURG_err ('w', "scoring rpt_heads called without scoring table");
       DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
       return "(no table)";
    }
@@ -677,6 +682,7 @@ yenv_score__title       (tENV_SCORE *a_table, char a_type)
    /*---(defense)------------------------*/
    DEBUG_YENV   yLOG_point   ("a_table"   , a_table);
    --rce;  if (a_table == NULL) {
+      yURG_err ('w', "scoring title called without scoring table");
       DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
       return "(no table)";
    }
@@ -756,13 +762,20 @@ yenv_score__mask        (tENV_SCORE *a_table, char a_beg [LEN_TERSE], char a_end
    short        bt, et;
    short        bs, es;
    short        br, er;
-   --rce;  if (a_table == NULL)  return rce;
+   --rce;  if (a_table == NULL) {
+      yURG_err ('w', "scoring mask called without scoring table");
+      return rce;
+   }
    rc = yenv_score__pos (a_table, a_beg, &bt, &bs, &br);
-   --rce;  if (rc < 0)  return rce;
-   --rce;  if (bs < 0)  return rce;
+   --rce;  if (rc < 0 || bs < 0) {
+      yURG_err ('w', "scoring mask å%sæ, begin label does not exist in scoring table", a_beg);
+      return rce;
+   }
    rc = yenv_score__pos (a_table, a_end, &et, &es, &er);
-   --rce;  if (rc < 0)  return rce;
-   --rce;  if (es < 0)  return rce;
+   --rce;  if (rc < 0 || es < 0) {
+      yURG_err ('w', "scoring mask å%sæ, ending label does not exist in scoring table", a_end);
+      return rce;
+   }
    if (b_terse  != NULL) { for (i = bt; i <= et; ++i)  b_terse  [i]   = '¬'; }
    if (b_score  != NULL) { for (i = bs; i <= es; ++i)  b_score  [i]   = '¬'; }
    if (b_report != NULL) { for (i = br; i <= er; ++i)  b_report [i]   = '¬'; }
@@ -946,7 +959,7 @@ yenv_score__aprint      (short n, uchar a_sample, char a_print [LEN_TERSE])
 }
 
 char
-yenv_score__aline       (short n, char a_label [LEN_LABEL], char a_default, char a_sample, char a_print [LEN_TERSE], char a_desc [LEN_TERSE], char a_legend [LEN_TERSE])
+yenv_score__aline       (short n, char a_label [LEN_TERSE], char a_default, char a_sample, char a_print [LEN_TERSE], char a_desc [LEN_TERSE], char a_legend [LEN_TERSE])
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rc          =    0;
@@ -965,29 +978,71 @@ yenv_score__aline       (short n, char a_label [LEN_LABEL], char a_default, char
 }
 
 char
+yenv_score__adup        (tENV_SCORE *a_table, char n, char a_label [LEN_TERSE])
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   int         i           =    0;
+   /*---(range check)--------------------*/
+   if (n > LEN_FULL)  n = LEN_FULL;
+   /*---(line-by-line)-------------------*/
+   --rce;  for (i = 0; i < n; ++i) {
+      /*---(test for end-list)-----------*/
+      if (strncmp (a_table [i].s_label, "end-", 4) == 0)  break;
+      /*---(filter)----------------------*/
+      if (a_table [i].s_sample == 1)                      continue;
+      if (a_table [i].s_sample == 3)                      continue;
+      if (strcmp (a_table [i].s_label, a_label) != 0)     continue;
+      /*---(duplicate)-------------------*/
+      yURG_err ('w', "%3d) å%sæ is a duplicate label of (%d)", n, a_label, i);
+      return rce;
+      /*---(done)------------------------*/
+   }
+   /*---(complete)-----------------------*/
+   return RC_POSITIVE;
+}
+
+char
 yenv_score__audit       (tENV_SCORE *a_table)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    char        rc          =    0;
+   char        rc2         =    0;
    char        rc_final    = RC_POSITIVE;
    char        x_block     =    0;
    int         i           =    0;
    char        x_end       =  '-';
+   char        x_bad       =    0;
+   char        x_error     =    0;
    /*---(header)-------------------------*/
    DEBUG_YENV   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
    DEBUG_YENV   yLOG_point   ("a_table"   , a_table);
    --rce;  if (a_table == NULL) {
+      yURG_err ('w', "scoring audit called without scoring table");
       DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(line-by-line)-------------------*/
    --rce;  for (i = 0; i < LEN_FULL; ++i) {
-      /*---(label)-----------------------*/
+      /*---(messages)--------------------*/
       switch (a_table [i].s_sample) {
-      case  0 : yURG_msg ('>', "auditing å%sæ block on line (%d)...", a_table [i].s_label, i);  break;
-      default : yURG_msg ('-', "%3d) reviewing å%sæ", i, a_table [i].s_label);                  break;
+      case  0 :
+         /*---(block footer)-------------*/
+         if (i != 0) {
+            if  (x_bad == 0)  yURG_msg ('-', "successful, no trouble found in block");
+            else              yURG_msg ('-', "failure, %d issuse found in block", x_bad);
+         }
+         /*---(block header)-------------*/
+         yURG_msg ('>', "auditing å%sæ block on line (%d)...", a_table [i].s_label, i);
+         x_bad = 0;
+         break;
+      default :
+         if (i == 0)  yURG_msg ('>', "pseudo block, auditing å%sæ on line (%d)...", a_table [i].s_label, i);
+         else         yURG_msg ('-', "%3d) reviewing å%sæ", i, a_table [i].s_label);
+         break;
       }
       /*---(test for end-list)-----------*/
       if (strncmp (a_table [i].s_label, "end-", 4) == 0) {
@@ -995,21 +1050,35 @@ yenv_score__audit       (tENV_SCORE *a_table)
          break;
       }
       /*---(checks)----------------------*/
-      rc = yenv_score__aline    (i, a_table [i].s_label, a_table [i].s_default, a_table [i].s_sample, a_table [i].s_print, a_table [i].s_desc, a_table [i].s_legend);
-      if (rc < 0)  rc_final = rc;
+      rc  = yenv_score__aline    (i, a_table [i].s_label, a_table [i].s_default, a_table [i].s_sample, a_table [i].s_print, a_table [i].s_desc, a_table [i].s_legend);
+      rc2 = yenv_score__adup     (a_table, i, a_table [i].s_label);
+      /*---(troubles)--------------------*/
+      if (rc < 0 || rc2 < 0) {
+         ++x_bad;
+         ++x_error;
+         rc_final = rc;
+      }
       /*---(done)------------------------*/
    }
    /*---(list end)-----------------------*/
    DEBUG_YENV   yLOG_char    ("x_end"     , x_end);
    --rce;  if (x_end != 'y') {
       yURG_err ('w', "table does not complete with end-line item");
+      ++x_bad;
+      ++x_error;
       rc_final = rce;
-   }
-   /*---(trouble)------------------------*/
-   if (rc_final < 0) {
-      yURG_msg ('F', "scoring table has multiple warnings that may make its functioning erratic or erroneous");
    } else {
-      yURG_msg ('P', "scoring table appears proper, all lines checked");
+      yURG_msg ('-', "proper end-line found");
+   }
+   if  (x_bad == 0)  yURG_msg ('-', "successful, no trouble found in block");
+   else              yURG_msg ('-', "failure, %d issuse found in block", x_bad);
+   /*---(trouble)------------------------*/
+   yURG_msg ('>', "score auditing summary...");
+   yURG_msg ('-', "reviewed all lines, %d lines, %d error/warn", i, x_error);
+   if (rc_final < 0) {
+      yURG_msg ('-', "failure, scoring table has multiple warnings that may make its functioning erratic or erroneous");
+   } else {
+      yURG_msg ('-', "successful, scoring table appears proper, all lines checked");
    }
    /*---(complete)-----------------------*/
    DEBUG_YENV    yLOG_exit    (__FUNCTION__);
