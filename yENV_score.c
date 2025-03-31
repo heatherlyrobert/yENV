@@ -26,6 +26,10 @@
  *
  *    long is used for legends telling the various content meanings
  *
+ *    decided NOT to have valid values checked as is creates another
+ *    level of thing that might fail -- scoring should not fail
+ *
+ *
  */
 
 const static tENV_SCORE s_audits [LEN_FULL] = {
@@ -33,18 +37,26 @@ const static tENV_SCORE s_audits [LEN_FULL] = {
    /*===[[ NAME ]]==========================================================*/
    { "NMá "     , ' ' ,  0  , "NAME"     , ""                                 , ""                                                                                },
    /*===[[ REQUEST TYPE ]]==================================================*/
-   { "NCONF"    , '·' , 'c' , "conf"     , "naming standard applied"          , "-) loose     n) normal    s) standard  l) local     c) central"                  }, 
+   { "NCONF"    , '·' , 'c' , "conf"     , "naming²standard²applied"          , "°) illegal   -) wild      n) normal    s) standard  l) local     c) central"     }, 
+   { "NDIR"     , '·' , 'd' , "dir"      , "directory²requested"              , "°) null      £) empty     /) pathless  D) passed"                                },
+   { "NFILE"    , '·' , 'f' , "file"     , "file²name²requested"              , "°) null      £) empty     /) pathed    F) passed    -) skipped"                  },
    { " "        , ' ' ,  1  , ""         , ""                                 , ""                                                                                },
    /*===[[ NAMING ]]========================================================*/
-   { "NFULL"    , '·' , 'n' , "name"     , "name quality checking"            , "-) no dir    =) no file   /) not abs   ´) hidden    ¢) bad char  n) passed"      },
-   { "NSTYLE"   , '·' , 'b' , "style"    , "dir, file, or both"               , "d) dir-only    f) file-only   b) both"                                           },
+   { "NFULL"    , '·' , 'n' , "full"     , "name²quality²checking"            , "°) null      /) not abs   ´) hidden    ¢) bad char  n) passed"                   },
+   { "NSTYLE"   , '·' , 'b' , "style"    , "naming²style"                     , "d) dir       f) file      b) both"                                               },
    { " "        , ' ' ,  1  , ""         , ""                                 , ""                                                                                },
    /*===[[ STANDARDS ]]=====================================================*/
-   { "NFIXES"   , '·' , 'N' , "fixes"    , "prefix/suffix checking"           , "-) skipped   #) dot count P) pre bad   S) suf bad   ¢) rem bad   N) passed"      },
-   { "NLOC"     , '·' , 'l' , "locs"     , "location  checking"               , "rR) root   hH) home   eE) etc    sS) spool    [ upper case passed]"              },
+   { "NDOTS"    , '·' , 'n' , "ndots"    , "file²name²separators"             , "·) skipped   °) none      <) too few   >) too many  n) passed"                   },
+   { "NPREFIX"  , '·' , 'p' , "prefix"   , "required²prefix"                  , "·) skipped   °) failed    u) user      p) passed"                                },
+   { "NSUFFIX"  , '·' , 's' , "suffix"   , "required²suffix"                  , "·) skipped   °) failed    s) passed"                                             },
+   { "NDESC"    , '·' , 'd' , "desc"     , "remaining²description"            , "·) skipped   °) failed    d) passed"                                             },
+   { " "        , ' ' ,  1  , ""         , ""                                 , ""                                                                                },
+   /*===[[ LOCATION ]]======================================================*/
+   { "NLOC"     , '·' , 'h' , "loc"      , "file²location²type"               , "·) skipped   °) failed    r) root      h) home      e) etc       s) spool"       },
+   { "NUSE"     , '·' , 'H' , "usable"   , "file²location²usable"             , "·) skipped   °) failed    R) root      H) home      E) etc       S) spool"       },
    { " "        , ' ' ,  1  , ""         , ""                                 , ""                                                                                },
    /*===[[ REQUEST ]]=======================================================*/
-   { "NAME"     , '-' , '´' , "ŒŒŒŒŒŒ"   , "judgement on naming"              , "´) passed"                                                                       },
+   { "NAME"     , '-' , '´' , "ŒŒŒŒŒŒ"   , "[[²name²judgement²]]"             , "-) unknown   °) failed    ´) passed"                                             },
    { "   "      , ' ' ,  3  , ""         , ""                                 , ""                                                                                },
 
    /*===[[ REQUEST ]]=======================================================*/
@@ -1087,5 +1099,173 @@ yenv_score__audit       (tENV_SCORE *a_table)
 
 char yenv_score_audit   (void)  { return yenv_score__audit (s_audits); }
 char yENV_score_audit   (void)  { return yenv_score__audit (s_TABLE); }
+
+
+
+/*====================------------------------------------====================*/
+/*===----                       legend version                         ----===*/
+/*====================------------------------------------====================*/
+static void      o___LEGEND________o (void) {;};
+
+char*
+yenv_score__legend      (tENV_SCORE *a_table, char a_line, char a_label [LEN_TERSE], char a_terse [LEN_FULL])
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   int         l           =    0;
+   int         i           =    0;
+   short       x_beg       =   -1;
+   short       x_end       =   -1;
+   short       x_cnt       =    0;
+   short       x_off       =    0;
+   uchar       x_samp      =  '-';
+   char        t           [LEN_HUND]  = "";
+   short       x_pos       =    0;
+   char       *x_heads     = "   --label--  -print-  ---description------------  ---possible-values-------------------------------------------------------------";
+   /*---(header)-------------------------*/
+   DEBUG_YENV   yLOG_enter   (__FUNCTION__);
+   /*---(default)------------------------*/
+   strlcpy (g_print, "", LEN_RECD);
+   /*---(defense)------------------------*/
+   DEBUG_YENV   yLOG_point   ("a_table"   , a_table);
+   --rce;  if (a_table == NULL) {
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
+      return "(null table)";
+   }
+   /*---(defense)------------------------*/
+   DEBUG_YENV   yLOG_point   ("a_label"   , a_label);
+   --rce;  if (a_label == NULL) {
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
+      return "(null label)";
+   }
+   DEBUG_YENV   yLOG_info    ("a_label"   , a_label);
+   --rce;  if (a_label [0] == ' ') {
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
+      return "(spacer/gap label)";
+   }
+   l = strlen (a_label);
+   DEBUG_YENV   yLOG_value   ("l"         , l);
+   --rce;  if (l != 4 || a_label [0] == ' ' || a_label [2] != 'á' || a_label [3] != ' ') {
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
+      return "(label not lead)";
+   }
+   /*---(find bounds)--------------------*/
+   --rce;  for (i = 0; i < LEN_FULL; ++i) {
+      /*---(test for end-list)-----------*/
+      if (strncmp (a_table [i].s_label, "end-", 4) == 0) {
+         x_end = i - 1;
+         break;
+      }
+      x_samp = a_table [i].s_sample;
+      /*---(find beginning)--------------*/
+      if (strcmp  (a_table [i].s_label, a_label)   == 0)  x_beg = i;
+      if (x_beg < 0)  continue;
+      /*---(find end)--------------------*/
+      if (a_table [i].s_sample == 3)                      x_end = i - 1;
+      if (x_end > 0)  break;
+      /*---(count)-----------------------*/
+      x_samp = a_table [i].s_sample;
+      if (x_samp > 3)  ++x_cnt;
+      /*---(done)------------------------*/
+   }
+   /*---(check for trouble)--------------*/
+   DEBUG_YENV   yLOG_complex ("bounds"    , "%3db, %3de, %3d#", x_beg, x_end, x_cnt);
+   --rce;  if (x_beg < 0) {
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
+      return "(beg not found)";
+   }
+   --rce;  if (x_end < 0) {
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
+      return "(end not found)";
+   }
+   --rce;  if (x_cnt < 1) {
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
+      return "(count < 1)";
+   }
+   /*---(start)--------------------------*/
+   rc = yenv_score__pos (a_table, a_table [x_beg].s_label, &x_off, NULL, NULL);
+   DEBUG_YENV   yLOG_value   ("pos"       , rc);
+   --rce;  if (rc < 0) {
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
+      return "(beg pos < 0)";
+   }
+   DEBUG_YENV   yLOG_value   ("x_off"     , x_off);
+   /*---(leads)--------------------------*/
+   if (a_line > 0 && a_line <= x_cnt) {
+      x_pos = x_cnt;
+      for (i = x_beg; i <= x_end; ++i) {
+         x_samp = a_table [i].s_sample;
+         switch (x_samp) {
+         case  0 :
+            strlcat (g_print, "    ", LEN_RECD);
+            break;
+         case  1 :
+            if (a_line >  x_pos)  strlcat (g_print, "²"   , LEN_RECD);
+            else                  strlcat (g_print, " "   , LEN_RECD);
+            break;
+         default :
+            /*---(normal)----------------*/
+            if      (a_line <  x_pos)  strlcat (g_print, "Œ"   , LEN_RECD);
+            else if (a_line == x_pos)  strlcat (g_print, "ƒ"   , LEN_RECD);
+            else if (a_line >  x_pos)  strlcat (g_print, "²"   , LEN_RECD);
+            /*---(accum)-----------------*/
+            --x_pos;
+            break;
+            /*---(done)------------------*/
+         }
+      }
+   }
+   /*---(legend)-------------------------*/
+   if (a_line > 0 && a_line <= x_cnt) {
+      x_pos = x_cnt;
+      for (i = x_beg; i <= x_end; ++i) {
+         x_samp = a_table [i].s_sample;
+         if (x_samp > 3) {
+            if (a_line == x_pos) {
+               strlcat (g_print, "²² ", LEN_RECD);
+               snprintf (t, 12, "%s²²²²²²²²²²²²", a_table [i].s_label);
+               strlcat (g_print, t    , LEN_RECD);
+               if (a_table [i].s_print [0] != 'Œ') snprintf (t, 10, "%s²²²²²²²²²²²²", a_table [i].s_print);
+               else                                snprintf (t, 10, "%s²²²²²²²²²²²²", "");
+               strlcat (g_print, t    , LEN_RECD);
+               snprintf (t, 26, "%s²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²²", a_table [i].s_desc);
+               strlcat (g_print, t    , LEN_RECD);
+               snprintf (t, 83, ">  %s                                                                                          ", a_table [i].s_legend);
+               strlcat (g_print, t    , LEN_RECD);
+            }
+            --x_pos;
+         }
+      }
+   }
+   /*---(display)------------------------*/
+   if (a_line == 0) {
+      for (i = x_beg; i <= x_end; ++i) {
+         x_samp = a_table [i].s_sample;
+         sprintf (t, "%c", x_samp);
+         switch (x_samp) {
+         case  0 :  strlcat (g_print, a_table [i].s_label, LEN_RECD); break;
+         case  1 :  strlcat (g_print, " "                , LEN_RECD); break;
+         default :  strlcat (g_print, t                  , LEN_RECD); break;
+         }
+      }
+      /*---(header)----------------------*/
+      strlcat (g_print, x_heads, LEN_RECD);
+      /*---(done)------------------------*/
+   }
+   /*---(display)------------------------*/
+   if (a_line == x_cnt + 1) {
+      snprintf (t, 19, "%s²LEGEND²²²²²²²²²²²²²²²²²²²²", a_table [x_beg].s_print);
+      strlcpy (g_print, t, LEN_RECD);
+      strlcat (g_print, ">>", LEN_RECD);
+      strlcat (g_print, x_heads, LEN_RECD);
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_YENV    yLOG_exit    (__FUNCTION__);
+   return g_print;
+}
+
+char* yenv_score_legend (char a_line, char a_label [LEN_TERSE])  { return yenv_score__legend (s_audits, a_line, a_label, s_terse); }
+
 
 

@@ -28,8 +28,6 @@ yENV_open_full          (char a_label [LEN_LABEL], char a_dir [LEN_PATH], char a
    if (r_mode  != NULL)  strcpy (r_mode , "");
    if (r_note  != NULL)  strcpy (r_note , "");
    if (r_full  != NULL)  strcpy (r_full , "");
-   /*---(header)-------------------------*/
-   DEBUG_YENV   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
    DEBUG_YENV   yLOG_point   ("a_label"   , a_label);
    --rce;  if (a_label     == NULL) {

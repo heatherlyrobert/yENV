@@ -38,8 +38,8 @@
 /*········· ··········· ´·····························´········································*/
 #define     P_VERMAJOR  "1.--, production improvements"
 #define     P_VERMINOR  "1.2-, adding detailed audit, open, close ability"
-#define     P_VERNUM    "1.2h"
-#define     P_VERTXT    "ported scoring to yJOBS and adding warning messages about labels"
+#define     P_VERNUM    "1.2i"
+#define     P_VERTXT    "cleaned, updated, and improved scoring, name, and audit_beg"
 /*········· ··········· ´·····························´········································*/
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -196,7 +196,7 @@ extern const tENV_PERM zENV_perms [MAX_PERM];
 /*===[[ yENV_audit_beg.c ]]===================================================*/
 /*········· ´······················ ´·········································*/
 char        yenv_audit_fatal        (char a_label [LEN_LABEL], char a_msg [LEN_HUND]);
-char        yenv_audit_prepare      (char a_type, char c_flag, char r_tdesc [LEN_TERSE], char *r_check, char *r_force, char *r_fix);
+char        yenv_audit_prepare      (char a_type, char c_flag, char c_naming, char a_dir [LEN_PATH], char a_file [LEN_PATH], char r_tdesc [LEN_TERSE], char *r_check, char *r_force, char *r_fix);
 char        yenv_audit_expect       (char a_type, char b_owner [LEN_USER], char b_group [LEN_USER], char b_perms [LEN_TERSE], int *r_uid, int *r_gid, int *r_prm, char r_disp [LEN_LABEL]);
 char        yenv_audit_extra        (char a_type, int a_major, int a_minor, char a_ttype, char a_target [LEN_PATH], int a_epoch, long a_bytes, int a_inode, char a_hash [LEN_DESC]);
 /*---(done)-----------------*/
@@ -224,10 +224,14 @@ char        yenv_audit_hacked       (char a_full [LEN_PATH], int a_epoch, long a
 
 /*===[[ yENV_name.c ]]========================================================*/
 /*········· ´······················ ´·········································*/
+char        yenv_name__defense      (char a_use, char a_type, char c_naming, char a_dir [LEN_PATH], char a_file [LEN_PATH], char a_prefix [LEN_TERSE], char a_suffix [LEN_TERSE]);
 char        yenv_name_quality       (char a_type, char c_naming, char a_dir [LEN_PATH], char a_file [LEN_PATH], char *r_style, char r_full [LEN_PATH]);
+char        yenv_name__dots         (char c_naming, char a_file [LEN_PATH], char a_prefix [LEN_TERSE], char a_suffix [LEN_TERSE], short *r_beg, short *r_end);
+char        yenv_name__prefix       (char a_file [LEN_PATH], short a_beg, char a_prefix [LEN_TERSE], char r_prefix [LEN_TERSE]);
+char        yenv_name__suffix       (char a_file [LEN_PATH], short a_end, char a_suffix [LEN_TERSE]);
 char        yenv_name_standard      (char a_type, char c_naming, char c_style, char a_dir [LEN_PATH], char a_file [LEN_PATH], char a_prefix [LEN_TERSE], char a_suffix [LEN_TERSE]);
-char        yenv_name_local         (char c_naming, int a_ruid, char a_ruser [LEN_USER], char a_full [LEN_PATH], char b_owner [LEN_USER], char b_group [LEN_USER], char b_perms [LEN_TERSE]);
-char        yenv_name_central       (char c_naming, int a_ruid, char a_ruser [LEN_USER], char a_full [LEN_PATH], char b_owner [LEN_USER], char b_group [LEN_USER], char b_perms [LEN_TERSE]);
+char        yenv_name_local         (int a_ruid, char a_ruser [LEN_USER], char a_full [LEN_PATH], char b_owner [LEN_USER], char b_group [LEN_USER], char b_perms [LEN_TERSE]);
+char        yenv_name_central       (int a_ruid, char a_ruser [LEN_USER], char a_full [LEN_PATH], char b_owner [LEN_USER], char b_group [LEN_USER], char b_perms [LEN_TERSE]);
 char        yenv_name_location      (char a_type, char c_naming, char a_full [LEN_PATH], char b_owner [LEN_USER], char b_group [LEN_USER], char b_perms [LEN_TERSE]);
 /*---(done)-----------------*/
 
@@ -277,20 +281,21 @@ char        yENV_close              (FILE **b_file);
 
 /*===[[ yENV_score.c ]]=======================================================*/
 /*········· ´······················ ´·········································*/
+/*---(program)--------------*/
 char        yenv_score_clear        (void);
-
+/*---(quick)----------------*/
 char*       yenv_score_terse        (void);
 char*       yenv_score              (void);
 char*       yenv_score_full         (void);
 char*       yenv_score_report       (void);
-
+/*---(marking)--------------*/
 char        yenv_score_pos          (char a_label [LEN_TERSE], short *r_norm, short *r_terse, short *r_report);
 char        yenv_score_mark         (char a_label [LEN_TERSE], uchar a_mark);
 char        yenv_score_value        (char a_label [LEN_TERSE]);
-
+/*---(reporting)------------*/
 char*       yenv_score_title        (char a_type);
 char*       yenv_score_rpt_heads    (char n);
-
+/*---(masking)--------------*/
 char        yenv_score_mask         (char a_beg [LEN_TERSE], char a_end [LEN_TERSE]);
 char        yenv_score_nocheck      (void);
 char        yenv_score_nohacked     (void);
@@ -302,6 +307,9 @@ char        yenv_score__aprint      (short n, uchar a_sample, char a_print [LEN_
 char        yenv_score__aline       (short n, char a_label [LEN_TERSE], char a_default, char a_sample, char a_print [LEN_TERSE], char a_desc [LEN_TERSE], char a_legend [LEN_TERSE]);
 char        yenv_score__adup        (tENV_SCORE *a_table, char n, char a_label [LEN_TERSE]);
 char        yenv_score_audit        (void);
+/*---(legend)---------------*/
+char*       yenv_score__legend      (tENV_SCORE *a_table, char a_line, char a_label [LEN_TERSE], char a_terse [LEN_FULL]);
+char*       yenv_score_legend       (char a_line, char a_label [LEN_TERSE]);
 /*---(done)-----------------*/
 
 

@@ -51,7 +51,7 @@ yenv_audit_fatal        (char a_label [LEN_LABEL], char a_msg [LEN_HUND])
 }
 
 char
-yenv_audit_prepare      (char a_type, char c_flag, char r_tdesc [LEN_TERSE], char *r_check, char *r_force, char *r_fix)
+yenv_audit_prepare      (char a_type, char c_flag, char c_naming, char a_dir [LEN_PATH], char a_file [LEN_PATH], char r_tdesc [LEN_TERSE], char *r_check, char *r_force, char *r_fix)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -70,10 +70,92 @@ yenv_audit_prepare      (char a_type, char c_flag, char r_tdesc [LEN_TERSE], cha
    if (r_check != NULL)  *r_check = '-';
    if (r_force != NULL)  *r_force = '-';
    if (r_fix   != NULL)  *r_fix   = '-';
+   /*---(check a_type)-------------------*/
+   yenv_score_mark ("ETYPE"   , '°');
+   DEBUG_YENV   yLOG_char    ("a_type"    , a_type);
+   --rce;  if (a_type == 0 || strchr (YENV_TYPES, a_type) == NULL) {
+      yenv_score_mask ("NMá ", "NAME");
+      sprintf (x_msg, "a_type (%3d) must be one of å%sæ (blatant error)", a_type, YENV_TYPES);
+      yenv_audit_fatal ("EXPECT"  , x_msg);
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(type description)---------------*/
    strlcpy (x_tdesc, yENV_typedesc (a_type), LEN_TERSE);
-   yenv_score_mark ("ETYPE"   , '°');
    if (strcmp (x_tdesc, "WTF") != 0)   yenv_score_mark ("ETYPE"   , a_type);
+   /*---(check c_naming)-----------------*/
+   yenv_score_mark ("NCONF"   , '°');
+   DEBUG_YENV   yLOG_char    ("c_naming"  , c_naming);
+   --rce;  if (c_naming == 0 || strchr (YENV_NAMING, c_naming) == NULL) {
+      sprintf (x_msg, "c_naming flag (%c) must be one of å%sæ (blatant error)", c_naming, YENV_NAMING);
+      yenv_audit_fatal ("NAME"    , x_msg);
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   yenv_score_mark ("NCONF"   , c_naming);
+   /*---(check a_dir)--------------------*/
+   yenv_score_mark ("NDIR"    , '°');
+   DEBUG_YENV   yLOG_point   ("a_dir"     , a_dir);
+   --rce;  if (a_dir  == NULL) {
+      yenv_audit_fatal ("NAME"    , "directory name must not be NULL (blatant error)");
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   yenv_score_mark ("NDIR"    , '£');
+   DEBUG_YENV   yLOG_info    ("a_dir"     , a_dir);
+   --rce;  if (a_dir  [0] == '\0') {
+      yenv_audit_fatal ("NAME"    , "directory name must not be empty");
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   yenv_score_mark ("NDIR"    , '/');
+   --rce;  if (a_dir [0] != '/') {
+      yenv_audit_fatal ("NAME"    , "directory name must be absolute path");
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   yenv_score_mark ("NDIR"   , 'D');
+   /*---(message)------------------------*/
+   yURG_msg ('-', "requested dir  %3då%sæ", strlen (a_dir), a_dir);
+   /*---(check a_file)-------------------*/
+   yenv_score_mark ("NFILE"   , '°');
+   DEBUG_YENV   yLOG_point   ("a_file"     , a_file);
+   --rce;  if (a_file == NULL) {
+      yenv_audit_fatal ("NAME"    , "file name must not be NULL (blatant error)");
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   yenv_score_mark ("NFILE"   , '£');
+   DEBUG_YENV   yLOG_info    ("a_file"    , a_file);
+   --rce;  if (a_type != YENV_NONE && a_type != YENV_DIR) {
+      if (a_file [0] == '\0') {
+         yenv_audit_fatal ("NAME"    , "file name must not be empty (non-dir types)");
+         DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
+      yenv_score_mark ("NFILE"   , '/');
+   }
+   yenv_score_mark ("NFILE"   , '*');
+   --rce;  if (a_type == YENV_DIR) {
+      if (a_file [0] != '\0') {
+         yenv_audit_fatal ("NAME"    , "file name MUST be empty (dir types)");
+         DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
+      yenv_score_mark ("NFILE"   , '-');
+   }
+   if (a_type == YENV_NONE) {
+      if (a_file [0] == '\0')    yenv_score_mark ("NFILE"   , '-');
+   }
+   if (yenv_score_value ("NFILE") != '-')  yenv_score_mark ("NFILE"   , '/');
+   --rce;  if (a_file [0] != '\0' && strchr (a_file, '/') != NULL) {
+      yenv_audit_fatal ("NAME"    , "file name must not have a path (/)");
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   if (yenv_score_value ("NFILE") != '-')  yenv_score_mark ("NFILE"   , 'F');
+   /*---(message)------------------------*/
+   yURG_msg ('-', "requested file %3då%sæ", strlen (a_file), a_file);
    /*---(flags)--------------------------*/
    yenv_score_mark ("EFLAG"   , '°');
    --rce;  switch (c_flag) {

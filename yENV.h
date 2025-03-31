@@ -16,11 +16,8 @@
 #define     RC_REPAIR       3
 #define     RC_WARNING      4
 #define     RC_FAILED       5
-
 #define     RC_FATAL        5   /* depricated */
-
-
-
+/*---(c_type)-------------------------*/
 #define     YENV_BLOCK       'b'
 #define     YENV_CHAR        'c'
 #define     YENV_DIR         'd'
@@ -32,19 +29,24 @@
 #define     YENV_NONE        '-'
 #define     YENV_WTF         '?'
 #define     YENV_ANY         '!'
-
+/*---(defense)------------------------*/
 #define     YENV_REAL        "bcdhiprs"
 #define     YENV_TYPES       "bcdhiprs-"
-
+/*---(c_style)------------------------*/
 #define     YENV_BOTH        'b'
-
+/*---(c_naming)-----------------------*/
 #define     YENV_WILD        '-'
 #define     YENV_NORMAL      'n'
 #define     YENV_STANDARD    's'
 #define     YENV_LOCAL       'l'
 #define     YENV_CENTRAL     'c'
-
+/*---(defense)------------------------*/
 #define     YENV_NAMING      "-nslc"
+/*---(c_flag)-------------------------*/
+#define     YENV_FIX         'f'
+#define     YENV_FORCE       'F'
+#define     YENV_HAMMER      '!'
+/*---(done)---------------------------*/
 
 
 
@@ -163,7 +165,7 @@ char        yENV_audit_del          (char c_flag, char a_dir [LEN_PATH], char a_
 char        yENV_audit_reg          (char c_flag, char c_naming, char a_dir [LEN_PATH], char a_file [LEN_LABEL], char a_owner [LEN_USER], char a_group [LEN_USER], char a_perms [LEN_TERSE]);
 char        yENV_audit_local        (char a_dir [LEN_PATH], char a_file [LEN_LABEL], char a_prefix [LEN_TERSE], char a_suffix [LEN_TERSE], char r_full [LEN_PATH], int *r_fuid, char r_fuser [LEN_USER]);
 char        yENV_audit_localdir     (char a_dir [LEN_PATH], char r_full [LEN_PATH], int *r_fuid, char r_fuser [LEN_USER]);
-char        yENV_audit_central      (char a_dir [LEN_PATH], char a_file [LEN_LABEL], char a_prefix [LEN_TERSE], char a_suffix [LEN_TERSE], char r_full [LEN_PATH], int *r_fuid, char r_fuser [LEN_USER]);
+char        yENV_audit_central      (char c_flag, char a_dir [LEN_PATH], char a_file [LEN_LABEL], char a_prefix [LEN_TERSE], char a_suffix [LEN_TERSE], char r_full [LEN_PATH], int *r_fuid, char r_fuser [LEN_USER]);
 char        yENV_audit_centraldir   (char c_flag, char a_dir [LEN_PATH], char a_perms [LEN_TERSE]);
 /*---(helpers)--------------*/
 /*---(done)-----------------*/

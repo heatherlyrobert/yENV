@@ -2,15 +2,7 @@
 #include    "yENV.h"
 #include    "yENV_priv.h"
 
-char
-yenv_name_fatal         (char a_msg [LEN_HUND])
-{
-   DEBUG_YENV    yLOG_note    (a_msg);
-   yURG_err ('f', a_msg);
-   yenv_score_mark ("NAME"    , '°');
-   yenv_score_mark ("FINAL"   , '°');
-   return 0;
-}
+
 
 char
 yENV_name_full          (char a_dir [LEN_PATH], char a_file [LEN_PATH], char *r_style, char r_full [LEN_PATH])
@@ -31,6 +23,9 @@ yENV_name_full          (char a_dir [LEN_PATH], char a_file [LEN_PATH], char *r_
    /*---(prepare)------------------------*/
    ld = strlen (a_dir);
    lf = strlen (a_file);
+   /*---(more defense)-------------------*/
+   --rce;  if (ld > 0 && a_dir  [0] != '/')  return rce;
+   --rce;  if (lf > 0 && a_file [0] == '/')  return rce;
    /*---(check special)------------------*/
    if      (strcmp (a_file, "dir"    ) == 0)  lf = 0;
    else if (strcmp (a_file, "code"   ) == 0)  lf = 0;
@@ -63,6 +58,7 @@ yENV_name_split         (char a_full [LEN_PATH], char *r_style, char r_dir [LEN_
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    char        rc          =    0;
+   int         l           =    0;
    char       *p           = NULL;
    char        x_full      [LEN_PATH]  = "";
    char        x_dir       [LEN_PATH]  = "";
@@ -75,9 +71,12 @@ yENV_name_split         (char a_full [LEN_PATH], char *r_style, char r_dir [LEN_
    if (r_dir   != NULL)  strcpy (r_dir  , "");
    if (r_file  != NULL)  strcpy (r_file , "");
    /*---(defense)------------------------*/
-   --rce;  if (a_full == NULL)  return rce;
+   --rce;  if (a_full == NULL)     return rce;
    /*---(prepare)------------------------*/
    strlcpy (x_full, a_full, LEN_PATH);
+   /*---(defense)------------------------*/
+   l = strlen (x_full);
+   --rce;  if (l > 0 && a_full [0] != '/')  return rce;
    /*---(parse)--------------------------*/
    p = strrchr (x_full, '/');
    if (p != NULL) {
@@ -122,98 +121,43 @@ yenv_name_quality       (char a_type, char c_naming, char a_dir [LEN_PATH], char
    char        x_msg       [LEN_HUND]  = "";
    /*---(header)-------------------------*/
    DEBUG_YENV   yLOG_enter   (__FUNCTION__);
-   /*---(config mark(--------------------*/
-   --rce;  if (c_naming == 0 || strchr (YENV_NAMING, c_naming) == NULL) {
-      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   yenv_score_mark ("NCONF"   , c_naming);
    /*---(default)------------------------*/
    if (r_style != NULL)  *r_style = '-';
    if (r_full  != NULL)  strcpy (r_full , "");
-   /*---(defense : dir null)-------------*/
-   yenv_score_mark ("NFULL"   , '£');
-   DEBUG_YENV   yLOG_point   ("a_dir"     , a_dir);
-   --rce;  if (a_dir       == NULL) {
-      yenv_name_fatal ("directory name can not be null (blatant error)");
+   yenv_score_mark ("NFULL"   , '°');
+   /*---(create full)--------------------*/
+   rc = yENV_name_full (a_dir, a_file, &x_style, x_full);
+   DEBUG_YENV   yLOG_value   ("full"      , rc);
+   --rce;  if (rc < 0)  {
+      yenv_audit_fatal ("NAME"    , "trouble with creating full name");
       DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   DEBUG_YENV   yLOG_info    ("a_dir"     , a_dir);
-   ld = strlen (a_dir);
-   DEBUG_YENV   yLOG_value   ("ld"        , ld);
-   yURG_msg ('-', "requested dir  %3då%sæ", ld, a_dir);
-   /*---(defense : file null)------------*/
-   DEBUG_YENV   yLOG_point   ("a_file"    , a_file);
-   --rce;  if (a_file      == NULL) {
-      yenv_name_fatal ("file name can not be null (blatant error)");
-      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   DEBUG_YENV   yLOG_info    ("a_file"    , a_file);
-   lf = strlen (a_file);
-   DEBUG_YENV   yLOG_value   ("lf"        , lf);
-   yURG_msg ('-', "requested file %3då%sæ", lf, a_file);
-   /*---(check for empty)----------------*/
-   yenv_score_mark ("NFULL"   , '-');
-   --rce;  if (ld < 1) {
-      yenv_name_fatal ("directory name can not be empty (blatant error)");
-      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   /*---(check for empty)----------------*/
-   yenv_score_mark ("NFULL"   , '=');
-   --rce;  if (a_type == YENV_DIR && lf > 0) {
-      yenv_name_fatal ("with DIR type, file name must be empty (blatant error)");
-      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   /*---(directory absolute)-------------*/
-   yenv_score_mark ("NFULL"   , '/');
-   --rce;  if (a_dir  [0] != '/') {
-      yenv_name_fatal ("directory name must be absolute reference, i.e., start with '/'");
-      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   } else {
-      DEBUG_YENV    yLOG_note    ("directory name is absoulte reference");
-   }
-   /*---(file relative)------------------*/
-   yenv_score_mark ("NFULL"   , '›');
-   --rce;  if (lf > 0 && a_file [0] == '/') {
-      yenv_name_fatal ("file name must be relative reference, i.e., no leading '/'");
-      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   } else {
-      DEBUG_YENV    yLOG_note    ("file name is relative reference");
-   }
+   l = strlen (x_full);
+   yURG_msg ('-', "full name      %3då%sæ", l, x_full);
+   DEBUG_YENV    yLOG_complex ("x_full"    , "%3då%sæ", l, x_full);
    /*---(hidden file)--------------------*/
-   if (c_naming != '-') {
+   if (c_naming != YENV_WILD) {
       yenv_score_mark ("NFULL"   , '´');
       DEBUG_YENV    yLOG_char    ("first char", a_file [0]);
       --rce;  if (a_file [0] == '.') {
          sprintf (x_msg, "file can not be hidden, lead period, in (%c) mode (security risk)", c_naming);
-         yenv_name_fatal (x_msg);
+         yenv_audit_fatal ("NAME"    , x_msg);
          DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
          return rce;
       }
    }
-   /*---(create full)--------------------*/
-   rc = yENV_name_full (a_dir, a_file, &x_style, x_full);
-   DEBUG_YENV   yLOG_value   ("full"      , rc);
-   l = strlen (x_full);
-   yURG_msg ('-', "full name      %3då%sæ", l, x_full);
-   DEBUG_YENV    yLOG_complex ("x_full"    , "%3då%sæ", l, x_full);
    /*---(check name quality)-------------*/
    yenv_score_mark ("NFULL"   , '¢');
    switch (c_naming) {
-   case '-' :  strcpy (x_valid, YSTR_EXTEN);  break;
-   default  :  strcpy (x_valid, YSTR_FILES);  break;
+   case YENV_WILD :  strcpy (x_valid, YSTR_EXTEN);  break;
+   default        :  strcpy (x_valid, YSTR_FILES);  break;
    }
    l = strlen (x_full);
    --rce;  for (i = 0; i < l; ++i) {
       if (strchr (x_valid, x_full [i]) == NULL) {
          sprintf (x_msg, "full name has an illegal character (%c) at position %d in (%c) mode", x_full [i], i, c_naming);
-         yenv_name_fatal (x_msg);
+         yenv_audit_fatal ("NAME"    , x_msg);
          DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
          return rce;
       }
@@ -221,8 +165,8 @@ yenv_name_quality       (char a_type, char c_naming, char a_dir [LEN_PATH], char
    /*---(success)------------------------*/
    yenv_score_mark ("NFULL"   , 'n');
    switch (c_naming) {
-   case '-' :  yURG_msg ('-', "name (%c/%c) is fully qualified and uses only legal characters", x_style, c_naming);                    break;
-   default  :  yURG_msg ('-', "name (%c/%c) is fully qualified, not hidden/temp, and uses only legal characters", x_style, c_naming);  break;
+   case YENV_WILD :  yURG_msg ('-', "name (%c/%c) is fully qualified and uses only legal characters", x_style, c_naming);                    break;
+   default        :  yURG_msg ('-', "name (%c/%c) is fully qualified, not hidden/temp, and uses only legal characters", x_style, c_naming);  break;
    }
    yenv_score_mark ("NSTYLE"  , x_style);
    /*---(save-back)----------------------*/
@@ -234,36 +178,194 @@ yenv_name_quality       (char a_type, char c_naming, char a_dir [LEN_PATH], char
 }
 
 char
+yenv_name__dots         (char c_naming, char a_file [LEN_PATH], char a_prefix [LEN_TERSE], char a_suffix [LEN_TERSE], short *r_beg, short *r_end)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   int         x_min       =    0;
+   int         i           =    0;
+   int         c           =    0;
+   int         l           =    0;
+   char        x_msg       [LEN_HUND]  = "";
+   int         x_beg       =   -1;
+   int         x_end       =   -1;
+   /*---(header)-------------------------*/
+   DEBUG_YENV   yLOG_enter   (__FUNCTION__);
+   /*---(default)------------------------*/
+   if (r_beg != NULL)  *r_beg = -1;
+   if (r_end != NULL)  *r_end = -1;
+   /*---(defense)------------------------*/
+   DEBUG_YENV   yLOG_point   ("a_prefix"  , a_prefix);
+   --rce;  if (a_prefix == NULL) {
+      yenv_score_mark ("NPREFIX" , '°');
+      yenv_audit_fatal ("NAME"    , "prefix standard can not be null (blatant error)");
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_YENV   yLOG_info    ("a_prefix"  , a_prefix);
+   DEBUG_YENV   yLOG_point   ("a_suffix"  , a_suffix);
+   --rce;  if (a_suffix == NULL) {
+      yenv_score_mark ("NSUFFIX" , '°');
+      yenv_audit_fatal ("NAME"    , "suffix standard can not be null (blatant error)");
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_YENV   yLOG_info    ("a_suffix"  , a_suffix);
+   /*---(initial score)------------------*/
+   yenv_score_mark ("NDOTS"   , '°');
+   /*---(figure minimum)-----------------*/
+   if (strcmp (a_prefix, "") != 0)    ++x_min;
+   if (strcmp (a_suffix, "") != 0)    ++x_min;
+   if (c_naming == 'c' && x_min > 0)  x_min -= 1;
+   DEBUG_YENV   yLOG_value   ("x_min"     , x_min);
+   /*---(check request)------------------*/
+   if (x_min == 0) {
+      yenv_score_mark ("NDOTS"   , '·');
+      DEBUG_YENV   yLOG_note    ("no prefix/suffix provided, nothing to check");
+      DEBUG_YENV   yLOG_exit    (__FUNCTION__);
+      return RC_ACK;
+   }
+   /*---(count separators)---------------*/
+   l = strlen (a_file);
+   DEBUG_YENV   yLOG_value   ("l"         , l);
+   for (i = 0; i < l; ++i) {
+      if (a_file [i] == '.') {
+         if (x_beg < 0)  x_beg = i;
+         x_end = i;
+         ++c;
+      }
+   }
+   if (strcmp (a_prefix, "") == 0)  x_beg = -1;
+   if (strcmp (a_suffix, "") == 0)  x_end = -1;
+   DEBUG_YENV   yLOG_complex ("counts"    , "%3db, %3de, %3d#", x_beg, x_end, c);
+   /*---(check seperators)---------------*/
+   --rce;  if (x_min > c) {
+      if      (x_min == 2)                     sprintf (x_msg, "need both prefix and suffix, i.e., at least 2 dot (.) separators, but only provided %d (illegal name)", c);
+      else if (x_min == 1 && c_naming == 'c')  sprintf (x_msg, "need both prefix and suffix, i.e., at least 1 dot (.) separator, but only provided %d (illegal name)", c);
+      else if (strcmp (a_prefix, "") != 0)     sprintf (x_msg, "need prefix, i.e. at least 1 dot (.) separator, but provided none (illegal name)");
+      else                                     sprintf (x_msg, "need suffix, i.e. at least 1 dot (.) separator, but provided none (illegal name)");
+      yenv_score_mark ("NDOTS"   , '#');
+      yenv_audit_fatal ("NAME"    , x_msg);
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(scoring)------------------------*/
+   yenv_score_mark ("NDOTS"   , 'n');
+   /*---(save-back)----------------------*/
+   if (r_beg != NULL)  *r_beg = x_beg;
+   if (r_end != NULL)  *r_end = x_end;
+   /*---(complete)-----------------------*/
+   DEBUG_YENV   yLOG_exit    (__FUNCTION__);
+   return RC_POSITIVE;
+}
+
+char
+yenv_name__prefix       (char a_file [LEN_PATH], short a_beg, char a_prefix [LEN_TERSE], char r_pre [LEN_TERSE])
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   char        t           [LEN_LABEL] = "";
+   char        x_msg       [LEN_HUND]  = "";
+   /*---(header)-------------------------*/
+   DEBUG_YENV   yLOG_enter   (__FUNCTION__);
+   /*---(default)------------------------*/
+   if (r_pre != NULL)  strlcpy (r_pre, "", LEN_TERSE);
+   /*---(defense)------------------------*/
+   DEBUG_YENV    yLOG_value   ("a_beg"     , a_beg);
+   --rce;  if (a_beg <= 0) {
+      DEBUG_YENV   yLOG_exit    (__FUNCTION__);
+      return RC_ACK;
+   }
+   /*---(scoring)------------------------*/
+   yenv_score_mark ("NPREFIX" , '°');
+   /*---(save-back)----------------------*/
+   strlcpy (t, a_file, a_beg + 2);
+   if (r_pre != NULL)  strlcpy (r_pre, t, LEN_TERSE);
+   /*---(user name option)---------------*/
+   DEBUG_YENV    yLOG_info    ("a_prefix"  , a_prefix);
+   if (strcmp (a_prefix, "(USER).") == 0) {
+      DEBUG_YENV    yLOG_note    ("using user name prefix handler");
+      strlcpy (t, a_file, a_beg + 1);
+      DEBUG_YENV    yLOG_info    ("t"         , t);
+      rc = yENV_user_data ('n', t, NULL, NULL, NULL, NULL);
+      if (rc < 0) {
+         sprintf (x_msg, "name prefix å%sæ does not match any system user (illegal)", t);
+         yenv_audit_fatal ("NAME"    , x_msg);
+         DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
+      yenv_score_mark ("NPREFIX" , 'u');
+   }
+   /*---(normal option)------------------*/
+   else {
+      DEBUG_YENV    yLOG_note    ("using normal prefix handler");
+      strlcpy (t, a_file, a_beg + 2);
+      DEBUG_YENV    yLOG_info    ("t"         , t);
+      if (strcmp (t, a_prefix) != 0) {
+         sprintf (x_msg, "name prefix å%sæ does not match given standard å%sæ (illegal)", t, a_prefix);
+         yenv_audit_fatal ("NAME"    , x_msg);
+         DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
+      yenv_score_mark ("NPREFIX" , 'p');
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_YENV   yLOG_exit    (__FUNCTION__);
+   return RC_POSITIVE;
+}
+
+char
+yenv_name__suffix       (char a_file [LEN_PATH], short a_end, char a_suffix [LEN_TERSE])
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   char        t           [LEN_LABEL] = "";
+   char        x_msg       [LEN_HUND]  = "";
+   /*---(header)-------------------------*/
+   DEBUG_YENV   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   DEBUG_YENV    yLOG_value   ("a_end"     , a_end);
+   --rce;  if (a_end < 0) {
+      DEBUG_YENV   yLOG_exit    (__FUNCTION__);
+      return RC_ACK;
+   }
+   /*---(scoring)------------------------*/
+   yenv_score_mark ("NSUFFIX" , '°');
+   /*---(normal option)------------------*/
+   DEBUG_YENV    yLOG_info    ("a_suffix"  , a_suffix);
+   strlcpy (t, a_file + a_end, LEN_TERSE);
+   DEBUG_YENV    yLOG_info    ("t"         , t);
+   if (strcmp (t, a_suffix) != 0) {
+      sprintf (x_msg, "name suffix å%sæ does not match given standard å%sæ (illegal)", t, a_suffix);
+      yenv_audit_fatal ("NAME"    , x_msg);
+      DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(scoring)------------------------*/
+   yenv_score_mark ("NSUFFIX" , 's');
+   /*---(complete)-----------------------*/
+   DEBUG_YENV   yLOG_exit    (__FUNCTION__);
+   return RC_POSITIVE;
+}
+
+char
 yenv_name_standard      (char a_type, char c_naming, char c_style, char a_dir [LEN_PATH], char a_file [LEN_PATH], char a_prefix [LEN_TERSE], char a_suffix [LEN_TERSE])
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    char        rc          =    0;
-   char        x_pre       [LEN_TERSE] = "";
-   char        x_suf       [LEN_TERSE] = "";
-   int         x_min       =    0;
+   short       x_beg       =   -1;
+   short       x_end       =   -1;
    int         l           =    0;
-   int         i           =    0;
-   int         c           =    0;
-   int         x_npre      =   -1;
-   int         x_nsuf      =   -1;
-   int         ll          =    0;
-   char        t           [LEN_LABEL] = "";
-   int         x_rem       =    0;
-   char        x_pgood     =  '-';
-   char        x_sgood     =  '-';
-   char        x_save_pre  [LEN_TERSE] = "";
-   char        x_save_suf  [LEN_TERSE] = "";
+   char        x_pre       [LEN_TERSE] = "";
+   short       x_rem       =    0;
    char        x_msg       [LEN_HUND]  = "";
+   char        x_type      =  '-';
    /*---(header)-------------------------*/
    DEBUG_YENV   yLOG_enter   (__FUNCTION__);
-   /*---(config mark(--------------------*/
-   --rce;  if (c_naming == 0 || strchr (YENV_NAMING, c_naming) == NULL) {
-      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   yenv_score_mark ("NCONF"   , c_naming);
-   yenv_score_mark ("NFIXES"  , '-');
    /*---(quick-out)----------------------*/
    DEBUG_YENV   yLOG_char    ("a_type"    , a_type);
    if (a_type   != YENV_REG) {
@@ -283,143 +385,65 @@ yenv_name_standard      (char a_type, char c_naming, char c_style, char a_dir [L
       DEBUG_YENV   yLOG_exit    (__FUNCTION__);
       return RC_ACK;
    }
-   /*---(prepare)------------------------*/
-   yenv_score_mark ("NFIXES"  , '¢');
-   /*---(defense)------------------------*/
-   DEBUG_YENV   yLOG_point   ("a_dir"     , a_dir);
-   --rce;  if (a_dir  == NULL || a_dir  [0] == '\0') {
-      yenv_name_fatal ("directory name can not be null/empty (blatant error)");
+   /*---(handle dots)--------------------*/
+   rc = yenv_name__dots   (c_naming, a_file, a_prefix, a_suffix, &x_beg, &x_end);
+   DEBUG_YENV   yLOG_value   ("dots"      , rc);
+   --rce;  if (rc < 0) {
       DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   DEBUG_YENV   yLOG_info    ("a_dir"     , a_dir);
-   DEBUG_YENV   yLOG_point   ("a_file"    , a_file);
-   --rce;  if (a_file == NULL || a_file [0] == '\0') {
-      yenv_name_fatal ("file name can not be null/empty (blatant error)");
+   /*---(handle prefix)------------------*/
+   rc = yenv_name__prefix (a_file, x_beg, a_prefix, x_pre);
+   DEBUG_YENV   yLOG_value   ("prefix"    , rc);
+   --rce;  if (rc < 0) {
       DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   DEBUG_YENV   yLOG_info    ("a_file"    , a_file);
-   DEBUG_YENV   yLOG_point   ("a_prefix"  , a_prefix);
-   --rce;  if (a_prefix == NULL) {
-      yenv_name_fatal ("prefix standard can not be null (blatant error)");
+   /*---(handle suffix)------------------*/
+   rc = yenv_name__suffix (a_file, x_end, a_suffix);
+   DEBUG_YENV   yLOG_value   ("suffix"    , rc);
+   --rce;  if (rc < 0) {
       DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   DEBUG_YENV   yLOG_point   ("a_suffix"  , a_suffix);
-   --rce;  if (a_suffix == NULL) {
-      yenv_name_fatal ("suffix standard can not be null (blatant error)");
-      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   /*---(check request)------------------*/
-   yenv_score_mark ("NFIXES"  , '#');
-   if (a_prefix != NULL && strcmp (a_prefix, "") != 0)  { strlcpy (x_pre, a_prefix, LEN_TERSE);  ++x_min;  }
-   if (a_suffix != NULL && strcmp (a_suffix, "") != 0)  { strlcpy (x_suf, a_suffix, LEN_TERSE);  ++x_min;  }
-   if (c_naming == 'c')  x_min -= 1;
-   DEBUG_YENV   yLOG_value   ("x_min"     , x_min);
-   if (x_min == 0) {
-      DEBUG_YENV   yLOG_note    ("no prefix/suffix provided, nothing to check");
+   /*---(set type)-----------------------*/
+   if      (x_beg > 0 && x_end > 0)  x_type = 'b';
+   else if (x_beg > 0)               x_type = 'p';
+   else if (x_end > 0)               x_type = 's';
+   else                              x_type = '-';
+   DEBUG_YENV   yLOG_char    ("x_type"    , x_type);
+   if (x_type  == '-') {
       DEBUG_YENV   yLOG_exit    (__FUNCTION__);
       return RC_ACK;
    }
-   /*---(check seperators)---------------*/
-   l = strlen (a_file);
-   DEBUG_YENV   yLOG_value   ("l"         , l);
-   for (i = 0; i < l; ++i) {
-      if (a_file [i] == '.')  ++c;
-   }
-   DEBUG_YENV   yLOG_value   ("c"         , c);
-   --rce;  if (x_min > c) {
-      if      (x_min == 2)                     sprintf (x_msg, "need both prefix and suffix, i.e., at least 2 dot (.) separators, but only provided %d (illegal name)", c);
-      else if (x_min == 1 && c_naming == 'c')  sprintf (x_msg, "need both prefix and suffix, i.e., at least 1 dot (.) separator, but only provided %d (illegal name)", c);
-      else if (strcmp (x_pre, "") != 0)        sprintf (x_msg, "need prefix, i.e. at least 1 dot (.) separator, but provided none (illegal name)");
-      else                                     sprintf (x_msg, "need suffix, i.e. at least 1 dot (.) separator, but provided none (illegal name)");
-      yenv_name_fatal (x_msg);
-      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   x_rem = l;
-   /*---(find prefix/suffix)-------------*/
-   for (i = 0; i < l; ++i) {
-      x_npre = i;
-      if (a_file [i] == '.')  break;
-   }
-   DEBUG_YENV   yLOG_value   ("x_npre"    , x_npre);
-   for (i = l - 1; i >= 0; --i) {
-      x_nsuf = i;
-      if (a_file [i] == '.')  break;
-   }
-   DEBUG_YENV   yLOG_value   ("x_nsuf"    , x_nsuf);
-   /*---(check prefix)-------------------*/
-   yenv_score_mark ("NFIXES"  , 'P');
-   --rce;  if (a_prefix != NULL && strcmp (a_prefix, "") != 0)  {
-      DEBUG_YENV    yLOG_info    ("a_prefix"  , a_prefix);
-      if (strcmp (a_prefix, "(USER).") == 0) {
-         DEBUG_YENV    yLOG_note    ("using user name prefix handler");
-         strlcpy (t, a_file, x_npre + 1);
-         DEBUG_YENV    yLOG_info    ("t"         , t);
-         rc = yENV_user_data ('n', t, NULL, NULL, NULL, NULL);
-         if (rc < 0) {
-            sprintf (x_msg, "name prefix å%sæ does not match any system user (illegal)", t);
-            yenv_name_fatal (x_msg);
-            DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
-            return rce;
-         }
-         strlcpy (t, a_file, x_npre + 2);
-      } else {
-         DEBUG_YENV    yLOG_note    ("using normal prefix handler");
-         strlcpy (t, a_file, x_npre + 2);
-         DEBUG_YENV    yLOG_info    ("t"         , t);
-         if (strcmp (t, a_prefix) != 0) {
-            sprintf (x_msg, "name prefix å%sæ does not match given standard å%sæ (illegal)", t, a_prefix);
-            yenv_name_fatal (x_msg);
-            DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
-            return rce;
-         }
-      }
-      strlcpy (x_save_pre, t, LEN_TERSE);
-      x_pgood = 'y';
-      x_rem  -= x_npre + 1;
-      DEBUG_YENV   yLOG_value   ("x_rem"     , x_rem);
-   }
-   /*---(check suffix)-------------------*/
-   yenv_score_mark ("NFIXES"  , 'S');
-   --rce;  if (strcmp (a_suffix, "") != 0)  {
-      DEBUG_YENV    yLOG_info    ("a_suffix"  , a_suffix);
-      strlcpy (t, a_file + x_nsuf, LEN_TERSE);
-      DEBUG_YENV    yLOG_info    ("t"         , t);
-      if (strcmp (t, a_suffix) != 0) {
-         sprintf (x_msg, "name suffix å%sæ does not match given standard å%sæ (illegal)", t, a_suffix);
-         yenv_name_fatal (x_msg);
-         DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
-         return rce;
-      }
-      strlcpy (x_save_suf, t, LEN_TERSE);
-      x_sgood = 'y';
-      x_rem  -= l - x_nsuf;
-      DEBUG_YENV   yLOG_value   ("x_rem"     , x_rem);
-   }
    /*---(remaining description)----------*/
-   yenv_score_mark ("NFIXES"  , 'R');
+   yenv_score_mark ("NDESC"   , '°');
+   l = strlen (a_file);
+   switch (x_type) {
+   case 'b' :  x_rem = x_end - x_beg - 1;  break;
+   case 'p' :  x_rem = l - x_beg - 1;      break;
+   case 's' :  x_rem = x_end - 1;          break;
+   }
    DEBUG_YENV   yLOG_value   ("x_rem"     , x_rem);
-   --rce;  if (x_rem < 3 && c_naming == 'l') {
-      yenv_name_fatal ("file description can not be shorter than 3 characters (lazy)");
+   --rce;  if (c_naming == YENV_LOCAL && x_rem < 3) {
+      yenv_audit_fatal ("NAME"    , "file description less than 3 chars (lazy)");
       DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
+   yenv_score_mark ("NDESC"   , 'd');
    /*---(done)---------------------------*/
-   yenv_score_mark ("NFIXES"  , 'N');
-   if      (x_pgood == 'y' && x_sgood == 'y')     yURG_msg ('-', "prefix å%sæ and suffix å%sæ match given standard", x_save_pre, x_save_suf);
-   else if (x_pgood == 'y')                       yURG_msg ('-', "prefix å%sæ matches given standard", x_save_pre);
-   else if (x_sgood == 'y')                       yURG_msg ('-', "suffix å%sæ matches given standard", x_save_suf);
+   switch (x_type) {
+   case 'b' :  yURG_msg ('-', "prefix å%sæ and suffix å%sæ match given standard", x_pre, a_suffix);  break;
+   case 'p' :  yURG_msg ('-', "prefix å%sæ matches given standard", x_pre);                          break;
+   case 's' :  yURG_msg ('-', "suffix å%sæ matches given standard", a_suffix);                       break;
+   }
    /*---(complete)-----------------------*/
    DEBUG_YENV   yLOG_exit    (__FUNCTION__);
    return RC_POSITIVE;
 }
 
 char
-yenv_name_local         (char c_naming, int a_ruid, char a_ruser [LEN_USER], char a_full [LEN_PATH], char b_owner [LEN_USER], char b_group [LEN_USER], char b_perms [LEN_TERSE])
+yenv_name_local         (int a_ruid, char a_ruser [LEN_USER], char a_full [LEN_PATH], char b_owner [LEN_USER], char b_group [LEN_USER], char b_perms [LEN_TERSE])
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -432,6 +456,8 @@ yenv_name_local         (char c_naming, int a_ruid, char a_ruser [LEN_USER], cha
    char        x_msg       [LEN_HUND]  = "";
    /*---(header)-------------------------*/
    DEBUG_YENV   yLOG_enter   (__FUNCTION__);
+   /*---(scoring)------------------------*/
+   yenv_score_mark ("NLOC"    , '°');
    /*---(set location)-------------------*/
    if (strncmp (a_full, "/tmp", 4) == 0) {
       strcpy (x_root , "/tmp/root/");
@@ -445,15 +471,16 @@ yenv_name_local         (char c_naming, int a_ruid, char a_ruser [LEN_USER], cha
    /*---(check root)---------------------*/
    if (strncmp (a_full, x_root, strlen (x_root)) == 0) {
       yenv_score_mark ("NLOC"    , 'r');
+      yenv_score_mark ("NUSE"    , '°');
       DEBUG_YENV   yLOG_note    ("file located under root");
       if (a_ruid != 0) {
          sprintf (x_msg, "running as å%sæ, uid (%d); BUT, file in å%sæ (illegal)", a_ruser, a_ruid, x_root);
-         yenv_name_fatal (x_msg);
+         yenv_audit_fatal ("NAME"    , x_msg);
          DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
          return rce;
       }
       yURG_msg ('-', "good, running as å%sæ, uid (%d) and file is located in or below å%sæ", a_ruser, a_ruid, x_root);
-      yenv_score_mark ("NLOC"    , 'R');
+      yenv_score_mark ("NUSE"    , 'R');
       strcpy (t, "root");
       /*---(done)------------------------*/
    }
@@ -461,6 +488,7 @@ yenv_name_local         (char c_naming, int a_ruid, char a_ruser [LEN_USER], cha
    else if (strncmp (a_full, x_home, strlen (x_home)) == 0) {
       yenv_score_mark ("NLOC"    , 'h');
       strcpy (t, a_full + strlen (x_home));
+      yenv_score_mark ("NUSE"    , '°');
       DEBUG_YENV   yLOG_info    ("t"         , t);
       p = strchr (t, '/');
       DEBUG_YENV   yLOG_point   ("p"         , p);
@@ -470,7 +498,7 @@ yenv_name_local         (char c_naming, int a_ruid, char a_ruser [LEN_USER], cha
       rc = yENV_user_data ('n', t, &x_fuid, NULL, NULL, NULL);
       if (rc < 0) {
          sprintf (x_msg, "could not find å%sæ as a legal user subdirectory under å%sæ (illegal)", t, x_home);
-         yenv_name_fatal (x_msg);
+         yenv_audit_fatal ("NAME"    , x_msg);
          DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
          return rce;
       }
@@ -478,19 +506,18 @@ yenv_name_local         (char c_naming, int a_ruid, char a_ruser [LEN_USER], cha
       else if (strcmp (a_ruser, t) == 0) ;
       else {
          sprintf (x_msg, "running as å%sæ, uid (%d); BUT, file in å%sæ (illegal)", a_ruser, a_ruid, t);
-         yenv_name_fatal (x_msg);
+         yenv_audit_fatal ("NAME"    , x_msg);
          DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
          return rce;
       }
       yURG_msg ('-', "good, running as å%sæ, uid (%d) and file is located in or below å%sæ", a_ruser, a_ruid, t);
-      yenv_score_mark ("NLOC"    , 'H');
+      yenv_score_mark ("NUSE"    , 'H');
       /*---(done)------------------------*/
    }
    /*---(elsewhere)----------------------*/
    else {
-      yenv_score_mark ("NLOC"    , '°');
       sprintf (x_msg, "file not in å%sæ or under å%sæ and so can not be handled", x_root, x_home);
-      yenv_name_fatal (x_msg);
+      yenv_audit_fatal ("NAME"    , x_msg);
       DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
@@ -504,7 +531,7 @@ yenv_name_local         (char c_naming, int a_ruid, char a_ruser [LEN_USER], cha
 }
 
 char
-yenv_name_central       (char c_naming, int a_ruid, char a_ruser [LEN_USER], char a_full [LEN_PATH], char b_owner [LEN_USER], char b_group [LEN_USER], char b_perms [LEN_TERSE])
+yenv_name_central       (int a_ruid, char a_ruser [LEN_USER], char a_full [LEN_PATH], char b_owner [LEN_USER], char b_group [LEN_USER], char b_perms [LEN_TERSE])
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -516,6 +543,8 @@ yenv_name_central       (char c_naming, int a_ruid, char a_ruser [LEN_USER], cha
    char        x_msg       [LEN_HUND]  = "";
    /*---(header)-------------------------*/
    DEBUG_YENV   yLOG_enter   (__FUNCTION__);
+   /*---(scoring)------------------------*/
+   yenv_score_mark ("NLOC"    , '°');
    /*---(set location)-------------------*/
    if (strncmp (a_full, "/tmp", 4) == 0) {
       strcpy (x_etc  , "/tmp/etc/");
@@ -529,19 +558,21 @@ yenv_name_central       (char c_naming, int a_ruid, char a_ruser [LEN_USER], cha
    /*---(check etc)----------------------*/
    if (strncmp (a_full, x_etc, strlen (x_etc)) == 0) {
       yenv_score_mark ("NLOC"    , 'e');
+      yenv_score_mark ("NUSE"    , '°');
       DEBUG_YENV   yLOG_note    ("file located under root");
       if (a_ruid != 0) {
          sprintf (x_msg, "running as å%sæ, uid (%d); BUT, file in å%sæ (illegal)", a_ruser, a_ruid, x_etc);
-         yenv_name_fatal (x_msg);
+         yenv_audit_fatal ("NAME"    , x_msg);
          DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
          return rce;
       }
       yURG_msg ('-', "good, running as å%sæ, uid (%d) and file is located in or below å%sæ", a_ruser, a_ruid, x_etc);
-      yenv_score_mark ("NLOC"    , 'E');
+      yenv_score_mark ("NUSE"    , 'E');
    }
    /*---(check spool)--------------------*/
    else if (strncmp (a_full, x_spool, strlen (x_spool)) == 0) {
       yenv_score_mark ("NLOC"    , 's');
+      yenv_score_mark ("NUSE"    , '°');
       p = strrchr (a_full, '/');
       DEBUG_YENV   yLOG_point   ("p"         , p);
       if (p != NULL)  strcpy (t, p + 1);
@@ -554,25 +585,24 @@ yenv_name_central       (char c_naming, int a_ruid, char a_ruser [LEN_USER], cha
       rc = yENV_user_data ('n', t, NULL, NULL, NULL, NULL);
       if (rc < 0) {
          sprintf (x_msg, "could not find å%sæ as a legal user (illegal)", t, x_spool);
-         yenv_name_fatal (x_msg);
+         yenv_audit_fatal ("NAME"    , x_msg);
          DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
          return rce;
       }
       if (a_ruid == 0 || strcmp (a_ruser, t) == 0) {
          yURG_msg ('-', "good, running as å%sæ, uid (%d) so can handle file prefixed as å%sæ", a_ruser, a_ruid, t);
-         yenv_score_mark ("NLOC"    , 'S');
       } else {
          sprintf (x_msg, "running as å%sæ, uid (%d); BUT, file prefixed as å%sæ (illegal)", a_ruser, a_ruid, t);
-         yenv_name_fatal (x_msg);
+         yenv_audit_fatal ("NAME"    , x_msg);
          DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
          return rce;
       }
+      yenv_score_mark ("NUSE"    , 'S');
    }
    /*---(elsewhere)----------------------*/
    else {
-      yenv_score_mark ("NLOC"    , '°');
       sprintf (x_msg, "file not in å%sæ or under å%sæ and so can not be handled", x_etc, x_spool);
-      yenv_name_fatal (x_msg);
+      yenv_audit_fatal ("NAME"    , x_msg);
       DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
@@ -593,7 +623,6 @@ yenv_name_location      (char a_type, char c_naming, char a_full [LEN_PATH], cha
    char        rc          =    0;
    int         x_ruid      =   -1;
    char        x_ruser     [LEN_USER]  = "";
-   char        x_msg       [LEN_HUND]  = "";
    /*---(header)-------------------------*/
    DEBUG_YENV   yLOG_enter   (__FUNCTION__);
    /*---(config mark(--------------------*/
@@ -601,8 +630,6 @@ yenv_name_location      (char a_type, char c_naming, char a_full [LEN_PATH], cha
       DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   yenv_score_mark ("NCONF"   , c_naming);
-   yenv_score_mark ("NLOC"    , '-');
    /*---(quick-out)----------------------*/
    DEBUG_YENV   yLOG_char    ("a_type"    , a_type);
    if (a_type   != YENV_REG) {
@@ -621,7 +648,8 @@ yenv_name_location      (char a_type, char c_naming, char a_full [LEN_PATH], cha
    rc = yENV_whoami (NULL, NULL, &x_ruid, NULL, NULL, x_ruser, NULL, NULL, NULL, NULL);
    DEBUG_YENV   yLOG_value   ("whoami"    , rc);
    --rce;  if (rc < 0) {
-      yenv_name_fatal ("could not identify current user  (scary)");
+      yenv_score_mark ("NLOC"    , '°');
+      yenv_audit_fatal ("NAME"    , "could not identify current user  (scary)");
       DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
@@ -629,7 +657,7 @@ yenv_name_location      (char a_type, char c_naming, char a_full [LEN_PATH], cha
    /*---(handle locals)------------------*/
    if (c_naming == YENV_LOCAL) {
       DEBUG_YENV   yLOG_note    ("handling local");
-      rc = yenv_name_local   (c_naming, x_ruid, x_ruser, a_full, b_owner, b_group, b_perms);
+      rc = yenv_name_local   (x_ruid, x_ruser, a_full, b_owner, b_group, b_perms);
       if (rc < 0) {
          DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
          return rce;
@@ -638,7 +666,7 @@ yenv_name_location      (char a_type, char c_naming, char a_full [LEN_PATH], cha
    /*---(check centrals)-----------------*/
    if (c_naming == YENV_CENTRAL) {
       DEBUG_YENV   yLOG_note    ("handling central");
-      rc = yenv_name_central (c_naming, x_ruid, x_ruser, a_full, b_owner, b_group, b_perms);
+      rc = yenv_name_central (x_ruid, x_ruser, a_full, b_owner, b_group, b_perms);
       if (rc < 0) {
          DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
          return rce;

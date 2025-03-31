@@ -39,7 +39,7 @@ yENV_audit_full         (char a_type, char c_flag, char c_naming, char a_dir [LE
    if (r_fuid  != NULL)  *r_fuid  = -1;
    if (r_fuser != NULL)  strcpy  (r_fuser , "");
    /*---(prepare)------------------------*/
-   rc = yenv_audit_prepare (a_type, c_flag, x_etdesc, &c_check, &c_force, &c_fix);
+   rc = yenv_audit_prepare (a_type, c_flag, c_naming, a_dir, a_file, x_etdesc, &c_check, &c_force, &c_fix);
    if (rc > rc_final)  rc_final = rc;
    DEBUG_YENV   yLOG_complex ("prepare"   , "%4d rc, %4d final", rc, rc_final);
    --rce;  if (rc < 0) {
@@ -180,9 +180,9 @@ yENV_audit_localdir     (char a_dir [LEN_PATH], char r_full [LEN_PATH], int *r_f
 }
 
 char
-yENV_audit_central      (char a_dir [LEN_PATH], char a_file [LEN_LABEL], char a_prefix [LEN_TERSE], char a_suffix [LEN_TERSE], char r_full [LEN_PATH], int *r_fuid, char r_fuser [LEN_USER])
+yENV_audit_central      (char c_flag, char a_dir [LEN_PATH], char a_file [LEN_LABEL], char a_prefix [LEN_TERSE], char a_suffix [LEN_TERSE], char r_full [LEN_PATH], int *r_fuid, char r_fuser [LEN_USER])
 {
-   return yENV_audit_full (YENV_REG  , '-', YENV_CENTRAL, a_dir, a_file, "-", "-", "-", -1, -1, YENV_NONE, "", a_prefix, a_suffix, -1, -1, -1, NULL, r_full, r_fuid, r_fuser);
+   return yENV_audit_full (YENV_REG  , c_flag, YENV_CENTRAL, a_dir, a_file, "-", "-", "-", -1, -1, YENV_NONE, "", a_prefix, a_suffix, -1, -1, -1, NULL, r_full, r_fuid, r_fuser);
 }
 
 char
