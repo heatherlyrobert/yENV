@@ -58,7 +58,7 @@ yENV_name_split         (char a_full [LEN_PATH], char *r_style, char r_dir [LEN_
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    char        rc          =    0;
-   int         l           =    0;
+   /*> int         l           =    0;                                                <*/
    char       *p           = NULL;
    char        x_full      [LEN_PATH]  = "";
    char        x_dir       [LEN_PATH]  = "";
@@ -75,8 +75,8 @@ yENV_name_split         (char a_full [LEN_PATH], char *r_style, char r_dir [LEN_
    /*---(prepare)------------------------*/
    strlcpy (x_full, a_full, LEN_PATH);
    /*---(defense)------------------------*/
-   l = strlen (x_full);
-   --rce;  if (l > 0 && a_full [0] != '/')  return rce;
+   /*> l = strlen (x_full);                                                           <*/
+   /*> --rce;  if (l > 0 && a_full [0] != '/')  return rce;                           <*/
    /*---(parse)--------------------------*/
    p = strrchr (x_full, '/');
    if (p != NULL) {

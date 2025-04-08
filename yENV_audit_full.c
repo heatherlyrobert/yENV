@@ -5,7 +5,7 @@
 
 
 char
-yENV_audit_full         (char a_type, char c_flag, char c_naming, char a_dir [LEN_PATH], char a_file [LEN_LABEL], char a_owner [LEN_USER], char a_group [LEN_USER], char a_perms [LEN_TERSE], int a_major, int a_minor, char a_ttype, char a_target [LEN_PATH], char a_prefix [LEN_TERSE], char a_suffix [LEN_TERSE], int a_epoch, long a_bytes, int a_inode, char a_hash [LEN_DESC], char r_full [LEN_PATH], int *r_fuid, char r_fuser [LEN_USER])
+yENV_audit_full         (char a_type, char c_flag, char c_naming, char a_dir [LEN_PATH], char a_file [LEN_PATH], char a_owner [LEN_USER], char a_group [LEN_USER], char a_perms [LEN_TERSE], int a_major, int a_minor, char a_ttype, char a_target [LEN_PATH], char a_prefix [LEN_TERSE], char a_suffix [LEN_TERSE], int a_epoch, long a_bytes, int a_inode, char a_hash [LEN_DESC], char r_full [LEN_PATH], int *r_fuid, char r_fuser [LEN_USER])
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -150,25 +150,25 @@ yENV_audit_full         (char a_type, char c_flag, char c_naming, char a_dir [LE
 }
 
 char
-yENV_audit              (char a_type, char c_flag, char c_naming, char a_dir [LEN_PATH], char a_file [LEN_LABEL], char a_owner [LEN_USER], char a_group [LEN_USER], char a_perms [LEN_TERSE], int a_major, int a_minor, char a_ttype, char a_target [LEN_PATH])
+yENV_audit              (char a_type, char c_flag, char c_naming, char a_dir [LEN_PATH], char a_file [LEN_PATH], char a_owner [LEN_USER], char a_group [LEN_USER], char a_perms [LEN_TERSE], int a_major, int a_minor, char a_ttype, char a_target [LEN_PATH])
 {
    return yENV_audit_full (a_type, c_flag, c_naming, a_dir, a_file, a_owner, a_group, a_perms, a_major, a_minor, a_ttype, a_target, "", "", -1, -1, -1, "", NULL, NULL, NULL);
 }
 
 char
-yENV_audit_del          (char c_flag, char a_dir [LEN_PATH], char a_file [LEN_LABEL])
+yENV_audit_del          (char c_flag, char a_dir [LEN_PATH], char a_file [LEN_PATH])
 {
    return yENV_audit_full (YENV_NONE , c_flag, 'n', a_dir, a_file, "", "", "", -1, -1, YENV_NONE, "", "", "", -1, -1, -1, NULL, NULL, NULL, NULL);
 }
 
 char
-yENV_audit_reg          (char c_flag, char c_naming, char a_dir [LEN_PATH], char a_file [LEN_LABEL], char a_owner [LEN_USER], char a_group [LEN_USER], char a_perms [LEN_TERSE])
+yENV_audit_reg          (char c_flag, char c_naming, char a_dir [LEN_PATH], char a_file [LEN_PATH], char a_owner [LEN_USER], char a_group [LEN_USER], char a_perms [LEN_TERSE])
 {
    return yENV_audit_full (YENV_REG  , c_flag, c_naming, a_dir, a_file, a_owner, a_group, a_perms, -1, -1, YENV_NONE, "", "", "", -1, -1, -1, NULL, NULL, NULL, NULL);
 }
 
 char
-yENV_audit_local        (char a_dir [LEN_PATH], char a_file [LEN_LABEL], char a_prefix [LEN_TERSE], char a_suffix [LEN_TERSE], char r_full [LEN_PATH], int *r_fuid, char r_fuser [LEN_USER])
+yENV_audit_local        (char a_dir [LEN_PATH], char a_file [LEN_PATH], char a_prefix [LEN_TERSE], char a_suffix [LEN_TERSE], char r_full [LEN_PATH], int *r_fuid, char r_fuser [LEN_USER])
 {
    return yENV_audit_full (YENV_REG  , '-', YENV_LOCAL  , a_dir, a_file, "-", "-", "-", -1, -1, YENV_NONE, "", a_prefix, a_suffix, -1, -1, -1, NULL, r_full, r_fuid, r_fuser);
 }
@@ -180,7 +180,7 @@ yENV_audit_localdir     (char a_dir [LEN_PATH], char r_full [LEN_PATH], int *r_f
 }
 
 char
-yENV_audit_central      (char c_flag, char a_dir [LEN_PATH], char a_file [LEN_LABEL], char a_prefix [LEN_TERSE], char a_suffix [LEN_TERSE], char r_full [LEN_PATH], int *r_fuid, char r_fuser [LEN_USER])
+yENV_audit_central      (char c_flag, char a_dir [LEN_PATH], char a_file [LEN_PATH], char a_prefix [LEN_TERSE], char a_suffix [LEN_TERSE], char r_full [LEN_PATH], int *r_fuid, char r_fuser [LEN_USER])
 {
    return yENV_audit_full (YENV_REG  , c_flag, YENV_CENTRAL, a_dir, a_file, "-", "-", "-", -1, -1, YENV_NONE, "", a_prefix, a_suffix, -1, -1, -1, NULL, r_full, r_fuid, r_fuser);
 }
