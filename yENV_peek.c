@@ -26,11 +26,31 @@ yENV_peekier            (char a_style, char a_name [LEN_PATH], int n, int *a_cou
    static int  x_last      =    0;
    char        x_dir       =  '-';
    int         x_curr      =    0;
+   static char x_save      [LEN_PATH]  = "";
    /*---(default)------------------------*/
    if (a_count != NULL)  *a_count = -1;
    /*---(defense)------------------------*/
-   if (a_name == NULL)            return "(null name)";
-   if (strcmp (a_name, "") == 0)  return "(empty name)";
+   if (a_name == NULL) {
+      strlcpy (x_save, "", LEN_PATH);
+      x_last = -1;
+      return "(null name)";
+   }
+   if (strcmp (a_name, "") == 0) {
+      strlcpy (x_save, "", LEN_PATH);
+      x_last = -1;
+      return "(empty name)";
+   }
+   /*---(save name)----------------------*/
+   if (strcmp (x_save, a_name) != 0) {
+      strlcpy (x_save, a_name, LEN_PATH);
+      x_last = -1;
+   }
+   /*---(RESET OPTION)-------------------*/
+   if (n == -1 || strcmp ("(reset)", a_name) == 0) {
+      strlcpy (x_save, a_name, LEN_PATH);
+      x_last = -1;
+      return "(reset)";
+   }
    /*---(prepare)------------------------*/
    if (a_count != NULL)  *a_count = 0;
    strcpy (s_peek, "(n/a)");
@@ -114,6 +134,7 @@ char* yENV_peek         (char a_name [LEN_PATH], int n) { return yENV_peekier ('
 char* yENV_peek_vis     (char a_name [LEN_PATH], int n) { return yENV_peekier ('v', a_name, n, NULL); }
 char* yENV_peek_field   (char a_name [LEN_PATH], int n) { return yENV_peekier ('f', a_name, n, NULL); }
 int   yENV_lines        (char a_name [LEN_PATH])        { int c = 0; yENV_peekier ('-', a_name, 0, &c); return c; }
+char  yENV_peek_reset   (void)                          { yENV_peekier ('-', "(reset)", -1, NULL); return 0; }
 
 
 

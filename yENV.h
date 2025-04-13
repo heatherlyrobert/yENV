@@ -78,6 +78,7 @@ char*       yENV_peek               (char a_name [LEN_PATH], int n);
 char*       yENV_peek_vis           (char a_name [LEN_PATH], int n);
 char*       yENV_peek_field         (char a_name [LEN_PATH], int n);
 int         yENV_lines              (char a_name [LEN_PATH]);
+char        yENV_peek_reset         (void);
 /*---(comparision)----------*/
 char        yENV_diff               (char *a_actual, char *a_expect);
 /*---(done)-----------------*/
