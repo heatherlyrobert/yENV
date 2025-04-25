@@ -1,0 +1,138 @@
+.TH yENV_uver· 3 2024-may "linux" "interfacing with micro, code-inclusion version"
+
+.SH NAME
+yENV \- provide consistent linux filesystem and security services
+
+.SH PATRON (see HERITAGE at bottom for more)
+tartarus-eeroeis (murky one) linux filesystem and security services
+
+.SH IMAGERY
+dreaded place of darkness and punishment reserved for the worst sinners
+
+.SH SUMMARY (see yLOG (7) for more information)
+yENV and yENV_uver allow for consistent auditing and access to the
+linux security system so that many of my programs can take advantage
+of my latest updates with little work.
+
+.SH SERIOUS FOREWARNING
+i am a crazy, selfish, dog-fooding c-programmer.  my code tends to be
+experimental and constantly evolving.  my point is NOT to be the best, it is
+to challenge myself, build from scratch, and allow fast problem solving.
+
+.SH DOCUMENTATION
+.nf
+yENV (3)           interfacing with yENV in general
+.B yENV_uver (3)´´´´´´interfacing with micro, code-inclusion version
+yENV (7)           decision rationale, scope, and objectives
+
+.SH TABLE OF CONTENTS
+.nf  
+a) overview        quick summary
+b) synopsis        function overview
+c) inclusion       bringing the library into your code
+d) count           line counting
+e) content         extracting lines
+f) debugging       debugging support
+g) unit-test       unit-testing support
+
+.SH A) OVERVIEW
+yENV_uver is a simplied but compatable, source-code inclusion header version
+of yENV's data file peeking for use with core, low-dependency libraries
+supporting unit-testing.  as a result, only a few of my programs use it.
+
+.SH B) SYNOPSIS
+.nf
+usage is noted on the far-left of each entry...
+   ! means once-per-program
+   Ï every program
+   · not in every program
+
+---line-count----------------------------------
+Ï  int      yENV_ulines   (char *<file>);
+
+---seeing-specific-lines-----------------------
+Ï  char*    yENV_upeek    (char *<file>, char <dir>);
+·  char*    yENV_uindex   (char *<file>, int <n>);
+
+---debugging-----------------------------------
+·  char*    yENV_uwhich   (void);
+·  int      yENV_uwhere   (void);
+
+---unit-test-----------------------------------
+·  char     yenv_uunit    (void);
+·  char     yenv_unormal  (void);
+
+.SH C) INCLUSION
+
+.SS header
+a simple header must be included in your shared header file
+
+   #include  <yENV_solo.h>
+
+.SS code inclusion
+the source code file must be included in a primary source file
+
+   #include  <yENV_uver.h>
+
+.SH D) COUNT
+first of all, the count function helps detiremine IF the file exists, and if
+it does, what size (in records).
+
+.SS int yENV_ulines (<file>)
+returns the line/record count or -1 if does not exist
+
+.SH E) CONTENT
+next, the critical part is a standard interface for retrieving lines
+from an 8-bit ascii text file (UTF-8).  these two functions use the
+same code so cursoring and indexing can be interwoven as necessary.
+
+besides data, sometimes errors will be returned...
+   (null)      file name given was NULL
+   (empty)     file name given was empty
+   (missing)   file not located with name
+   (n/a)       record position out of bounds (normal)
+   (under)     position before first record (unit test)
+   (over)      position after end of records (unit test)
+
+.SS char* yENV_upeek (<file>, <dir>)
+returns the full line after applying the cursor dir (shown below).
+   [  or  º   head
+   <  or  ×   previous
+   .  or  ´   current
+   >  or  Ö   next
+   ]  or  »   tail
+   -          reset
+
+.SS char* yENV_uindex (<file>, <n>)
+returns the full line for record number <n>.
+
+.SH F) DEBUGGING
+to speed the search for trouble, two addition functions can retrieve working
+values.
+
+.SS char* yENV_uwhich (void)
+file name used in last successful search
+
+.SS int yENV_uwhere (void)
+file record position used in last successful search
+
+.SH G) UNIT TEST
+to successfully unit test, i needed more specific error messages than
+i prefer in production, so i made them configurable.
+
+.SS char yENV_uunit (void)
+sets underrun to "(under)" and overrun to "(over)".
+
+.SS char yENV_unormal (void)
+sets both underrun and overrun to "(n/a)" which is the default.
+
+.SH BUGS
+yENV is incredibly stable for me, but if anyone else used it it might explode
+and take the universe with it.
+
+.SH COLOPHON
+this page is part of a documentation package meant to make the use of the
+heatherly tools easier and faster
+
+
+

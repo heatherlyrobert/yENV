@@ -5,7 +5,7 @@
 
 
 #include    <stdio.h>        /* C_ANSI : strcpy, strlen, strchr, strcmp, ...  */
-#include <ySTR_solo.h>
+#include    <ySTR_solo.h>
 
 
 
@@ -73,12 +73,17 @@ char        yENV_whoami             (int *r_pid, int *r_ppid, int *r_uid, int *r
 /*===[[ yENV_peek.c ]]========================================================*/
 /*········· ´······················ ´·········································*/
 /*---(content)--------------*/
-char*       yENV_peekier            (char a_style, char a_name [LEN_PATH], int n, int *a_count);
-char*       yENV_peek               (char a_name [LEN_PATH], int n);
+char*       yENV_peekier            (char a_style, char a_name [LEN_PATH], char a_dir, int n, int *a_count);
+/*---(simplifiers)----------*/
+char*       yENV_peek               (char a_name [LEN_PATH], char a_dir);
+char*       yENV_index              (char a_name [LEN_PATH], int n);
 char*       yENV_peek_vis           (char a_name [LEN_PATH], int n);
 char*       yENV_peek_field         (char a_name [LEN_PATH], int n);
 int         yENV_lines              (char a_name [LEN_PATH]);
 char        yENV_peek_reset         (void);
+/*---(debugging)------------*/
+char*       yENV_where              (void);
+int         yENV_which              (void);
 /*---(comparision)----------*/
 char        yENV_diff               (char *a_actual, char *a_expect);
 /*---(done)-----------------*/
