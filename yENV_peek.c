@@ -5,7 +5,7 @@
 
 
 static char  myenv_peek    [LEN_RECD]  = "";
-static char  myenv_last    =    0;
+static int   myenv_last    =    0;
 static char  myenv_save    [LEN_PATH]  = "";
 
 

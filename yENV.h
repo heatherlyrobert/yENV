@@ -131,10 +131,14 @@ char        yENV_group_switch       (char a_name [LEN_USER]);
 /*---(driver)---------------*/   /*--- DEPRICATED ----------------------------*/
 char        yENV_perms_data         (char a_type, char b_name [LEN_TERSE], int *b_perms, char b_disp [LEN_TERSE]);
 /*---(current)--------------*/
-char        yENV_perms_full         (char a_type, char a_text [LEN_TERSE], char r_name [LEN_TERSE], int *r_perms, char r_disp [LEN_TERSE], char r_desc [LEN_HUND], char r_handle [LEN_LABEL]);
+char        yENV_perms_full         (char a_type, char a_text [LEN_TERSE], char r_name [LEN_TERSE], int *r_perms, char r_disp [LEN_TERSE], char r_desc [LEN_TITLE], char r_handle [LEN_LABEL]);
 /*---(simplifiers)----------*/
 char        yENV_perms              (char a_text [LEN_TERSE], char r_name [LEN_TERSE], int *r_prm, char r_disp [LEN_TERSE], char r_desc [LEN_HUND]);
 char        yENV_perms_octal        (char a_type, int a_value, char r_name [LEN_TERSE], int *r_prm, char r_disp [LEN_TERSE]);
+/*---(support)--------------*/
+int         yENV_perms_count        (void);
+char*       yENV_perms_by_cursor    (char a_dir);
+char*       yENV_perms_by_text      (char a_text [LEN_TERSE]);
 /*---(done)-----------------*/
 
 

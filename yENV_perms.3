@@ -1,0 +1,200 @@
+.TH yENV_perms· 3 2024-may "linux" "interfacing with micro, code-inclusion version"
+
+.SH NAME
+yENV \- provide consistent linux filesystem and security services
+
+.SH PATRON (see HERITAGE at bottom for more)
+tartarus-eeroeis (murky one) linux filesystem and security services
+
+.SH IMAGERY
+dreaded place of darkness and punishment reserved for the worst sinners
+
+.SH SUMMARY (see yENV (7) for more information)
+yENV and yENV_uver allow for consistent auditing and access to the
+linux security system so that many of my programs can take advantage
+of my latest updates with little work.
+
+.SH SERIOUS FOREWARNING
+i am a crazy, selfish, dog-fooding c-programmer.  my code tends to be
+experimental and constantly evolving.  my point is NOT to be the best, it is
+to challenge myself, build from scratch, and allow fast problem solving.
+
+.SH DOCUMENTATION
+.nf
+yENV (3)           interfacing with yENV in general
+yENV_uver (3)      interfacing with micro, code-inclusion version
+yENV_peek (3)      interfacing with file content review
+yENV_touch (3)     interfacing with creation/removal functions
+yENV_audit (3)     interfacing with auditing functions
+yENV_owner (3)     interfacing with owners
+yENV_group (3)     interfacing with groups
+.B yENV_perms (3)´´´´´interfacing with permissions
+yENV_score (3)     interfacing with application scoring
+yENV (7)           decision rationale, scope, and objectives
+
+.SH TABLE OF CONTENTS
+.nf  
+a) overview        quick summary
+b) synopsis        function overview
+c) inclusion       bringing the library into your code
+d) keys            consistent ways to find entries
+e) primary         primary interface
+f) fuller          more fullsome interfaces
+g) access          debugging, unit testing, and reporting
+
+.SH A) OVERVIEW
+yENV provides a standardized interface for inquiring about linux permissions
+data.  i use this ability through-out my programs to verify and secure my
+environments and content.  the setting part is handled in yENV_audit (3).
+
+.SH B) SYNOPSIS
+.nf
+usage is noted on the far-left of each entry...
+   ! means once-per-program
+   ¼ primary interface
+   ´ every program
+   · not in every program
+
+---primary-------------------------------------
+·  char     yENV_perms           (char* <text>, ...);
+
+---audit-support-------------------------------
+¼  char     yENV_perms_full      (char  <type>, ...);
+·  char     yENV_perms_octal     (char  <type>, ...);
+
+---data-access---------------------------------
+·  int      yENV_perms_count     (void);
+·  char*    yENV_perms_by_cursor (char  <dir));
+·  char*    yENV_perms_by_text   (char* <text));
+
+.SH C) INCLUSION
+
+.SS header
+a simple header must be included in your shared header file
+   #include  <yENV.h>
+
+.SS library
+the library must be added to the make process...
+   link to -lyENV for the production version
+   link to -lyENV_debug for the debugging version (to debug itself)
+
+.SH D) KEYS
+permissions can be queried three different ways -- my naming, octal value,
+and the display representation typically seen on the screen.  any
+octal or display representaion can be used, but i try to stick to
+my naming to avoid accidental mistypes.
+
+.SS standards
+working back from by security audit and remediation program, there are
+twenty-two (22) prermission configurations that account for 99.9% of
+the linux filesystem.  i standardized those to help my auditing.
+
+.nf
+---name---··---GROUP-FOCUSED--------------··octal··-display-
+g_only      group sharing/private           00070  ---rwx---
+g_share     group sharing, others look      00075  ---rwxr-x
+
+.nf
+---name---··---DIRECTORIES----------------··octal··-display-
+d_open      wide open                       00777  rwxrwxrwx
+d_group     mostly open, others can look    00775  rwxrwxr-x
+d_control   owner and group only            00770  rwxrwx---
+d_normal    owner writes, all others look   00755  rwxr-xr-x
+d_secure    owner only, group read          00750  rwxw-x---
+d_tight     owner only                      00700  rwx------
+
+.nf
+---name---··---ROOT-FOCUSED---------------··octal··-display-
+r_share     root only, all can look         00555  r-xr-xr-x
+r_only      root only                       00000  ---------
+
+.nf
+---name---··---FILES----------------------··octal··-display-
+f_open      wide open                       00666  rw-rw-rw-
+f_control   owner and group only            00660  rw-rw----
+f_normal    owner only, all can read        00644  rw-r--r--
+f_secure    owner only, group read          00640  rw-r-----
+f_tight     owner only                      00600  rw-------
+
+.nf
+---name---··---DEVICES--------------------··octal··-display-
+f_hidev     hidev devices                   00664  rw-rw-r--
+f_usb       usb devices                     00662  rw-rw--w-
+f_tty       tty devices                     00620  rw--w----
+
+.nf
+---name---··---SPECIALTY------------------··octal··-display-
+d_sgroup    normal, new files setgid        02755  rwxr-sr-x
+d_normals   normal, but delete respricted   01755  rwxr-xr-t
+d_tights    owner only, delete restrcited   01700  rwx-----T
+f_nodel     wide open, delete restricted    01777  rwxrwxrwt
+
+.SH E) PRIMARY
+
+.SS char  yENV_perms ( char* <a_text>, ´´´);
+validates a permission based on any of the three access methods shown
+above, then returns the various details.  if you pass an empty string,
+the default of "f_tight" will be used.
+
+.RS 3
+.B char *<a_text> find string -- "f_tight", "00600", or "rw-------"
+.RE
+
+.RS 3
+.B char *<r_name>, returns standard name or empty string
+.RE
+
+.RS 3
+.B int *<r_perms>, returns octal equivalent as integer
+.RE
+
+.RS 3
+.B char *<r_disp>, returns display version
+.RE
+
+.RS 3
+.B char *<r_desc>, returns standard description or empty
+.RE
+
+.SH F) AUDIT INTERFACE
+this interface is the fullsome version of yENV_perms, adding two other fields.
+first, entry type to help target the default.  second, handler to specify how
+the data way found.  both are unnecessary outside auditing.
+
+.SS char  yENV_perms_full (char <a_type>, char* <a_text>, ´´´);
+validates a permission based on any of the three access methods shown above,
+then returns the various details.  if you pass an empty string, the default of
+"d_tight" for YENV_DIR and "f_tight" for all else will be used.
+
+.RS 3
+.B char <a_type> the filesystem entry type, e.g., YENV_DIR
+.RE
+
+.RS 3
+.B char *<r_handle>, returns text octal, standard, display, or default
+.RE
+
+.SS char  yENV_perms_octal (char <a_type>, int <a_value>, ´´´);
+another simplications to allow yENV_perms to be called with a numeric
+octal value rather than as a string.  it avoids extra programming later.
+
+.SH G) DATA ACCESS
+to better enable reporting, unit testing, and debugging, i have added
+a couple standard data access methods.
+
+.SS char  yENV_perms_count (void)
+returns the number of standard entries
+
+.SS char* yENV_perms_by_cursor (char <dir>)
+returns a detailed string with all data based on standard cursoring
+
+.SS char* yENV_perms_by_text (char* <text>)
+returns a detailed string with all data based on the three methods
+
+.SH BUGS
+yENV is incredibly stable for me, but if anyone else used it it might explode
+and take the universe with it.
+
+.SH COLOPHON
+this page is part of a documentation package meant to make the use of the
+heatherly tools easier and faster

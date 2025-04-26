@@ -5,44 +5,49 @@
 
 
 #define     MAX_PERM         50
-typedef     struct cPERM    tPERM;
-struct cPERM {
+typedef     struct cENV_PERM    tENV_PERM;
+struct cENV_PERM {
    char        name        [LEN_TERSE];
+   char        simple      [LEN_TITLE];
    char        desc        [LEN_HUND];
    int         value;
    char        disp        [LEN_TERSE];
 };
 const tENV_PERM zENV_perms [MAX_PERM] = {
-   /* 123456789012345    12345678901234567890123456789012345678901234567890123456789012345678901234567890   12345    123456789  */
-   /* ---name--------    ---description------------------------------------------------------------------   perms    -display-  */
-   { "g_only"         , "only the group can see, access, or modify"                                       , 00070 , "---rwx---"},
-   { "g_share"        , "only the group can modify, but all others can see and access"                    , 00075 , "---rwxr-x"},
+   /* 123456789-12345    123456789-123456789-123456789-    123456789-123456789-123456789-123456789-123456789-123456789-123456789-123456789-   12345    123456789  */
+   /* ---name--------    ---title---------------------    ---description------------------------------------------------------------------   perms    -display-  */
+   { "g_only"         , "group sharing/private"         , "only the group can see, access, or modify"                                       , 00070 , "---rwx---"},
+   { "g_share"        , "group sharing, others look"    , "only the group can modify, but all others can see and access"                    , 00075 , "---rwxr-x"},
    /*---(directories)-------------*/
-   { "d_open"         , "everyone can access directory, then list, read, create, and delete files"        , 00777 , "rwxrwxrwx"},
-   { "d_group"        , "owner and group can do anything, others can read"                                , 00775 , "rwxrwxr-x"},
-   { "d_control"      , "owner and group can do anything, everyone else can do nothing"                   , 00770 , "rwxrwx---"},
-   { "d_normal"       , "everyone can access directory, group and other can list and read files only"     , 00755 , "rwxr-xr-x"},
-   { "d_normals"      , "everyone can access directory, group and other can list and read files only"     , 01755 , "rwxr-xr-t"},
-   { "d_sgroup"       , "same as d_normal, but new files get directories group id"                        , 02755 , "rwxr-sr-x"},
-   { "d_secure"       , "owner can do anything,  group can list and read files only, all others nothing"  , 00750 , "rwxw-x---"},
-   { "d_tight"        , "owner can do anything, all others nothing"                                       , 00700 , "rwx------"},
-   { "d_tights"       , "everyone can see, access, and modify, but only owner can delete"                 , 01700 , "rwx-----T"},
+   { "d_open"         , "wide open"                     , "everyone can access directory, then list, read, create, and delete files"        , 00777 , "rwxrwxrwx"},
+   { "d_group"        , "mostly open, others can look"  , "owner and group can do anything, others can read"                                , 00775 , "rwxrwxr-x"},
+   { "d_control"      , "owner and group only"          , "owner and group can do anything, everyone else can do nothing"                   , 00770 , "rwxrwx---"},
+   { "d_normal"       , "owner writes, all others look" , "everyone can access directory, group and other can list and read files only"     , 00755 , "rwxr-xr-x"},
+   { "d_secure"       , "owner only, group read"        , "owner can do anything,  group can list and read files only, all others nothing"  , 00750 , "rwxw-x---"},
+   { "d_tight"        , "owner only"                    , "owner can do anything, all others nothing"                                       , 00700 , "rwx------"},
    /*---(root)--------------------*/
-   { "r_share"        , "only root specifically can modify; but all others can see and access"            , 00555 , "r-xr-xr-x"},
-   { "r_only"         , "only root specifically can sse, access, or modify; even root group can not"      , 00000 , "---------"},
+   { "r_share"        , "root only, all can look"       , "only root specifically can modify; but all others can see and access"            , 00555 , "r-xr-xr-x"},
+   { "r_only"         , "root only"                     , "only root specifically can sse, access, or modify; even root group can not"      , 00000 , "---------"},
    /*---(regular files)-----------*/
-   { "f_open"         , "everyone can read and write"                                                     , 00666 , "rw-rw-rw-"},
-   { "f_control"      , "owner and group can read and write, everyone else gets nothing"                  , 00660 , "rw-rw----"},
-   { "f_hidev"        , "owner and group can read and write, everyone else read-only"                     , 00664 , "rw-rw-r--"},
-   { "f_usb"          , "owner and group can read and write, everyone else read-only"                     , 00662 , "rw-rw--w-"},
-   { "f_normal"       , "owner can read and write, everyone else can read only"                           , 00644 , "rw-r--r--"},
-   { "f_secure"       , "owner can read and write, group can read only, everyone else gets nothing"       , 00640 , "rw-r-----"},
-   { "f_tty"          , "owner can read and write, group can write only, everyone else gets nothing"      , 00620 , "rw--w----"},
-   { "f_tight"        , "owner can read and write, everyone else gets nothing"                            , 00600 , "rw-------"},
-   { "f_nodel"        , "everyone can see, access, and modify, but only owner can delete"                 , 01777 , "rwxrwxrwt"},
+   { "f_open"         , "wide open"                     , "everyone can read and write"                                                     , 00666 , "rw-rw-rw-"},
+   { "f_control"      , "owner and group only"          , "owner and group can read and write, everyone else gets nothing"                  , 00660 , "rw-rw----"},
+   { "f_normal"       , "owner only, all can read"      , "owner can read and write, everyone else can read only"                           , 00644 , "rw-r--r--"},
+   { "f_secure"       , "owner only, group read"        , "owner can read and write, group can read only, everyone else gets nothing"       , 00640 , "rw-r-----"},
+   { "f_tight"        , "owner only"                    , "owner can read and write, everyone else gets nothing"                            , 00600 , "rw-------"},
+   /*---(devices)-----------------*/
+   { "f_hidev"        , "hidev devices"                 , "owner and group can read and write, everyone else read-only"                     , 00664 , "rw-rw-r--"},
+   { "f_usb"          , "usb devices"                   , "owner and group can read and write, everyone else read-only"                     , 00662 , "rw-rw--w-"},
+   { "f_tty"          , "tty devices"                   , "owner can read and write, group can write only, everyone else gets nothing"      , 00620 , "rw--w----"},
+   /*---(specialty)---------------*/
+   { "d_sgroup"       , "normal, new files setgid"      , "same as d_normal, but new files get directories group id"                        , 02755 , "rwxr-sr-x"},
+   { "d_normals"      , "normal, but delete restricted" , "everyone can access directory, group and other can list and read files only"     , 01755 , "rwxr-xr-t"},
+   { "d_tights"       , "owner only, delete restricted" , "everyone can see, access, and modify, but only owner can delete"                 , 01700 , "rwx-----T"},
+   { "f_nodel"        , "wide open, delete restricted"  , "everyone can see, access, and modify, but only owner can delete"                 , 01777 , "rwxrwxrwt"},
    /*---(end)---------------------*/
-   { "end-of-entries" , "---marker---"                                                                    , 00000 , "---------"},
+   { "end-of-entries" , ""                    , "---marker---"                                                                    , 00000 , "---------"},
 };
+static  int zENV_nperm   =   -1;
+static  int zENV_cperm   =   -1;
 
 
 
@@ -300,13 +305,14 @@ yenv_octal2display      (int a_perms)
 static void      o___SEARCH_____________o (void) {;}
 
 char
-yenv_perms_by_name      (char a_text [LEN_TERSE], char r_name [LEN_TERSE], int *r_perms, char r_disp [LEN_TERSE], char r_desc [LEN_HUND])
+yenv_perms_by_name      (char a_text [LEN_TERSE], int *r_index, char r_name [LEN_TERSE], int *r_perms, char r_disp [LEN_TERSE], char r_desc [LEN_TITLE])
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    int         i           =    0;
    int         l           =    0;
    /*---(defaults)-----------------------*/
+   if (r_index != NULL)  *r_index = -1;
    if (r_name  != NULL)  strcpy (r_name, "");
    if (r_perms != NULL)  *r_perms = -1;
    if (r_disp  != NULL)  strcpy (r_disp, "");
@@ -319,10 +325,11 @@ yenv_perms_by_name      (char a_text [LEN_TERSE], char r_name [LEN_TERSE], int *
    /*---(find)---------------------------*/
    for (i = 0; i < MAX_PERM; ++i) {
       if (strcmp (zENV_perms [i].name, a_text) != 0)  continue;
-      if (r_name  != NULL)  strlcpy (r_name, zENV_perms [i].name, LEN_TERSE);
+      if (r_index != NULL)  *r_index = i;
+      if (r_name  != NULL)  strlcpy (r_name, zENV_perms [i].name  , LEN_TERSE);
       if (r_perms != NULL)  *r_perms = zENV_perms [i].value;
-      if (r_disp  != NULL)  strlcpy (r_disp, zENV_perms [i].disp, LEN_TERSE);
-      if (r_desc  != NULL)  strlcpy (r_desc, zENV_perms [i].desc, LEN_HUND);;
+      if (r_disp  != NULL)  strlcpy (r_disp, zENV_perms [i].disp  , LEN_TERSE);
+      if (r_desc  != NULL)  strlcpy (r_desc, zENV_perms [i].simple, LEN_TITLE);;
       return 0;
    }
    /*---(defense)------------------------*/
@@ -330,7 +337,7 @@ yenv_perms_by_name      (char a_text [LEN_TERSE], char r_name [LEN_TERSE], int *
 }
 
 char
-yenv_perms_by_disp      (char a_text [LEN_TERSE], char r_name [LEN_TERSE], int *r_perms, char r_disp [LEN_TERSE], char r_desc [LEN_HUND])
+yenv_perms_by_disp      (char a_text [LEN_TERSE], int *r_index, char r_name [LEN_TERSE], int *r_perms, char r_disp [LEN_TERSE], char r_desc [LEN_TITLE])
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -338,6 +345,7 @@ yenv_perms_by_disp      (char a_text [LEN_TERSE], char r_name [LEN_TERSE], int *
    int         x_perms     =    0;
    int         l           =    0;
    /*---(defaults)-----------------------*/
+   if (r_index != NULL)  *r_index = -1;
    if (r_name  != NULL)  strcpy (r_name, "");
    if (r_perms != NULL)  *r_perms = -1;
    if (r_disp  != NULL)  strcpy (r_disp, "");
@@ -349,10 +357,11 @@ yenv_perms_by_disp      (char a_text [LEN_TERSE], char r_name [LEN_TERSE], int *
    /*---(find)---------------------------*/
    for (i = 0; i < MAX_PERM; ++i) {
       if (strcmp (zENV_perms [i].disp, a_text) != 0)  continue;
-      if (r_name  != NULL)  strlcpy (r_name, zENV_perms [i].name, LEN_TERSE);
+      if (r_index != NULL)  *r_index = i;
+      if (r_name  != NULL)  strlcpy (r_name, zENV_perms [i].name  , LEN_TERSE);
       if (r_perms != NULL)  *r_perms = zENV_perms [i].value;
-      if (r_disp  != NULL)  strlcpy (r_disp, zENV_perms [i].disp, LEN_TERSE);
-      if (r_desc  != NULL)  strlcpy (r_desc, zENV_perms [i].desc, LEN_HUND);;
+      if (r_disp  != NULL)  strlcpy (r_disp, zENV_perms [i].disp  , LEN_TERSE);
+      if (r_desc  != NULL)  strlcpy (r_desc, zENV_perms [i].simple, LEN_TITLE);;
       return 0;
    }
    /*---(at least translate)-------------*/
@@ -368,7 +377,7 @@ yenv_perms_by_disp      (char a_text [LEN_TERSE], char r_name [LEN_TERSE], int *
 }
 
 char
-yenv_perms_by_octal     (char a_text [LEN_TERSE], char r_name [LEN_TERSE], int *r_perms, char r_disp [LEN_TERSE], char r_desc [LEN_HUND])
+yenv_perms_by_octal     (char a_text [LEN_TERSE], int *r_index, char r_name [LEN_TERSE], int *r_perms, char r_disp [LEN_TERSE], char r_desc [LEN_TITLE])
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -378,6 +387,7 @@ yenv_perms_by_octal     (char a_text [LEN_TERSE], char r_name [LEN_TERSE], int *
    char        x_disp      [LEN_TERSE] = "";
    int         l           =    0;
    /*---(defaults)-----------------------*/
+   if (r_index != NULL)  *r_index = -1;
    if (r_name  != NULL)  strcpy (r_name, "");
    if (r_perms != NULL)  *r_perms = -1;
    if (r_disp  != NULL)  strcpy (r_disp, "");
@@ -395,10 +405,11 @@ yenv_perms_by_octal     (char a_text [LEN_TERSE], char r_name [LEN_TERSE], int *
    /*---(find)---------------------------*/
    for (i = 0; i < MAX_PERM; ++i) {
       if (zENV_perms [i].value != x_value)  continue;
-      if (r_name  != NULL)  strlcpy (r_name, zENV_perms [i].name, LEN_TERSE);
+      if (r_index != NULL)  *r_index = i;
+      if (r_name  != NULL)  strlcpy (r_name, zENV_perms [i].name  , LEN_TERSE);
       if (r_perms != NULL)  *r_perms = zENV_perms [i].value;
-      if (r_disp  != NULL)  strlcpy (r_disp, zENV_perms [i].disp, LEN_TERSE);
-      if (r_desc  != NULL)  strlcpy (r_desc, zENV_perms [i].desc, LEN_HUND);;
+      if (r_disp  != NULL)  strlcpy (r_disp, zENV_perms [i].disp  , LEN_TERSE);
+      if (r_desc  != NULL)  strlcpy (r_desc, zENV_perms [i].simple, LEN_TITLE);;
       return 0;
    }
    /*---(at least translate)-------------*/
@@ -421,7 +432,7 @@ yenv_perms_by_octal     (char a_text [LEN_TERSE], char r_name [LEN_TERSE], int *
 static void      o___DRIVER_____________o (void) {;}
 
 char
-yENV_perms_full         (char a_type, char a_text [LEN_TERSE], char r_name [LEN_TERSE], int *r_perms, char r_disp [LEN_TERSE], char r_desc [LEN_HUND], char r_handle [LEN_LABEL])
+yENV_perms_full         (char a_type, char a_text [LEN_TERSE], char r_name [LEN_TERSE], int *r_perms, char r_disp [LEN_TERSE], char r_desc [LEN_TITLE], char r_handle [LEN_LABEL])
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -473,26 +484,26 @@ yENV_perms_full         (char a_type, char a_text [LEN_TERSE], char r_name [LEN_
    --rce;  if (rc < 0 && l >= 4 && l <= 5 && a_text [0] == '0') {
       DEBUG_YENV    yLOG_snote   ("handle as octal");
       if (r_handle != NULL)  strlcpy (r_handle, "octal", LEN_LABEL);
-      rc = yenv_perms_by_octal (a_text, r_name, r_perms, r_disp, r_desc);
+      rc = yenv_perms_by_octal (a_text, NULL, r_name, r_perms, r_disp, r_desc);
    }
    /*---(standard)-----------------------*/
    --rce;  if (rc < 0 && l >= 5 && a_text [1] == '_') {
       DEBUG_YENV    yLOG_snote   ("handle as standard");
       if (r_handle != NULL)  strlcpy (r_handle, "standard", LEN_LABEL);
-      rc = yenv_perms_by_name  (a_text, r_name, r_perms, r_disp, r_desc);
+      rc = yenv_perms_by_name  (a_text, NULL, r_name, r_perms, r_disp, r_desc);
    }
    /*---(display)------------------------*/
    --rce;  if (rc < 0 && l == 9 && strchr ("r-", a_text [0]) != NULL) {
       DEBUG_YENV    yLOG_snote   ("handle as displayed");
       if (r_handle != NULL)  strlcpy (r_handle, "display", LEN_LABEL);
-      rc = yenv_perms_by_disp  (a_text, r_name, r_perms, r_disp, r_desc);
+      rc = yenv_perms_by_disp  (a_text, NULL, r_name, r_perms, r_disp, r_desc);
    }
    /*---(default)------------------------*/
    --rce;  if (rc < 0 && strcmp (a_text, "@") == 0) {
       DEBUG_YENV    yLOG_snote   ("handle as default");
       if (r_handle != NULL)  strlcpy (r_handle, "default", LEN_LABEL);
-      if (a_type == YENV_DIR)    rc = yenv_perms_by_name  ("d_tight", r_name, r_perms, r_disp, r_desc);
-      else                       rc = yenv_perms_by_name  ("f_tight", r_name, r_perms, r_disp, r_desc);
+      if (a_type == YENV_DIR)    rc = yenv_perms_by_name  ("d_tight", NULL, r_name, r_perms, r_disp, r_desc);
+      else                       rc = yenv_perms_by_name  ("f_tight", NULL, r_name, r_perms, r_disp, r_desc);
    }
    /*---(trouble)------------------------*/
    DEBUG_YENV    yLOG_sint    (rc);
@@ -513,7 +524,7 @@ yENV_perms_full         (char a_type, char a_text [LEN_TERSE], char r_name [LEN_
 static void      o___SIMPLE_____________o (void) {;}
 
 char
-yENV_perms              (char a_text [LEN_TERSE], char r_name [LEN_TERSE], int *r_prm, char r_disp [LEN_TERSE], char r_desc [LEN_HUND])
+yENV_perms              (char a_text [LEN_TERSE], char r_name [LEN_TERSE], int *r_prm, char r_disp [LEN_TERSE], char r_desc [LEN_TITLE])
 {
    return yENV_perms_full (YENV_REG, a_text, r_name, r_prm, r_disp, r_desc, NULL);
 }
@@ -526,6 +537,86 @@ yENV_perms_octal        (char a_type, int a_value, char r_name [LEN_TERSE], int 
    x_prm = a_value & 07777;
    snprintf (x_text, LEN_TERSE, "%05o", x_prm);
    return yENV_perms_full (a_type, x_text, r_name, r_prm, r_disp, NULL, NULL);
+}
+
+int
+yENV_perms_count        (void)
+{
+   int         i           =    0;
+   int         c           =    0;
+   if (zENV_nperm > 0)   return zENV_nperm;
+   for (i = 0; i < MAX_PERM; ++i) {
+      if (strncmp (zENV_perms [i].name, "end-of-", 7) == 0)  break;
+      ++c;
+   }
+   zENV_nperm = c;
+   return c;
+}
+
+char*
+yenv_perms_detail       (int n)
+{
+   if (zENV_nperm <= 0)   yENV_perms_count ();
+   if (n < 0)             return "(n/a)";
+   if (n >= zENV_nperm)   return "(n/a)";
+   strcpy (g_print, "");
+   sprintf (g_print, "%-10.10s  %-30.30s  %05o  %-10.10s Ï", zENV_perms [n].name, zENV_perms [n].simple, zENV_perms [n].value, zENV_perms [n].disp);
+   return g_print;
+}
+
+char*
+yENV_perms_by_cursor    (char a_dir)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   int         x_curr      =    0;
+   int         c           =    0;
+   /*---(prepare)------------------------*/
+   if (zENV_nperm <= 0)   yENV_perms_count ();
+   /*---(set target)---------------------*/
+   c      = zENV_nperm - 1;
+   x_curr = zENV_cperm;
+   switch (a_dir) {
+   case YDLST_HEAD  : case YDLST_DHEAD :
+      x_curr = 0;
+      break;
+   case YDLST_PREV  : case YDLST_DPREV :
+      if (x_curr > 0)  --x_curr;
+      else             return "(n/a)";
+      break;
+   case YDLST_CURR  : case YDLST_DCURR :
+      break;
+   case YDLST_NEXT  : case YDLST_DNEXT : case '·' :  /* · means default */
+      if (x_curr < c)  ++x_curr;
+      else             return "(n/a)";
+      break;
+   case YDLST_TAIL  : case YDLST_DTAIL :
+      x_curr = c;
+      break;
+   default :
+      return "(bad dir)";
+      break;
+   }
+   /*---(save-back)----------------------*/
+   zENV_cperm = x_curr;
+   /*---(complete)-----------------------*/
+   return yenv_perms_detail (x_curr);
+}
+
+char*
+yENV_perms_by_text      (char a_text [LEN_TERSE])
+{
+   int         rc          =   -1;
+   int         n           =    0;
+   char        x_found     =  '-';
+   int         x_octal     =   -1;
+   if (a_text     == NULL)  return "(null)";
+   if (a_text [0] == '\0')  return "(empty)";
+   if (rc < 0)  rc = yenv_perms_by_name  (a_text, &n, NULL, NULL, NULL, NULL);
+   if (rc < 0)  rc = yenv_perms_by_octal (a_text, &n, NULL, NULL, NULL, NULL);
+   if (rc < 0)  rc = yenv_perms_by_disp  (a_text, &n, NULL, NULL, NULL, NULL);
+   if (rc < 0)  return "(n/a)";
+   /*---(complete)-----------------------*/
+   return yenv_perms_detail (n);
 }
 
 

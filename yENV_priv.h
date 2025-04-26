@@ -38,8 +38,8 @@
 /*········· ··········· ´·····························´········································*/
 #define     P_VERMAJOR  "1.--, production improvements"
 #define     P_VERMINOR  "1.2-, adding detailed audit, open, close ability"
-#define     P_VERNUM    "1.2k"
-#define     P_VERTXT    "big updates to yENV_solo.h and yENV_uver.h to make more testable and valuable"
+#define     P_VERNUM    "1.2l"
+#define     P_VERTXT    "gave yENV_perms data access, more unit testing, and a man page"
 /*········· ··········· ´·····························´········································*/
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -176,19 +176,6 @@ extern char  g_print   [LEN_RECD];
 
 
 
-#define     MAX_PERM         50
-typedef     struct cENV_PERM    tENV_PERM;
-struct cENV_PERM {
-   char        name        [LEN_TERSE];
-   char        desc        [LEN_HUND];
-   int         value;
-   char        disp        [LEN_TERSE];
-};
-extern const tENV_PERM zENV_perms [MAX_PERM];
-
-
-
-
 #define    IF_DEV         if (strchr ("bc", x_type) != NULL) 
 
 
@@ -259,12 +246,12 @@ char        yenv_creator            (char a_curr, char a_type, char a_name [LEN_
 int         yenv_display2octal      (char a_text [LEN_TERSE]);
 char*       yenv_octal2display      (int a_perms);
 /*---(search)---------------*/
-char        yenv_perms_by_name      (char a_text [LEN_TERSE], char r_name [LEN_TERSE], int *r_perms, char r_disp [LEN_TERSE], char r_desc [LEN_HUND]);
-char        yenv_perms_by_disp      (char a_text [LEN_TERSE], char r_name [LEN_TERSE], int *r_perms, char r_disp [LEN_TERSE], char r_desc [LEN_HUND]);
-char        yenv_perms_by_octal     (char a_text [LEN_TERSE], char r_name [LEN_TERSE], int *r_perms, char r_disp [LEN_TERSE], char r_desc [LEN_HUND]);
+char        yenv_perms_by_name      (char a_text [LEN_TERSE], int *r_index, char r_name [LEN_TERSE], int *r_perms, char r_disp [LEN_TERSE], char r_desc [LEN_TITLE]);
+char        yenv_perms_by_disp      (char a_text [LEN_TERSE], int *r_index, char r_name [LEN_TERSE], int *r_perms, char r_disp [LEN_TERSE], char r_desc [LEN_TITLE]);
+char        yenv_perms_by_octal     (char a_text [LEN_TERSE], int *r_index, char r_name [LEN_TERSE], int *r_perms, char r_disp [LEN_TERSE], char r_desc [LEN_HUND]);
 /*---(driver)---------------*/
-char        yENV_perms_full         (char a_type, char a_text [LEN_TERSE], char r_name [LEN_TERSE], int *r_perms, char r_disp [LEN_TERSE], char r_desc [LEN_HUND], char r_handle [LEN_LABEL]);
-char        yENV_perms              (char a_text [LEN_TERSE], char r_name [LEN_TERSE], int *r_perms, char r_disp [LEN_TERSE], char r_desc [LEN_HUND]);
+char        yENV_perms_full         (char a_type, char a_text [LEN_TERSE], char r_name [LEN_TERSE], int *r_perms, char r_disp [LEN_TERSE], char r_desc [LEN_TITLE], char r_handle [LEN_LABEL]);
+char        yENV_perms              (char a_text [LEN_TERSE], char r_name [LEN_TERSE], int *r_perms, char r_disp [LEN_TERSE], char r_desc [LEN_TITLE]);
 /*---(done)-----------------*/
 
 
