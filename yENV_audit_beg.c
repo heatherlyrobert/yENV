@@ -226,7 +226,7 @@ yenv_audit_expect       (char a_type, char b_owner [LEN_USER], char b_group [LEN
       DEBUG_YENV   yLOG_info    ("x_owner"   , x_owner);
       yenv_score_mark ("EOWNER"  , '°');
       strlcpy (t, x_owner, LEN_USER);
-      rc = yENV_user_full  (a_type, t, x_owner, &x_uid, NULL, NULL, NULL, x_handle, NULL, NULL, NULL, NULL, NULL);
+      rc = yENV_user_full  (a_type, t, x_owner, &x_uid, NULL, NULL, NULL, x_handle, NULL, NULL, NULL, NULL, NULL, NULL);
       if (rc >= 0) {
          x = atoi (t);
          if      (strcmp (t      , "@"    ) == 0)  yenv_score_mark ("EOWNER"  , 'O');  /* default  */

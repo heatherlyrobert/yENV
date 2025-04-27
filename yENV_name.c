@@ -289,7 +289,7 @@ yenv_name__prefix       (char a_file [LEN_PATH], short a_beg, char a_prefix [LEN
       DEBUG_YENV    yLOG_note    ("using user name prefix handler");
       strlcpy (t, a_file, a_beg + 1);
       DEBUG_YENV    yLOG_info    ("t"         , t);
-      rc = yENV_user_data ('n', t, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+      rc = yENV_user_data ('n', t, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
       if (rc < 0) {
          sprintf (x_msg, "name prefix å%sæ does not match any system user (illegal)", t);
          yenv_audit_fatal ("NAME"    , x_msg);
@@ -495,7 +495,7 @@ yenv_name_local         (int a_ruid, char a_ruser [LEN_USER], char a_full [LEN_P
       if (p != NULL)  p [0] = '\0';
       else            strcpy (t, "");
       DEBUG_YENV   yLOG_info    ("t"         , t);
-      rc = yENV_user_data ('n', t, &x_fuid, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+      rc = yENV_user_data ('n', t, &x_fuid, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
       if (rc < 0) {
          sprintf (x_msg, "could not find å%sæ as a legal user subdirectory under å%sæ (illegal)", t, x_home);
          yenv_audit_fatal ("NAME"    , x_msg);
@@ -582,7 +582,7 @@ yenv_name_central       (int a_ruid, char a_ruser [LEN_USER], char a_full [LEN_P
       if (p != NULL)  p [0] = '\0';
       else            strcpy (t, "");
       DEBUG_YENV   yLOG_info    ("t"         , t);
-      rc = yENV_user_data ('n', t, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+      rc = yENV_user_data ('n', t, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
       if (rc < 0) {
          sprintf (x_msg, "could not find å%sæ as a legal user (illegal)", t, x_spool);
          yenv_audit_fatal ("NAME"    , x_msg);

@@ -67,7 +67,7 @@ yENV_whoami             (int *r_pid, int *r_ppid, int *r_uid, int *r_euid, char 
    DEBUG_YEXEC  yLOG_value   ("x_euid"    , x_euid);
    if (r_uid   != NULL)   *r_uid   = getuid ();
    if (r_euid  != NULL)   *r_euid  = x_euid;
-   rc = yENV_user_data ('i', r_user, &x_euid, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+   rc = yENV_user_data ('i', r_user, &x_euid, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
    --rce;  if (rc < 0)  return rce;
    /*---(check for root user)--------------*/
    if (x_euid == 0)   x_root = 'y';
@@ -92,7 +92,7 @@ yENV_whoami             (int *r_pid, int *r_ppid, int *r_uid, int *r_euid, char 
    DEBUG_YEXEC  yLOG_value   ("x_egid"    , x_egid);
    if (r_gid   != NULL)   *r_gid   = getgid ();
    if (r_egid  != NULL)   *r_egid  = x_egid;
-   rc = yENV_group_data ('i', r_group, &x_egid);
+   rc = yENV_group_data ('i', r_group, &x_egid, NULL, NULL, NULL, NULL, NULL);
    --rce;  if (rc < 0)  return rce;
    /*---(complete)-----------------------*/
    DEBUG_YEXEC  yLOG_exit    (__FUNCTION__);

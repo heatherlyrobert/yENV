@@ -57,8 +57,9 @@
 #define     YENV_NOLOGIN     '·'
 
 #define     YENV_ACTIVE      'y'
-#define     YENV_DAEMON      'd'
-#define     YENV_INACTIVE    '·'
+#define     YENV_LOCKED      '!'
+#define     YENV_UNSET       '*'
+#define     YENV_NOPASS      '?'
 
 
 struct cENV_SCORE {
@@ -104,9 +105,9 @@ char        yENV_diff               (char *a_actual, char *a_expect);
 /*===[[ yENV_user.c ]]========================================================*/
 /*········· ´······················ ´·········································*/
 /*---(driver)---------------*/   /*--- DEPRICATED ----------------------------*/
-char        yENV_user_data          (char a_type, char b_name [LEN_USER], int *b_uid, int *r_gid, char r_home [LEN_HUND], char r_shell [LEN_HUND], char *r_naming, char *r_active, char *r_login, char *r_groups, char r_glist [LEN_HUND]);
+char        yENV_user_data          (char a_type, char b_name [LEN_USER], int *b_uid, int *r_gid, char r_home [LEN_HUND], char r_shell [LEN_HUND], char *r_quality, char *r_active, char *r_login, char *r_groups, char r_glist [LEN_HUND], char r_gids [LEN_HUND]);
 /*---(flexible)-------------*/
-char        yENV_user_full          (char a_type, char a_text [LEN_USER], char r_name [LEN_USER], int *r_uid, int *r_gid, char r_home [LEN_HUND], char r_shell [LEN_HUND], char r_handle [LEN_LABEL], char *r_naming, char *r_active, char *r_login, char *r_groups, char r_glist [LEN_HUND]);
+char        yENV_user_full          (char a_type, char a_text [LEN_USER], char r_name [LEN_USER], int *r_uid, int *r_gid, char r_home [LEN_HUND], char r_shell [LEN_HUND], char r_handle [LEN_LABEL], char *r_naming, char *r_active, char *r_login, char *r_groups, char r_glist [LEN_HUND], char r_gids [LEN_HUND]);
 /*---(simplifiers)----------*/
 char        yENV_user               (char a_text [LEN_USER], char r_name [LEN_USER], int *r_uid);
 char        yENV_user_uid           (char a_type, int a_value, char r_name [LEN_USER], int *r_uid);
@@ -126,12 +127,16 @@ char*       yENV_user_by_text       (char a_text [LEN_USER]);
 /*===[[ yENV_group.c ]]=======================================================*/
 /*········· ´······················ ´·········································*/
 /*---(driver)---------------*/   /*--- DEPRICATED ----------------------------*/
-char        yENV_group_data         (char a_type, char b_name [LEN_USER], int *b_gid);
+char        yENV_group_data         (char a_type, char b_name [LEN_USER], int *b_gid, char *r_quality, char *r_active, char *r_users, char r_ulist [LEN_HUND], char r_uids [LEN_HUND]);
 /*---(current)--------------*/
 char        yENV_group_full         (char a_type, char a_text [LEN_USER], char r_name [LEN_USER], int *r_gid, char r_handle [LEN_LABEL]);
 /*---(simplifiers)----------*/
 char        yENV_group              (char a_text [LEN_USER], char r_name [LEN_USER], int *r_gid);
 char        yENV_group_gid          (char a_type, int a_value, char r_name [LEN_USER], int *r_gid);
+/*---(data-access)----------*/
+int         yENV_group_count        (void);
+char*       yENV_group_by_cursor    (char a_dir);
+char*       yENV_group_by_text      (char a_text [LEN_USER]);
 /*---(unit-testing)---------*/
 char        yENV_group_add          (char a_name [LEN_USER], int a_gid);
 char        yENV_group_del          (char a_name [LEN_USER]);

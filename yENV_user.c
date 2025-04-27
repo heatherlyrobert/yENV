@@ -51,15 +51,15 @@ char
 yenv_user_active        (char a_pass [LEN_LABEL])
 {
    char        x_active    = YENV_WTF;
-   if      (a_pass [0] == '*' )   x_active = YENV_INACTIVE;
-   else if (a_pass [0] == '!' )   x_active = YENV_DAEMON;
-   else if (a_pass [0] == '\0')   x_active = YENV_WTF;
+   if      (a_pass [0] == '*' )   x_active = YENV_UNSET;
+   else if (a_pass [0] == '!' )   x_active = YENV_LOCKED;
+   else if (a_pass [0] == '\0')   x_active = YENV_NOPASS;
    else                           x_active = YENV_ACTIVE;
    return x_active;
 }
 
 char
-yENV_user_data          (char a_type, char b_name [LEN_USER], int *b_uid, int *r_gid, char r_home [LEN_HUND], char r_shell [LEN_HUND], char *r_quality, char *r_active, char *r_login, char *r_groups, char r_glist [LEN_HUND])
+yENV_user_data          (char a_type, char b_name [LEN_USER], int *b_uid, int *r_gid, char r_home [LEN_HUND], char r_shell [LEN_HUND], char *r_quality, char *r_active, char *r_login, char *r_groups, char r_glist [LEN_HUND], char r_gids [LEN_HUND])
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -93,7 +93,7 @@ yENV_user_data          (char a_type, char b_name [LEN_USER], int *b_uid, int *r
    if (r_quality != NULL)  *r_quality = yenv_user_quality  (x_user->pw_name);
    if (r_login   != NULL)  *r_login   = yenv_user_login    (x_user->pw_shell);
    if (r_active  != NULL)  *r_active  = yenv_user_active   (x_user->pw_passwd);
-   if (r_groups  != NULL)  *r_groups  = yenv_group_by_user (x_user->pw_name, r_glist);
+   if (r_groups  != NULL)  *r_groups  = yenv_group_by_user (x_user->pw_name, r_glist, r_gids);
    /*---(complete)-----------------------*/
    return 0;
 }
@@ -135,12 +135,12 @@ yENV_user_add           (char a_name [LEN_USER], int a_uid, char a_home, char a_
    --rce;  if (a_uid < 9000 || a_uid > 9999)       return rce;
    --rce;  if (strncmp (a_name, "USR_", 4) != 0)   return rce;
    /*---(check for existing)-------------*/
-   rc = yENV_user_data ('n', a_name, &u, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+   rc = yENV_user_data ('n', a_name, &u, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
    --rce;  if (rc >= 0 && u >= 0) {
       if (u == a_uid)                              return 1;
       else                                         return rce;
    }
-   rc = yENV_user_data ('i', x_name, &a_uid, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+   rc = yENV_user_data ('i', x_name, &a_uid, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
    --rce;  if (rc >= 0) {
       if (strcmp (x_name, a_name) != 0)            return rce;
       else                                         return 2;
@@ -190,7 +190,7 @@ yENV_user_add           (char a_name [LEN_USER], int a_uid, char a_home, char a_
    rc = system (t);
    --rce;  if (rc < 0)   return rce;
    /*---(verify)-------------------------*/
-   rc = yENV_user_data ('n', a_name, NULL, NULL, &x_ahome, &x_ashell, NULL, NULL, NULL, NULL, NULL);
+   rc = yENV_user_data ('n', a_name, NULL, NULL, &x_ahome, &x_ashell, NULL, NULL, NULL, NULL, NULL, NULL);
    --rce;  if (rc <  0)                           return rce;
    --rce;  if (strcmp (x_ehome , x_ahome ) != 0)  return rce;
    --rce;  if (strcmp (x_eshell, x_ashell) != 0)  return rce;
@@ -214,7 +214,7 @@ yENV_user_del           (char a_name [LEN_USER])
    --rce;  if (a_name == NULL)                     return rce;
    --rce;  if (strncmp (a_name, "USR_", 4) != 0)   return rce;
    /*---(check for group)----------------*/
-   rc = yENV_user_data ('n', a_name, &u, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+   rc = yENV_user_data ('n', a_name, &u, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
    --rce;  if (rc < 0)                             return 1;
    --rce;  if (u < 9000 || u > 9999)               return rce;
    /*---(delete)-------------------------*/
@@ -226,7 +226,7 @@ yENV_user_del           (char a_name [LEN_USER])
    rc = system (t);
    --rce;  if (rc < 0)   return rce;
    /*---(verify)-------------------------*/
-   rc = yENV_user_data ('n', a_name, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+   rc = yENV_user_data ('n', a_name, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
    --rce;  if (rc >= 0)  return rce;
    /*---(update count)-------------------*/
    yENV_user_count ();
@@ -242,7 +242,7 @@ yENV_user_purge         (void)
    char        c           =    0;
    char        x_name      [LEN_USER] = "";
    for (i = 9000; i <= 9999; ++i) {
-      rc = yENV_user_data ('i', x_name, &i, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+      rc = yENV_user_data ('i', x_name, &i, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
       if (rc >= 0 && strncmp (x_name, "USR_", 4) == 0) {
          rc = yENV_user_del (x_name);
          if (rc >= 0)  ++c;
@@ -257,7 +257,7 @@ yENV_user_switch        (char a_name [LEN_USER])
    char        rce         =  -10;
    char        rc          =    0;
    int         x_uid       =   -1;
-   rc = yENV_user_full (YENV_REG, a_name, NULL, &x_uid, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+   rc = yENV_user_full (YENV_REG, a_name, NULL, &x_uid, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
    /*> printf ("switching to %s (%d)\n", a_name, x_uid);                              <*/
    --rce;  if (x_uid < 0)  return rce;
    rc = seteuid (x_uid);
@@ -275,7 +275,7 @@ yENV_user_switch        (char a_name [LEN_USER])
 static void      o___DRIVER_____________o (void) {;}
 
 char 
-yENV_user_full          (char a_type, char a_text [LEN_USER], char r_name [LEN_USER], int *r_uid, int *r_gid, char r_home [LEN_HUND], char r_shell [LEN_HUND], char r_handle [LEN_LABEL], char *a_quality, char *r_active, char *r_login, char *r_groups, char r_glist [LEN_HUND])
+yENV_user_full          (char a_type, char a_text [LEN_USER], char r_name [LEN_USER], int *r_uid, int *r_gid, char r_home [LEN_HUND], char r_shell [LEN_HUND], char r_handle [LEN_LABEL], char *r_quality, char *r_active, char *r_login, char *r_groups, char r_glist [LEN_HUND], char r_gids [LEN_HUND])
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -299,6 +299,7 @@ yENV_user_full          (char a_type, char a_text [LEN_USER], char r_name [LEN_U
    if (r_active  != NULL)  *r_active  = '-';
    if (r_groups  != NULL)  *r_groups  =   0;
    if (r_glist   != NULL)  strcpy (r_glist, "");
+   if (r_gids    != NULL)  strcpy (r_gids , "");
    /*---(defense)------------------------*/
    DEBUG_YENV    yLOG_schar   (a_type);
    --rce;  if (a_type == 0 || strchr (YENV_REAL, a_type) == NULL) {
@@ -344,20 +345,20 @@ yENV_user_full          (char a_type, char a_text [LEN_USER], char r_name [LEN_U
    --rce;  if (x_uid >= 0) {
       DEBUG_YENV    yLOG_snote   ("handle by user uid");
       if (r_handle != NULL)  strlcpy (r_handle, "uid", LEN_LABEL);
-      rc = yENV_user_data  ('i', x_name, &x_uid, &x_gid, x_home, x_shell, a_quality, r_login, r_active, r_groups, r_glist);
+      rc = yENV_user_data  ('i', x_name, &x_uid, &x_gid, x_home, x_shell, r_quality, r_login, r_active, r_groups, r_glist, r_gids);
    }
    /*---(user by current uid)------------*/
    --rce;  if (x_uid < 0 && strcmp (a_text, "@") == 0) {
       DEBUG_YENV    yLOG_snote   ("handle using current user");
       if (r_handle != NULL)  strlcpy (r_handle, "current", LEN_LABEL);
       x_uid = geteuid ();
-      rc = yENV_user_data  ('i', x_name, &x_uid, &x_gid, x_home, x_shell, a_quality, r_login, r_active, r_groups, r_glist);
+      rc = yENV_user_data  ('i', x_name, &x_uid, &x_gid, x_home, x_shell, r_quality, r_login, r_active, r_groups, r_glist, r_gids);
    }
    /*---(user by name)-------------------*/
    --rce;  if (x_uid < 0 && strcmp (a_text, "") != 0) {
       DEBUG_YENV    yLOG_snote   ("handle by user name");
       if (r_handle != NULL)  strlcpy (r_handle, "name", LEN_LABEL);
-      rc = yENV_user_data  ('n', a_text, &x_uid, &x_gid, x_home, x_shell, a_quality, r_login, r_active, r_groups, r_glist);
+      rc = yENV_user_data  ('n', a_text, &x_uid, &x_gid, x_home, x_shell, r_quality, r_login, r_active, r_groups, r_glist, r_gids);
    }
    /*---(handle trouble)-----------------*/
    DEBUG_YENV    yLOG_sint    (rc);
@@ -387,7 +388,7 @@ static void      o___SIMPLE_____________o (void) {;}
 char
 yENV_user               (char a_text [LEN_USER], char r_name [LEN_USER], int *r_uid)
 {
-   return yENV_user_full (YENV_REG, a_text, r_name, r_uid, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+   return yENV_user_full (YENV_REG, a_text, r_name, r_uid, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 }
 
 char
@@ -395,7 +396,7 @@ yENV_user_uid           (char a_type, int a_value, char r_name [LEN_USER], int *
 {
    char        x_text      [LEN_TERSE] = "";
    snprintf (x_text, LEN_TERSE, "%d", a_value);
-   return yENV_user_full (a_type, x_text, r_name, r_uid, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+   return yENV_user_full (a_type, x_text, r_name, r_uid, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 }
 
 
@@ -440,11 +441,12 @@ yenv_user_detail        (char a_user [LEN_USER])
    char        x_naming, x_login, x_active;
    char        x_groups    =    0;
    char        x_glist     [LEN_HUND]  = "";
+   char        x_gids      [LEN_HUND]  = "";
    strcpy (g_print, "");
    if (a_user  == NULL)    return "(user null)";
-   rc = yENV_user_data ('n', a_user, &x_uid, &x_gid, x_home, x_shell, &x_naming, &x_active, &x_login, &x_groups, x_glist);
+   rc = yENV_user_data ('n', a_user, &x_uid, &x_gid, x_home, x_shell, &x_naming, &x_active, &x_login, &x_groups, x_glist, x_gids);
    if (rc < 0)             return "(missing)";
-   sprintf (g_print, "%-12.12s  %c  %c  %c  %5d  %5d  %-30.30s  %-20.20s  %2d  %-60.60s  Ï", a_user, x_naming, x_active, x_login, x_uid, x_gid, x_home, x_shell, x_groups, x_glist);
+   sprintf (g_print, "%-12.12s  %c  %c  %c  %5d  %5d  %-30.30s  %-20.20s  %2d  %-60.60s  %-30.30s  Ï", a_user, x_naming, x_active, x_login, x_uid, x_gid, x_home, x_shell, x_groups, x_glist, x_gids);
    return g_print;
 }
 

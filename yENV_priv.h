@@ -38,8 +38,8 @@
 /*········· ··········· ´·····························´········································*/
 #define     P_VERMAJOR  "1.--, production improvements"
 #define     P_VERMINOR  "1.2-, adding detailed audit, open, close ability"
-#define     P_VERNUM    "1.2m"
-#define     P_VERTXT    "gave yENV_user data access, more unit testing, and a man page"
+#define     P_VERNUM    "1.2n"
+#define     P_VERTXT    "gave yENV_group data access, more unit testing, no man page yet :("
 /*········· ··········· ´·····························´········································*/
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -300,8 +300,18 @@ char*       yenv_score_legend       (char a_line, char a_label [LEN_TERSE]);
 /*---(done)-----------------*/
 
 
+char        yenv_user_quality       (char a_user [LEN_HUND]);
+char        yenv_user_login         (char a_shell [LEN_HUND]);
+char        yenv_user_active        (char a_pass [LEN_LABEL]);
 
-char        yenv_group_by_user      (char a_user [LEN_USER], char r_list [LEN_HUND]);
+char        yenv_groups__by_user    (char a_recd [LEN_RECD], char a_user [LEN_LABEL], char r_names [LEN_HUND], char r_gids [LEN_HUND]);
+char        yenv_group__users       (char a_recd [LEN_RECD], char a_group [LEN_LABEL], char r_names [LEN_HUND], char r_uids [LEN_HUND]);
+char        yenv_group__lister      (char a_type, char a_text  [LEN_USER], char r_names [LEN_HUND], char r_ids [LEN_HUND]);
+char        yenv_group_users        (char a_group [LEN_USER], char r_names [LEN_HUND], char r_uids [LEN_HUND]);
+char        yenv_groups_by_user     (char a_user [LEN_USER], char r_names [LEN_HUND], char r_gids [LEN_HUND]);
+
+char        yenv_group_by_user      (char a_user [LEN_USER], char r_names [LEN_HUND], char r_gids [LEN_HUND]);
+char        yenv_user_by_group      (char a_group [LEN_USER], char r_names [LEN_HUND], char r_uids [LEN_HUND]);
 
 
 
