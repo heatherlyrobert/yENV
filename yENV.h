@@ -48,6 +48,17 @@
 #define     YENV_HAMMER      '!'
 /*---(done)---------------------------*/
 
+#define     YENV_QUALITY     'y'
+#define     YENV_TOOSHORT    '<'
+#define     YENV_TOOLONG     '>'
+#define     YENV_BADCHAR     '#'
+
+#define     YENV_LOGIN       'y'
+#define     YENV_NOLOGIN     '·'
+
+#define     YENV_ACTIVE      'y'
+#define     YENV_DAEMON      'd'
+#define     YENV_INACTIVE    '·'
 
 
 struct cENV_SCORE {
@@ -93,9 +104,9 @@ char        yENV_diff               (char *a_actual, char *a_expect);
 /*===[[ yENV_user.c ]]========================================================*/
 /*········· ´······················ ´·········································*/
 /*---(driver)---------------*/   /*--- DEPRICATED ----------------------------*/
-char        yENV_user_data          (char a_type, char b_name [LEN_USER], int *b_uid, int *r_gid, char r_dir [LEN_HUND], char r_shell [LEN_HUND]);
+char        yENV_user_data          (char a_type, char b_name [LEN_USER], int *b_uid, int *r_gid, char r_home [LEN_HUND], char r_shell [LEN_HUND], char *r_naming, char *r_active, char *r_login, char *r_groups, char r_glist [LEN_HUND]);
 /*---(flexible)-------------*/
-char        yENV_user_full          (char a_type, char a_text [LEN_USER], char r_name [LEN_USER], int *r_uid, int *r_gid, char r_dir [LEN_HUND], char r_shell [LEN_HUND], char r_handle [LEN_LABEL]);
+char        yENV_user_full          (char a_type, char a_text [LEN_USER], char r_name [LEN_USER], int *r_uid, int *r_gid, char r_home [LEN_HUND], char r_shell [LEN_HUND], char r_handle [LEN_LABEL], char *r_naming, char *r_active, char *r_login, char *r_groups, char r_glist [LEN_HUND]);
 /*---(simplifiers)----------*/
 char        yENV_user               (char a_text [LEN_USER], char r_name [LEN_USER], int *r_uid);
 char        yENV_user_uid           (char a_type, int a_value, char r_name [LEN_USER], int *r_uid);
@@ -104,6 +115,10 @@ char        yENV_user_add           (char a_name [LEN_USER], int a_uid, char a_h
 char        yENV_user_del           (char a_name [LEN_USER]);
 char        yENV_user_purge         (void);
 char        yENV_user_switch        (char a_name [LEN_USER]);
+/*---(access)---------------*/
+int         yENV_user_count         (void);
+char*       yENV_user_by_cursor     (char a_dir);
+char*       yENV_user_by_text       (char a_text [LEN_USER]);
 /*---(done)-----------------*/
 
 
@@ -135,7 +150,7 @@ char        yENV_perms_full         (char a_type, char a_text [LEN_TERSE], char 
 /*---(simplifiers)----------*/
 char        yENV_perms              (char a_text [LEN_TERSE], char r_name [LEN_TERSE], int *r_prm, char r_disp [LEN_TERSE], char r_desc [LEN_HUND]);
 char        yENV_perms_octal        (char a_type, int a_value, char r_name [LEN_TERSE], int *r_prm, char r_disp [LEN_TERSE]);
-/*---(support)--------------*/
+/*---(access)---------------*/
 int         yENV_perms_count        (void);
 char*       yENV_perms_by_cursor    (char a_dir);
 char*       yENV_perms_by_text      (char a_text [LEN_TERSE]);

@@ -539,6 +539,13 @@ yENV_perms_octal        (char a_type, int a_value, char r_name [LEN_TERSE], int 
    return yENV_perms_full (a_type, x_text, r_name, r_prm, r_disp, NULL, NULL);
 }
 
+
+
+/*====================------------------------------------====================*/
+/*===----                      data accessors                          ----===*/
+/*====================------------------------------------====================*/
+static void      o___ACCESS_____________o (void) {;}
+
 int
 yENV_perms_count        (void)
 {

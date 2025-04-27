@@ -38,8 +38,8 @@
 /*········· ··········· ´·····························´········································*/
 #define     P_VERMAJOR  "1.--, production improvements"
 #define     P_VERMINOR  "1.2-, adding detailed audit, open, close ability"
-#define     P_VERNUM    "1.2l"
-#define     P_VERTXT    "gave yENV_perms data access, more unit testing, and a man page"
+#define     P_VERNUM    "1.2m"
+#define     P_VERTXT    "gave yENV_user data access, more unit testing, and a man page"
 /*········· ··········· ´·····························´········································*/
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -298,6 +298,10 @@ char        yenv_score_audit        (void);
 char*       yenv_score__legend      (tENV_SCORE *a_table, char a_line, char a_label [LEN_TERSE], char a_terse [LEN_FULL]);
 char*       yenv_score_legend       (char a_line, char a_label [LEN_TERSE]);
 /*---(done)-----------------*/
+
+
+
+char        yenv_group_by_user      (char a_user [LEN_USER], char r_list [LEN_HUND]);
 
 
 

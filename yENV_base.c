@@ -67,7 +67,7 @@ yENV_whoami             (int *r_pid, int *r_ppid, int *r_uid, int *r_euid, char 
    DEBUG_YEXEC  yLOG_value   ("x_euid"    , x_euid);
    if (r_uid   != NULL)   *r_uid   = getuid ();
    if (r_euid  != NULL)   *r_euid  = x_euid;
-   rc = yENV_user_data ('i', r_user, &x_euid, NULL, NULL, NULL);
+   rc = yENV_user_data ('i', r_user, &x_euid, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
    --rce;  if (rc < 0)  return rce;
    /*---(check for root user)--------------*/
    if (x_euid == 0)   x_root = 'y';

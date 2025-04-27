@@ -271,5 +271,91 @@ yENV_group_gid          (char a_type, int a_value, char r_name [LEN_USER], int *
    return yENV_group_full (a_type, x_text, r_name, r_gid, NULL);
 }
 
+char
+yenv_group_by_user      (char a_user [LEN_USER], char r_list [LEN_HUND])
+{
+   /*---(locals)-----------+-----------+-*/
+   char        rce         =  -10;
+   FILE       *f           = NULL;
+   char        t           [LEN_RECD]  = "";
+   char        l           =    0;
+   char        n           =    0;
+   char        c           =    0;
+   char       *p           = NULL;
+   char       *q           = ":,";
+   char       *r           = NULL;
+   char        x_group     [LEN_USER]  = "";
+   char        x_list      [LEN_HUND]  = "";
+   /*---(header)-------------------------*/
+   DEBUG_YENV    yLOG_enter   (__FUNCTION__);
+   /*---(default)------------------------*/
+   if (r_list  != NULL)   strcpy (r_list, "");
+   /*---(defense)------------------------*/
+   DEBUG_YENV    yLOG_point   ("a_user"    , a_user);
+   --rce;  if (a_user     == NULL) {
+      return rce;
+   }
+   DEBUG_YENV    yLOG_info    ("a_user"    , a_user);
+   --rce;  if (a_user [0] == '\0') {
+      return rce;
+   }
+   /*---(open)---------------------------*/
+   f = fopen ("/etc/group", "r");
+   DEBUG_YENV    yLOG_point   ("f"         , f);
+   --rce;  if (f == NULL) {
+      return rce;
+   }
+   /*---(walk entries)-------------------*/
+   while (1) {
+      /*---(read)---------------------*/
+      fgets(t, LEN_RECD, f);
+      if (feof (f)) break;
+      /*---(filter)-------------------*/
+      if (t [0] == '#' )  continue;
+      if (t [0] == '\0')  continue;
+      /*---(fix)-------------------------*/
+      l = strlen (t);
+      if (l > 0 && t [l - 1] == '\n')  t [--l] = '\0';
+      DEBUG_YENV    yLOG_complex ("looking"   , "%3d å%sæ", n, t);
+      /*---(look for user)------------*/
+      p  = strtok_r (t   , q, &r);
+      if (p == NULL) continue;
+      strlcpy (x_group, p, LEN_USER);
+      DEBUG_YENV    yLOG_info    ("x_group"   , x_group);
+      /*---(password)-----------------*/
+      p  = strtok_r (NULL, q, &r);
+      if (p == NULL) continue;
+      /*---(gid)----------------------*/
+      p  = strtok_r (NULL, q, &r);
+      if (p == NULL) continue;
+      /*---(check list)---------------*/
+      p  = strtok_r (NULL, q, &r);
+      while (p != NULL) {
+         DEBUG_YENV    yLOG_info    ("check"     , p);
+         if (strcmp (p, a_user) != 0) {
+            DEBUG_YENV    yLOG_note    ("not match");
+            p  = strtok_r (NULL, q, &r);
+            DEBUG_YENV    yLOG_point   ("p"         , p);
+            continue;
+         }
+         DEBUG_YENV    yLOG_note    ("FOUND");
+         l = strlen (x_list);
+         if (l > 0)  strlcat (x_list, ",", LEN_HUND);
+         if (strcmp (x_group, a_user) == 0) strlcat (x_list, "(SELF)", LEN_HUND);
+         else                               strlcat (x_list, x_group , LEN_HUND);
+         ++c;
+         break;
+      }
+      /*---(done)---------------------*/
+      ++n;
+   }
+   /*---(save-back)----------------------*/
+   if (strcmp (x_list, "") == 0)  strcpy (x_list, ".");
+   DEBUG_YENV    yLOG_complex ("x_list"    , "%3d å%sæ", c, x_list);
+   if (r_list  != NULL)  strlcpy (r_list, x_list, LEN_HUND);
+   /*---(complete)-----------------------*/
+   DEBUG_YENV    yLOG_exit    (__FUNCTION__);
+   return c;
+}
 
 

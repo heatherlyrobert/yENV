@@ -26,7 +26,7 @@ yENV_uver (3)      interfacing with micro, code-inclusion version
 yENV_peek (3)      interfacing with file content review
 yENV_touch (3)     interfacing with creation/removal functions
 yENV_audit (3)     interfacing with auditing functions
-yENV_owner (3)     interfacing with owners
+yENV_user (3)      interfacing with user/owners
 yENV_group (3)     interfacing with groups
 .B yENV_perms (3)´´´´´interfacing with permissions
 yENV_score (3)     interfacing with application scoring
@@ -56,10 +56,10 @@ usage is noted on the far-left of each entry...
    · not in every program
 
 ---primary-------------------------------------
-·  char     yENV_perms           (char* <text>, ...);
+¼  char     yENV_perms_full      (char  <type>, ...);
 
 ---audit-support-------------------------------
-¼  char     yENV_perms_full      (char  <type>, ...);
+·  char     yENV_perms           (char* <text>, ...);
 ·  char     yENV_perms_octal     (char  <type>, ...);
 
 ---data-access---------------------------------
@@ -132,8 +132,8 @@ f_nodel     wide open, delete restricted    01777  rwxrwxrwt
 .SH E) PRIMARY
 
 .SS char  yENV_perms ( char* <a_text>, ´´´);
-validates a permission based on any of the three access methods shown
-above, then returns the various details.  if you pass an empty string,
+validates a permission based on any of the three access methods shown above,
+then returns the various details.  if you pass an at-sign (@) as string,
 the default of "f_tight" will be used.
 
 .RS 3
@@ -163,8 +163,8 @@ the data way found.  both are unnecessary outside auditing.
 
 .SS char  yENV_perms_full (char <a_type>, char* <a_text>, ´´´);
 validates a permission based on any of the three access methods shown above,
-then returns the various details.  if you pass an empty string, the default of
-"d_tight" for YENV_DIR and "f_tight" for all else will be used.
+then returns the various details.  if you pass an at-sign (@) as string,
+the default of "d_tight" for YENV_DIR and "f_tight" for all else will be used.
 
 .RS 3
 .B char <a_type> the filesystem entry type, e.g., YENV_DIR

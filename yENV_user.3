@@ -1,0 +1,197 @@
+.TH yENV_user· 3 2024-may "linux" "interfacing with micro, code-inclusion version"
+
+.SH NAME
+yENV \- provide consistent linux filesystem and security services
+
+.SH PATRON (see HERITAGE at bottom for more)
+tartarus-eeroeis (murky one) linux filesystem and security services
+
+.SH IMAGERY
+dreaded place of darkness and punishment reserved for the worst sinners
+
+.SH SUMMARY (see yENV (7) for more information)
+yENV and yENV_uver allow for consistent auditing and access to the
+linux security system so that many of my programs can take advantage
+of my latest updates with little work.
+
+.SH SERIOUS FOREWARNING
+i am a crazy, selfish, dog-fooding c-programmer.  my code tends to be
+experimental and constantly evolving.  my point is NOT to be the best, it is
+to challenge myself, build from scratch, and allow fast problem solving.
+
+.SH DOCUMENTATION
+.nf
+yENV (3)           interfacing with yENV in general
+yENV_uver (3)      interfacing with micro, code-inclusion version
+yENV_peek (3)      interfacing with file content review
+yENV_touch (3)     interfacing with creation/removal functions
+yENV_audit (3)     interfacing with auditing functions
+.B yENV_user (3)´´´´´´interfacing with users/owners
+yENV_group (3)     interfacing with groups
+yENV_perms (3)     interfacing with permissions
+yENV_score (3)     interfacing with application scoring
+yENV (7)           decision rationale, scope, and objectives
+
+.SH TABLE OF CONTENTS
+.nf  
+a) overview        quick summary
+b) synopsis        function overview
+c) inclusion       bringing the library into your code
+d) keys            consistent ways to find entries
+e) fullsome        maximal interface
+f) simplified      useful simpifiers for the fullsome version
+g) access          debugging, unit testing, and reporting
+h) unit-test       unit testing specific functions
+
+.SH A) OVERVIEW
+yENV provides a standardized interface for inquiring about linux user data
+(the owners of filesystem objects).  i use this ability through-out my programs
+to verify and secure my environments and content.  the setting part is handled
+in yENV_audit (3).
+
+.SH B) SYNOPSIS
+.nf
+usage is noted on the far-left of each entry...
+   ! means once-per-program
+   ¼ primary interface
+   ´ every program
+   · not in every program
+
+---primary-------------------------------------
+¼  char     yENV_user_full       (char  <type>, ´´´);
+
+---simplifiers---------------------------------
+·  char     yENV_user            (char* <text>, ´´´);
+·  char     yENV_user_uid        (char <type>, int <value>, ´´´);
+
+---data-access---------------------------------
+·  int      yENV_user_count      (void);
+·  char*    yENV_user_by_cursor  (char  <dir));
+·  char*    yENV_user_by_text    (char* <text));
+
+---unit-testing--------------------------------
+·  char     yENV_user_add        (char* (name>, ´´´);
+·  char     yENV_user_del        (char* (name>);
+·  char     yENV_user_purge      (void);
+·  char     yENV_user_switch     (char* (name>);
+
+.SH C) INCLUSION
+
+.SS header
+a simple header must be included in your shared header file
+   #include  <yENV.h>
+
+.SS library
+the library must be added to the make process...
+   link to -lyENV for the production version
+   link to -lyENV_debug for the debugging version (to debug itself)
+
+.SH D) KEYS
+users can be queried two different ways -- user name and user id.
+
+.SH E) FULLSOME
+this interface is the most expansive one, adding many non-typical fields that
+remove a great deal of reduntant effort from my security related programs
+like themis, argus, hermes, etc.
+
+.SS char  yENV_user_full (char <a_type>, char* <a_text>, ´´´);
+validates a permission based on any of the two access methods shown above,
+then returns the various details.  if you pass an at-sign (@) as string,
+the default of the current login in user will be used.
+
+.RS 3
+.B char <a_type> the filesystem entry type, e.g., YENV_DIR
+.RE
+
+.RS 3
+.B char *<a_text> find string -- "root" or "1000"
+.RE
+
+.RS 3
+.B char *<r_name>, returns the user name
+.RE
+
+.RS 3
+.B int *<r_uid>, returns the user id (uid)
+.RE
+
+.RS 3
+.B int *<r_gid>, returns the user default group id (gid)
+.RE
+
+.RS 3
+.B char *<r_home>, returns user's home directory
+.RE
+
+.RS 3
+.B char *<r_shell>, returns user's default shell
+.RE
+
+.RS 3
+.B char *<r_handle>, returns text name, uid, or default
+.RE
+
+.RS 3
+.B char* <r_quality>, returns judgement on user name
+.RE
+
+.RS 3
+.B char *<r_active>, returns judgement on whether user is active
+.RE
+
+.RS 3
+.B char *<r_login>, returns judgement on ability to login
+.RE
+
+.RS 3
+.B char *<r_groups>, returns number of groups assigned
+.RE
+
+.RS 3
+.B char *<r_glist>, returns list of groups assigned
+.RE
+
+.SH F) SIMPLIFIED
+
+.SS char  yENV_user (char* <text>, ´´´);
+simpilied version of yENV_user_full that only returns r_name and ruid.
+
+.SS char  yENV_perms_octal (char <a_type>, int <a_value>, ´´´);
+another simplication to allow yENV_user to be called with a numeric user id
+value rather than as a string.  it avoids extra programming later.
+
+.SH G) DATA ACCESS
+to better enable reporting, unit testing, and debugging, i have added
+a couple standard data access methods.
+
+.SS char  yENV_user_count (void)
+returns the number of users in passwd
+
+.SS char* yENV_user_by_cursor (char <dir>)
+returns a detailed string with all data based on standard cursoring
+
+.SS char* yENV_user_by_text (char* <text>)
+returns a detailed string with all data based on the two methods
+
+.SH H) UNIT TEST SUPPORT
+
+.SS char  yENV_user_add (char* <text>, ´´´);
+creates a unit test user on the system with specialized name (USR_´´´)
+
+.SS char  yENV_user_del (char* <text>);
+removes a unit test user on the system with specialized name (USR_´´´)
+
+.SS char  yENV_user_purge (<void>)
+removes all unit test users with specialized name (USR_´´´)
+
+.SS char  yENV_user_switch (char* <text>);
+switches to new user, very simplistic
+
+.SH BUGS
+yENV is incredibly stable for me, but if anyone else used it it might explode
+and take the universe with it.
+
+.SH COLOPHON
+this page is part of a documentation package meant to make the use of the
+heatherly tools easier and faster
+

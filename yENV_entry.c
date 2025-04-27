@@ -239,7 +239,7 @@ yENV_touchier           (char a_type, char a_name [LEN_PATH], char a_owner [LEN_
    }
    /*---(pre-work owner)-----------------*/
    --rce;  if (a_type != YENV_SYM) {
-      rc = yENV_user_full  (a_type, a_owner, NULL, &x_uid, NULL, NULL, NULL, NULL);
+      rc = yENV_user_full  (a_type, a_owner, NULL, &x_uid, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
       DEBUG_YENV    yLOG_value   ("x_uid"     , x_uid);
       if (rc < 0 || x_uid < 0) {
          DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
