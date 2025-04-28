@@ -248,7 +248,7 @@ yENV_touchier           (char a_type, char a_name [LEN_PATH], char a_owner [LEN_
    }
    /*---(pre-work group)-----------------*/
    --rce;  if (a_type != YENV_SYM) {
-      rc = yENV_group_full (a_type, a_group, NULL, &x_gid, NULL);
+      rc = yENV_group_full (a_type, a_group, NULL, &x_gid, NULL, NULL, NULL, NULL, NULL, NULL);
       DEBUG_YENV    yLOG_value   ("x_gid"     , x_gid);
       if (rc < 0 || x_gid < 0) {
          DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);

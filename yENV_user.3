@@ -35,12 +35,12 @@ yENV (7)           decision rationale, scope, and objectives
 .SH TABLE OF CONTENTS
 .nf  
 a) overview        quick summary
-b) synopsis        function overview
-c) inclusion       bringing the library into your code
-d) keys            consistent ways to find entries
+b) files           data access and modification
+c) synopsis        function overview
+d) access keys     consistent ways to find entries
 e) fullsome        maximal interface
 f) simplified      useful simpifiers for the fullsome version
-g) access          debugging, unit testing, and reporting
+g) data access     debugging, unit testing, and reporting
 h) unit-test       unit testing specific functions
 
 .SH A) OVERVIEW
@@ -49,7 +49,14 @@ yENV provides a standardized interface for inquiring about linux user data
 to verify and secure my environments and content.  the setting part is handled
 in yENV_audit (3).
 
-.SH B) SYNOPSIS
+.SH B) FILES
+yENV uses the /etc/passwd file for read-only data extraction.  yENV can modify
+the user assignment of a filesystem entry, but not its contents.
+
+the user test support functions below specifically use "useradd" and "userdel"
+to update /etc/passwd so that it stays fully system controlled.
+
+.SH C) SYNOPSIS
 .nf
 usage is noted on the far-left of each entry...
    ! means once-per-program
@@ -57,8 +64,9 @@ usage is noted on the far-left of each entry...
    ´ every program
    · not in every program
 
----primary-------------------------------------
+---fullsome------------------------------------
 ¼  char     yENV_user_full       (char  <type>, ´´´);
+·  char     yENV_user_data       (char  <type>, ´´´);
 
 ---simplifiers---------------------------------
 ·  char     yENV_user            (char* <text>, ´´´);
@@ -75,18 +83,7 @@ usage is noted on the far-left of each entry...
 ·  char     yENV_user_purge      (void);
 ·  char     yENV_user_switch     (char* (name>);
 
-.SH C) INCLUSION
-
-.SS header
-a simple header must be included in your shared header file
-   #include  <yENV.h>
-
-.SS library
-the library must be added to the make process...
-   link to -lyENV for the production version
-   link to -lyENV_debug for the debugging version (to debug itself)
-
-.SH D) KEYS
+.SH D) ACCESS KEYS
 users can be queried two different ways -- user name and user id.
 
 .SH E) FULLSOME
@@ -94,17 +91,21 @@ this interface is the most expansive one, adding many non-typical fields that
 remove a great deal of reduntant effort from my security related programs
 like themis, argus, hermes, etc.
 
+there are two functions to get at this data, one is flexible (yENV_user_full)
+and the other more direct (yENV_user_data).  yENV_user_full uses
+yENV_user_data at is core.
+
 .SS char  yENV_user_full (char <a_type>, char* <a_text>, ´´´);
-validates a permission based on any of the two access methods shown above,
-then returns the various details.  if you pass an at-sign (@) as string,
-the default of the current login in user will be used.
+gathers extensive data based on the access keys above.  this is the most common
+external interface as it is the most forgiving.  if you pass an at-sign (@)
+as string, the default of the current login will be used.
 
 .RS 3
 .B char <a_type> the filesystem entry type, e.g., YENV_DIR
 .RE
 
 .RS 3
-.B char *<a_text> find string -- "root" or "1000"
+.B char *<a_text> find string -- ¶root¶ or ¶1000¶
 .RE
 
 .RS 3
@@ -128,7 +129,7 @@ the default of the current login in user will be used.
 .RE
 
 .RS 3
-.B char *<r_handle>, returns text name, uid, or default
+.B char *<r_handle>, returns string ¶name¶, ¶uid¶, or ¶default¶
 .RE
 
 .RS 3
@@ -148,17 +149,40 @@ the default of the current login in user will be used.
 .RE
 
 .RS 3
-.B char *<r_glist>, returns list of groups assigned
+.B char *<r_gnames>, returns list of groups assigned
 .RE
+
+.RS 3
+.B char *<r_gids>, returns list of gids assigned
+.RE
+
+.SS char  yENV_user_data (char <a_type>, ´´´);
+underlying foundation of yENV_user_full, but less flexible.  instead of using
+a_text to pass any of the access keys, they are passed in their respective
+fields.  the a_type field is used to determine the method of id.
+
+.RS 3
+.B char <a_type>, 'n' use name to get data or 'i' to use uid.
+.RE
+
+.RS 3
+.B char *<b_name>, two way pointer for name
+.RE
+
+.RS 3
+.B int *<b_gid>, two-way pointer for gid
+.RE
+
+the rest of the fields are exactly the same as yENV_user_full.
 
 .SH F) SIMPLIFIED
 
 .SS char  yENV_user (char* <text>, ´´´);
 simpilied version of yENV_user_full that only returns r_name and ruid.
 
-.SS char  yENV_perms_octal (char <a_type>, int <a_value>, ´´´);
-another simplication to allow yENV_user to be called with a numeric user id
-value rather than as a string.  it avoids extra programming later.
+.SS char  yENV_user_octal (char <a_type>, int <a_value>, ´´´);
+another simplication to allow yENV_user to be called with a numeric uid value
+rather than as a string.  it avoids extra programming later.
 
 .SH G) DATA ACCESS
 to better enable reporting, unit testing, and debugging, i have added
@@ -174,6 +198,9 @@ returns a detailed string with all data based on standard cursoring
 returns a detailed string with all data based on the two methods
 
 .SH H) UNIT TEST SUPPORT
+to make user testing a little more easy and avoid repeated code, i have added
+a couple support functions.  these functions use useradd and userdel to
+keep /etc/passwd full under system control.
 
 .SS char  yENV_user_add (char* <text>, ´´´);
 creates a unit test user on the system with specialized name (USR_´´´)

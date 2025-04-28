@@ -38,8 +38,8 @@
 /*········· ··········· ´·····························´········································*/
 #define     P_VERMAJOR  "1.--, production improvements"
 #define     P_VERMINOR  "1.2-, adding detailed audit, open, close ability"
-#define     P_VERNUM    "1.2n"
-#define     P_VERTXT    "gave yENV_group data access, more unit testing, no man page yet :("
+#define     P_VERNUM    "1.2o"
+#define     P_VERTXT    "finished yENV_group, and cleaned up yENV_user and yENV_perms"
 /*········· ··········· ´·····························´········································*/
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"

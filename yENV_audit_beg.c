@@ -244,7 +244,7 @@ yenv_audit_expect       (char a_type, char b_owner [LEN_USER], char b_group [LEN
       DEBUG_YENV   yLOG_info    ("x_group"   , x_group);
       yenv_score_mark ("EGROUP"  , '°');
       strlcpy (t, x_group, LEN_USER);
-      rc = yENV_group_full (a_type, t, x_group, &x_gid, x_handle);
+      rc = yENV_group_full (a_type, t, x_group, &x_gid, x_handle, NULL, NULL, NULL, NULL, NULL);
       if (rc >= 0) {
          x = atoi (t);
          if      (strcmp (t      , "@"    ) == 0)  yenv_score_mark ("EGROUP"  , 'G');  /* default  */

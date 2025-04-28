@@ -35,11 +35,11 @@ yENV (7)           decision rationale, scope, and objectives
 .SH TABLE OF CONTENTS
 .nf  
 a) overview        quick summary
-b) synopsis        function overview
-c) inclusion       bringing the library into your code
-d) keys            consistent ways to find entries
-e) primary         primary interface
-f) fuller          more fullsome interfaces
+b) files           data access and modification
+c) synopsis        function overview
+d) access keys     consistent ways to find entries
+e) fullsome        maximal interface
+f) simplified      useful simpifiers for the fullsome version
 g) access          debugging, unit testing, and reporting
 
 .SH A) OVERVIEW
@@ -47,7 +47,11 @@ yENV provides a standardized interface for inquiring about linux permissions
 data.  i use this ability through-out my programs to verify and secure my
 environments and content.  the setting part is handled in yENV_audit (3).
 
-.SH B) SYNOPSIS
+.SH B) FILES
+yENV uses an internal table for standard security and calculates all more
+specific ones.  no ssytem files are used for data gathering.
+
+.SH C) SYNOPSIS
 .nf
 usage is noted on the far-left of each entry...
    ! means once-per-program
@@ -57,6 +61,7 @@ usage is noted on the far-left of each entry...
 
 ---primary-------------------------------------
 ¼  char     yENV_perms_full      (char  <type>, ...);
+·  char     yENV_perms_data      (char  <type>, ...);
 
 ---audit-support-------------------------------
 ·  char     yENV_perms           (char* <text>, ...);
@@ -67,18 +72,7 @@ usage is noted on the far-left of each entry...
 ·  char*    yENV_perms_by_cursor (char  <dir));
 ·  char*    yENV_perms_by_text   (char* <text));
 
-.SH C) INCLUSION
-
-.SS header
-a simple header must be included in your shared header file
-   #include  <yENV.h>
-
-.SS library
-the library must be added to the make process...
-   link to -lyENV for the production version
-   link to -lyENV_debug for the debugging version (to debug itself)
-
-.SH D) KEYS
+.SH D) ACCESS KEYS
 permissions can be queried three different ways -- my naming, octal value,
 and the display representation typically seen on the screen.  any
 octal or display representaion can be used, but i try to stick to
@@ -129,15 +123,22 @@ d_normals   normal, but delete respricted   01755  rwxr-xr-t
 d_tights    owner only, delete restrcited   01700  rwx-----T
 f_nodel     wide open, delete restricted    01777  rwxrwxrwt
 
-.SH E) PRIMARY
+.SH E) FULLSOME
+this interface is the fullsome version of yENV_perms, adding two other fields.
+first, entry type to help target the default.  second, handler to specify how
+the data way found.  both are unnecessary outside auditing.
 
-.SS char  yENV_perms ( char* <a_text>, ´´´);
+.SS char  yENV_perms_full (char <a_type>, char* <a_text>, ´´´);
 validates a permission based on any of the three access methods shown above,
 then returns the various details.  if you pass an at-sign (@) as string,
-the default of "f_tight" will be used.
+the default of "d_tight" for YENV_DIR and "f_tight" for all else will be used.
 
 .RS 3
-.B char *<a_text> find string -- "f_tight", "00600", or "rw-------"
+.B char <a_type> the filesystem entry type, e.g., YENV_DIR
+.RE
+
+.RS 3
+.B char *<a_text> find string -- ¶f_tight¶, ¶600¶, or ¶rw-------¶
 .RE
 
 .RS 3
@@ -156,27 +157,42 @@ the default of "f_tight" will be used.
 .B char *<r_desc>, returns standard description or empty
 .RE
 
-.SH F) AUDIT INTERFACE
-this interface is the fullsome version of yENV_perms, adding two other fields.
-first, entry type to help target the default.  second, handler to specify how
-the data way found.  both are unnecessary outside auditing.
+.RS 3
+.B char *<r_handle>, returns ¶octal¶, ¶standard¶, ¶display¶, or ¶default¶
+.RE
 
-.SS char  yENV_perms_full (char <a_type>, char* <a_text>, ´´´);
-validates a permission based on any of the three access methods shown above,
-then returns the various details.  if you pass an at-sign (@) as string,
-the default of "d_tight" for YENV_DIR and "f_tight" for all else will be used.
+.SS char  yENV_perms_data (char <a_type>, ´´´);
+underlying foundation of yENV_perms_full, but less flexible.  instead of using
+a_text to pass any of the access keys, they are passed in their respective
+fields.  the a_type field is used to determine the method of id.
 
 .RS 3
-.B char <a_type> the filesystem entry type, e.g., YENV_DIR
+.B char <a_type>, 'n' use name, 'i' octal, 'd' display to get data
 .RE
 
 .RS 3
-.B char *<r_handle>, returns text octal, standard, display, or default
+.B char *<b_name>, two-way string pointer
 .RE
+
+.RS 3
+.B int *<b_perms>, two-way octal pointer
+.RE
+
+.RS 3
+.B char *<b_disp>, two-way string pointer
+.RE
+
+the rest of the fields are exactly the same as yENV_perms_full.
+
+.SH F) SIMPLIFIED
+
+.SS char  yENV_perms (char* <text>, ´´´);
+simpilied version of yENV_perms_full that only returns everything but the
+handler.
 
 .SS char  yENV_perms_octal (char <a_type>, int <a_value>, ´´´);
-another simplications to allow yENV_perms to be called with a numeric
-octal value rather than as a string.  it avoids extra programming later.
+another simplication to allow yENV_perms_full to be called with a octal value
+rather than as a string.  it avoids extra programming later.
 
 .SH G) DATA ACCESS
 to better enable reporting, unit testing, and debugging, i have added

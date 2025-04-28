@@ -1,0 +1,208 @@
+.TH yENV_group· 3 2024-may "linux" "interfacing with micro, code-inclusion version"
+
+.SH NAME
+yENV \- provide consistent linux filesystem and security services
+
+.SH PATRON (see HERITAGE at bottom for more)
+tartarus-eeroeis (murky one) linux filesystem and security services
+
+.SH IMAGERY
+dreaded place of darkness and punishment reserved for the worst sinners
+
+.SH SUMMARY (see yENV (7) for more information)
+yENV and yENV_uver allow for consistent auditing and access to the
+linux security system so that many of my programs can take advantage
+of my latest updates with little work.
+
+.SH SERIOUS FOREWARNING
+i am a crazy, selfish, dog-fooding c-programmer.  my code tends to be
+experimental and constantly evolving.  my point is NOT to be the best, it is
+to challenge myself, build from scratch, and allow fast problem solving.
+
+.SH DOCUMENTATION
+.nf
+yENV (3)           interfacing with yENV in general
+yENV_uver (3)      interfacing with micro, code-inclusion version
+yENV_peek (3)      interfacing with file content review
+yENV_touch (3)     interfacing with creation/removal functions
+yENV_audit (3)     interfacing with auditing functions
+yENV_user (3)      interfacing with users/owners
+.B yENV_group (3)´´´´´interfacing with groups
+yENV_perms (3)     interfacing with permissions
+yENV_score (3)     interfacing with application scoring
+yENV (7)           decision rationale, scope, and objectives
+
+.SH TABLE OF CONTENTS
+.nf  
+a) overview        quick summary
+b) files           data access and modification
+c) synopsis        function overview
+d) access keys     consistent ways to find entries
+e) fullsome        maximal interface
+f) simplified      useful simpifiers for the fullsome version
+g) data access     debugging, unit testing, and reporting
+h) unit-test       unit testing specific functions
+
+.SH A) OVERVIEW
+yENV provides a standardized interface for inquiring about linux group data
+(the sharing mechanism of filesystem objects).  i use this ability through-out
+my programs to verify and secure my environments and content.  the setting
+part is handled in yENV_audit (3).
+
+.SH B) FILES
+yENV uses the /etc/group file for read-only data extraction.  yENV can modify
+the group assignment of a filesystem entry, but not its contents.
+
+the user test support functions below specifically use "groupadd" and "groupdel"
+to update /etc/group so that it stays fully system controlled.
+
+.SH C) SYNOPSIS
+.nf
+usage is noted on the far-left of each entry...
+   ! means once-per-program
+   ¼ primary interface
+   ´ every program
+   · not in every program
+
+---fullsome------------------------------------
+¼  char     yENV_group_full      (char  <type>, ´´´);
+·  char     yENV_group_data      (char  <type>, ´´´);
+
+---simplifiers---------------------------------
+·  char     yENV_group           (char* <text>, ´´´);
+·  char     yENV_group_gid       (char <type>, int <value>, ´´´);
+
+---data-access---------------------------------
+·  int      yENV_group_count     (void);
+·  char*    yENV_group_by_cursor (char  <dir));
+·  char*    yENV_group_by_text   (char* <text));
+
+---unit-testing--------------------------------
+·  char     yENV_group_add       (char* (name>, ´´´);
+·  char     yENV_group_del       (char* (name>);
+·  char     yENV_group_purge     (void);
+·  char     yENV_group_switch    (char* (name>);
+
+.SH D) ACCESS KEYS
+groups can be queried three different ways -- group name, group id, and default.
+all allowed group names and gids are held in the /etc/groups file.
+
+.SH E) FULLSOME
+this interface is the most expansive one, adding many non-typical fields that
+remove a great deal of reduntant effort from my security related programs
+like themis, argus, hermes, etc.
+
+there are two functions to get at this data, one is flexible (yENV_group_full)
+and the other more direct (yENV_group_data).  yENV_group_full uses
+yENV_group_data at is core.
+
+.SS char  yENV_group_full (char <a_type>, char* <a_text>, ´´´);
+gathers extensive data based on the access keys above.  this is the most common
+external interface as it is the most forgiving.  if you pass an at-sign (@)
+as string, the default of the current login in group will be used.
+
+.RS 3
+.B char <a_type> the filesystem entry type, e.g., YENV_DIR
+.RE
+
+.RS 3
+.B char *<a_text> find string -- ¶users¶ or ¶100¶
+.RE
+
+.RS 3
+.B char *<r_name>, returns the group name
+.RE
+
+.RS 3
+.B int *<r_gid>, returns the group id (gid)
+.RE
+
+.RS 3
+.B char *<r_handle>, returns string ¶name¶, ¶gid¶, or ¶default¶
+.RE
+
+.RS 3
+.B char* <r_quality>, returns judgement on group name
+.RE
+
+.RS 3
+.B char *<r_active>, returns judgement on whether group is active
+.RE
+
+.RS 3
+.B char *<r_ngroup>, returns number of users assigned
+.RE
+
+.RS 3
+.B char *<r_unames>, returns list of users assigned
+.RE
+
+.RS 3
+.B char *<r_uids>, returns list of uids assigned
+.RE
+
+.SS char  yENV_group_data (char <a_type>, ´´´);
+underlying foundation of yENV_group_full, but less flexible.  instead of using
+a_text to pass any of the access keys, they are passed in their respective
+fields.  the a_type field is used to determine the method of id.
+
+.RS 3
+.B char <a_type>, 'n' to use name to get data or 'i' to use gid.
+.RE
+
+.RS 3
+.B char *<b_name>, two way pointer for name
+.RE
+
+.RS 3
+.B int *<b_gid>, two-way pointer for gid
+.RE
+
+the rest of the fields are exactly the same as yENV_group_full.
+
+.SH F) SIMPLIFIED
+
+.SS char  yENV_group (char* <text>, ´´´);
+simpilied version of yENV_group_full that only returns r_name and ruid.
+
+.SS char  yENV_group_gid (char <a_type>, int <a_value>, ´´´);
+another simplication to allow yENV_group to be called with a numeric gid
+value rather than as a string.  it avoids extra programming later.
+
+.SH G) DATA ACCESS
+to better enable reporting, unit testing, and debugging, i have added
+a couple standard data access methods.
+
+.SS char  yENV_group_count (void)
+returns the number of groups in /etc/group
+
+.SS char* yENV_group_by_cursor (char <dir>)
+returns a detailed string with all data based on standard cursoring
+
+.SS char* yENV_group_by_text (char* <text>)
+returns a detailed string with all data based on the two methods
+
+.SH H) UNIT TEST SUPPORT
+to make user testing a little more easy and avoid repeated code, i have added
+a couple support functions.  these functions use groupadd and groupdel to
+keep /etc/group full under system control.
+
+.SS char  yENV_group_add (char* <text>, ´´´);
+creates a unit test group on the system with specialized name (GRP_´´´)
+
+.SS char  yENV_group_del (char* <text>);
+removes a unit test group on the system with specialized name (GRP_´´´)
+
+.SS char  yENV_group_purge (<void>)
+removes all unit test groups with specialized name (GRP_´´´)
+
+.SS char  yENV_group_switch (char* <text>);
+switches to new group, very simplistic
+
+.SH BUGS
+yENV is incredibly stable for me, but if anyone else used it it might explode
+and take the universe with it.
+
+.SH COLOPHON
+this page is part of a documentation package meant to make the use of the
+heatherly tools easier and faster
