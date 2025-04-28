@@ -31,8 +31,8 @@ static char  myenv_underrun [LEN_LABEL] = "(n/a)";
 
 
 
-char yenv_uunit     (void) { strcpy (myenv_underrun, "(under)"); strcpy (myenv_overrun, "(over)"); }
-char yenv_unormal   (void) { strcpy (myenv_underrun, "(n/a)"  ); strcpy (myenv_overrun, "(n/a)" ); }
+char yenv_uunit     (void) { strcpy (myenv_underrun, "(under)"); strcpy (myenv_overrun, "(over)"); return 0; }
+char yenv_unormal   (void) { strcpy (myenv_underrun, "(n/a)"  ); strcpy (myenv_overrun, "(n/a)" ); return 0; }
 
 
 
@@ -47,13 +47,12 @@ yENV_upeekier           (char a_name [LEN_PATH], char a_dir, int n, int *r_count
    int         x_len       =    0;
    /*---(default)------------------------*/
    if (r_count != NULL)  *r_count = -1;
-   /*---(prepare)------------------------*/
+   /*---(defense)------------------------*/
    if (a_name     == NULL)                { strcpy (myenv_usave, "");  myenv_ulast = -1;  return "(null name)";  }
    if (a_name [0] == '\0')                { strcpy (myenv_usave, "");  myenv_ulast = -1;  return "(empty name)"; }
+   /*---(prepare)------------------------*/
    if (strcmp (myenv_usave, a_name) != 0) { strlcpy (myenv_usave, a_name, LEN_PATH); myenv_ulast = -1; }
    strcpy (myenv_upeek, "(n/a)");
-   /*---(reset)--------------------------*/
-   if (n < 0)  a_dir = YDLST_RESET;
    /*---(check cursoring)----------------*/
    x_curr = myenv_ulast;
    switch (a_dir) {
@@ -80,6 +79,8 @@ yENV_upeekier           (char a_name [LEN_PATH], char a_dir, int n, int *r_count
       x_curr = n;
       break;
    }
+   /*---(check underrun)-----------------*/
+   if (x_curr < 0)  { myenv_ulast = -1; return myenv_underrun;  }
    /*---(open file)----------------------*/
    f = fopen (a_name, "rt");
    if (f == NULL)  { strcpy (myenv_usave, "");  myenv_ulast = -1;  return "(missing)"; }

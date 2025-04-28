@@ -8,6 +8,12 @@ static char  myenv_peek    [LEN_RECD]  = "";
 static int   myenv_last    =    0;
 static char  myenv_save    [LEN_PATH]  = "";
 
+static char  myenv_over    [LEN_LABEL] = "(n/a)";
+static char  myenv_under   [LEN_LABEL] = "(n/a)";
+
+
+char yenv_unit     (void) { strcpy (myenv_under, "(under)"); strcpy (myenv_over , "(over)"); return 0; }
+char yenv_normal   (void) { strcpy (myenv_under, "(n/a)"  ); strcpy (myenv_over , "(n/a)" ); return 0; }
 
 
 
@@ -30,29 +36,10 @@ yENV_peekier            (char a_style, char a_name [LEN_PATH], char a_dir, int n
    /*---(default)------------------------*/
    if (a_count != NULL)  *a_count = -1;
    /*---(defense)------------------------*/
-   if (a_name == NULL) {
-      strlcpy (myenv_save, "", LEN_PATH);
-      myenv_last = -1;
-      return "(null name)";
-   }
-   if (strcmp (a_name, "") == 0) {
-      strlcpy (myenv_save, "", LEN_PATH);
-      myenv_last = -1;
-      return "(empty name)";
-   }
-   /*---(save name)----------------------*/
-   if (strcmp (myenv_save, a_name) != 0) {
-      strlcpy (myenv_save, a_name, LEN_PATH);
-      myenv_last = -1;
-   }
-   /*---(RESET OPTION)-------------------*/
-   if (n == -1 || strcmp ("(reset)", a_name) == 0) {
-      strlcpy (myenv_save, a_name, LEN_PATH);
-      myenv_last = -1;
-      return "(reset)";
-   }
+   if (a_name     == NULL)               { strcpy  (myenv_save, "");  myenv_last = -1;  return "(null name)";  }
+   if (a_name [0] == '\0')               { strcpy  (myenv_save, "");  myenv_last = -1;  return "(empty name)"; }
    /*---(prepare)------------------------*/
-   if (a_count != NULL)  *a_count = 0;
+   if (strcmp (myenv_save, a_name) != 0) { strlcpy (myenv_save, a_name, LEN_PATH); myenv_last = -1; }
    strcpy (myenv_peek, "(n/a)");
    /*---(set target)---------------------*/
    x_curr = myenv_last;
@@ -61,8 +48,8 @@ yENV_peekier            (char a_style, char a_name [LEN_PATH], char a_dir, int n
       x_curr = 0;
       break;
    case YDLST_PREV  : case YDLST_DPREV :
-      if (x_curr > 0)  --x_curr;
-      else             x_curr = 0;
+      if (x_curr <= 0) return myenv_under;
+      else             --x_curr;
       break;
    case YDLST_CURR  : case YDLST_DCURR :
       break;
@@ -80,13 +67,11 @@ yENV_peekier            (char a_style, char a_name [LEN_PATH], char a_dir, int n
       x_curr = n;
       break;
    }
-   if (x_curr < 0)  x_curr = 0;
+   /*---(check underrun)-----------------*/
+   if (x_curr < 0)  { myenv_last = -1; return myenv_under;  }
    /*---(open file)----------------------*/
    f = fopen (a_name, "rt");
-   if (f == NULL) {
-      if (a_count != NULL)  *a_count = -1;
-      return "(not found)";
-   }
+   if (f == NULL)  { strcpy (myenv_save, "");  myenv_last = -1;  return "(missing file)"; }
    /*---(walk file)----------------------*/
    while (1) {
       fgets (t, LEN_RECD, f);
@@ -98,9 +83,12 @@ yENV_peekier            (char a_style, char a_name [LEN_PATH], char a_dir, int n
    /*---(close)--------------------------*/
    fclose (f);
    /*---(fix cursor)---------------------*/
-   if (a_dir == YDLST_TAIL)  x_curr = c - 1;
-   if (a_dir == YDLST_NEXT && strcmp (myenv_peek, "(n/a)") == 0)  x_curr = myenv_last;
+   if      (x_curr == 999)  x_curr = c - 1;
+   else if (x_curr >= c)    return myenv_over;
    myenv_last = x_curr;
+   /*> if (a_dir == YDLST_TAIL)  x_curr = c - 1;                                             <* 
+    *> if (a_dir == YDLST_NEXT && strcmp (myenv_peek, "(n/a)") == 0)  x_curr = myenv_last;   <* 
+    *> myenv_last = x_curr;                                                                  <*/
    /*---(fix end)------------------------*/
    x_len = strlen (myenv_peek);
    if (x_len > 0 && myenv_peek [x_len - 1] == '\n')  myenv_peek [--x_len] = '\0';
@@ -124,12 +112,14 @@ yENV_peekier            (char a_style, char a_name [LEN_PATH], char a_dir, int n
    return myenv_peek;
 }
 
+int   yENV_lines        (char a_name [LEN_PATH])             { int c = 0; yENV_peekier ('-', a_name, 0, 0, &c); return c; }
+
 char* yENV_peek         (char a_name [LEN_PATH], char a_dir) { return yENV_peekier ('-', a_name, a_dir, 0, NULL); }
 char* yENV_index        (char a_name [LEN_PATH], int n)      { return yENV_peekier ('-', a_name, 0    , n, NULL); }
 char* yENV_peek_vis     (char a_name [LEN_PATH], int n)      { return yENV_peekier ('v', a_name, 0    , n, NULL); }
 char* yENV_peek_field   (char a_name [LEN_PATH], int n)      { return yENV_peekier ('f', a_name, 0    , n, NULL); }
-int   yENV_lines        (char a_name [LEN_PATH])             { int c = 0; yENV_peekier ('-', a_name, 0, 0, &c); return c; }
-char  yENV_peek_reset   (void)                               { yENV_peekier ('-', "(reset)", 0, -1, NULL); return 0; }
+
+char  yENV_reset        (char a_name [LEN_PATH])             { yENV_peekier ('-', a_name, YDLST_RESET, 0, NULL); return 0; }
 
 char* yENV_where        (void)                               { return myenv_save; }
 int   yENV_which        (void)                               { return myenv_last; }

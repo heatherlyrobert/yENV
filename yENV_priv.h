@@ -38,8 +38,8 @@
 /*········· ··········· ´·····························´········································*/
 #define     P_VERMAJOR  "1.--, production improvements"
 #define     P_VERMINOR  "1.2-, adding detailed audit, open, close ability"
-#define     P_VERNUM    "1.2o"
-#define     P_VERTXT    "finished yENV_group, and cleaned up yENV_user and yENV_perms"
+#define     P_VERNUM    "1.2p"
+#define     P_VERTXT    "cleaned up yENV_peek related code, and built the man file"
 /*········· ··········· ´·····························´········································*/
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -313,6 +313,8 @@ char        yenv_groups_by_user     (char a_user [LEN_USER], char r_names [LEN_H
 char        yenv_group_by_user      (char a_user [LEN_USER], char r_names [LEN_HUND], char r_gids [LEN_HUND]);
 char        yenv_user_by_group      (char a_group [LEN_USER], char r_names [LEN_HUND], char r_uids [LEN_HUND]);
 
+char        yenv_unit               (void);
+char        yenv_normal             (void);
 
 
 #endif

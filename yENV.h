@@ -92,7 +92,7 @@ char*       yENV_index              (char a_name [LEN_PATH], int n);
 char*       yENV_peek_vis           (char a_name [LEN_PATH], int n);
 char*       yENV_peek_field         (char a_name [LEN_PATH], int n);
 int         yENV_lines              (char a_name [LEN_PATH]);
-char        yENV_peek_reset         (void);
+char        yENV_reset              (char a_name [LEN_PATH]);
 /*---(debugging)------------*/
 char*       yENV_where              (void);
 int         yENV_which              (void);

@@ -1,4 +1,4 @@
-.TH yENV_uver· 3 2024-may "linux" "interfacing with micro, code-inclusion version"
+.TH yENV_peek· 3 2024-may "linux" "interfacing with micro, code-inclusion version"
 
 .SH NAME
 yENV \- provide consistent linux filesystem and security services
@@ -22,8 +22,8 @@ to challenge myself, build from scratch, and allow fast problem solving.
 .SH DOCUMENTATION
 .nf
 yENV (3)           interfacing with yENV in general
-.B yENV_uver (3)´´´´´´interfacing with micro, code-inclusion version
-yENV_peek (3)      interfacing with file content review
+yENV_uver (3)      interfacing with micro, code-inclusion version
+.B yENV_peek (3)´´´´´´interfacing with file content review
 yENV_touch (3)     interfacing with creation/removal functions
 yENV_audit (3)     interfacing with auditing functions
 yENV_user (3)      interfacing with user/owners
@@ -36,16 +36,18 @@ yENV (7)           decision rationale, scope, and objectives
 .nf  
 a) overview        quick summary
 b) synopsis        function overview
-c) inclusion       bringing the library into your code
-d) count           line counting
-e) content         extracting lines
+c) count           line counting
+d) content         extracting lines
+e) fullsome        maximal interface
 f) debugging       debugging support
 g) unit-test       unit-testing support
 
 .SH A) OVERVIEW
-yENV_uver is a simplied but compatable, source-code inclusion header version
-of yENV's data file peeking for use with core, low-dependency libraries
-supporting unit-testing.  as a result, only a few of my programs use it.
+yENV provides a standardized way to interogate 8bit ascii text files.  this is
+fantastically useful for unit-testing, which was the origin of these functions
+so that i could stop rebuilding and reworking random capabilities.
+
+these functions have the same interface as their simpified yENV_uver versions.
 
 .SH B) SYNOPSIS
 .nf
@@ -55,40 +57,32 @@ usage is noted on the far-left of each entry...
    · not in every program
 
 ---line-count----------------------------------
-Ï  int      yENV_ulines   (char *<file>);
+Ï  int      yENV_lines    (char *<file>);
 
----seeing-specific-lines-----------------------
-Ï  char*    yENV_upeek    (char *<file>, char <dir>);
-·  char*    yENV_uindex   (char *<file>, int <n>);
+---content-------------------------------------
+Ï  char*    yENV_peek     (char *<file>, char <dir>);
+·  char*    yENV_index    (char *<file>, int <n>);
+·  char     yENV_reset    (char *<file>);
+
+---fullsome------------------------------------
+·  char*    yENV_peekier  (char <style>, char *<file>, ´´´);
 
 ---debugging-----------------------------------
-·  char*    yENV_uwhich   (void);
-·  int      yENV_uwhere   (void);
+·  char*    yENV_which    (void);
+·  int      yENV_where    (void);
 
 ---unit-test-----------------------------------
-·  char     yenv_uunit    (void);
-·  char     yenv_unormal  (void);
+·  char     yenv_unit     (void);
+·  char     yenv_normal   (void);
 
-.SH C) INCLUSION
-
-.SS header
-a simple header must be included in your shared header file
-
-   #include  <yENV_solo.h>
-
-.SS code inclusion
-the source code file must be included in a primary source file
-
-   #include  <yENV_uver.h>
-
-.SH D) COUNT
+.SH C) COUNT
 first of all, the count function helps detiremine IF the file exists, and if
 it does, what size (in records).
 
-.SS int yENV_ulines (<file>)
+.SS int yENV_lines (<file>)
 returns the line/record count or -1 if does not exist
 
-.SH E) CONTENT
+.SH D) CONTENT
 next, the critical part is a standard interface for retrieving lines
 from an 8-bit ascii text file (UTF-8).  these two functions use the
 same code so cursoring and indexing can be interwoven as necessary.
@@ -101,7 +95,7 @@ besides data, sometimes errors will be returned...
    (under)     position before first record (unit test)
    (over)      position after end of records (unit test)
 
-.SS char* yENV_upeek (<file>, <dir>)
+.SS char* yENV_peek (<file>, <dir>)
 returns the full line after applying the cursor dir (shown below).
    [  or  º   head
    <  or  ×   previous
@@ -110,27 +104,65 @@ returns the full line after applying the cursor dir (shown below).
    ]  or  »   tail
    -          reset
 
-.SS char* yENV_uindex (<file>, <n>)
+.SS char* yENV_index (<file>, <n>)
 returns the full line for record number <n>.
+
+.SS char yENV_reset (<file>)
+sets the line position to -1, so the next YDLST_NEXT is 0.  very helpful when
+unit testing with shared code to review output.
+
+.SH E) FULLSOME
+when additional capability is required, the underlaying function yENV_peekier
+can be called to change output formats.
+
+.SS char* yENV_peekier (char <style>, char* <file>, ´´´)
+returns the full line after applying the cursor dir (shown below).
+
+.RS 3
+.B char <a_style> 'v' for visible and and 'f' field convert...
+   return ( 10)  =  ¦   both
+   enter  ( 13)  =  ¦   both
+   escape ( 27)  =  ¥   both
+   group  ( 29)  =  ¨   both
+   field  ( 31)  =  §   both
+   tab    (  8)  =  Ú   both
+   space  ( 32)  =  ²   'v' visible only
+.RE
+
+.RS 3
+.B char* <a_name> file name to interrogate
+.RE
+
+.RS 3
+.B char <a_dir> same as instruction to yENV_peek
+.RE
+
+.RS 3
+.B char <n> same as instruction to yENV_index
+.RE
+
+.RS 3
+.B int* <r_count> returns the line count, like yENV_count
+.RE
 
 .SH F) DEBUGGING
 to speed the search for trouble, two addition functions can retrieve working
 values.
 
-.SS char* yENV_uwhich (void)
+.SS char* yENV_which (void)
 file name used in last successful search
 
-.SS int yENV_uwhere (void)
+.SS int yENV_where (void)
 file record position used in last successful search
 
 .SH G) UNIT TEST
 to successfully unit test, i needed more specific error messages than
 i prefer in production, so i made them configurable.
 
-.SS char yenv_uunit (void)
+.SS char yenv_unit (void)
 sets underrun to "(under)" and overrun to "(over)".
 
-.SS char yenv_unormal (void)
+.SS char yenv_normal (void)
 sets both underrun and overrun to "(n/a)" which is the default.
 
 .SH BUGS
@@ -140,6 +172,3 @@ and take the universe with it.
 .SH COLOPHON
 this page is part of a documentation package meant to make the use of the
 heatherly tools easier and faster
-
-
-
