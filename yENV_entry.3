@@ -1,0 +1,307 @@
+.TH yENV_entry· 3 2024-may "linux" "interfacing with micro, code-inclusion version"
+
+.SH NAME
+yENV \- provide consistent linux filesystem and security services
+
+.SH PATRON (see HERITAGE at bottom for more)
+tartarus-eeroeis (murky one) linux filesystem and security services
+
+.SH IMAGERY
+dreaded place of darkness and punishment reserved for the worst sinners
+
+.SH SUMMARY (see yENV (7) for more information)
+yENV and yENV_uver allow for consistent auditing and access to the
+linux security system so that many of my programs can take advantage
+of my latest updates with little work.
+
+.SH SERIOUS FOREWARNING
+i am a crazy, selfish, dog-fooding c-programmer.  my code tends to be
+experimental and constantly evolving.  my point is NOT to be the best, it is
+to challenge myself, build from scratch, and allow fast problem solving.
+
+.SH DOCUMENTATION
+.nf
+yENV (3)           interfacing with yENV in general
+yENV_uver (3)      interfacing with micro, code-inclusion version
+yENV_peek (3)      interfacing with file content review
+.B yENV_entry (3)´´´´´interfacing with creation/removal functions
+yENV_audit (3)     interfacing with auditing functions
+yENV_user (3)      interfacing with users/owners
+yENV_group (3)     interfacing with groups
+yENV_perms (3)     interfacing with permissions
+yENV_score (3)     interfacing with application scoring
+yENV (7)           decision rationale, scope, and objectives
+
+.SH TABLE OF CONTENTS
+.nf  
+a) overview        quick summary
+b) synopsis        function overview
+c) details         verifying and gathering details
+d) create          creating new entries
+e) remove          destroying entries
+
+.SH A) OVERVIEW
+yENV provides a standardized interface for checking, creating, and removing
+filesystem objects.  this is especially useful in unit-testing, but i use
+this ability through-out my programs to verify and secure my environments
+and content.
+
+.SH B) SYNOPSIS
+.nf
+usage is noted on the far-left of each entry...
+   ! means once-per-program
+   ¼ primary interface
+   ´ every program
+   · not in every program
+
+---checking------------------------------------
+¼  char     yENV_detail          (char* <name>, ´´´);
+´  char     yENV_exists          (char* <name>);
+·  char     yENV_hash            (char  <type>, char* <name>, ´´´);
+
+---create--------------------------------------
+¼  char     yENV_touchier        (char  <type>, char* <name>, ´´´);
+´  char     yENV_touch           (char* <name>, ´´´);
+·  char     yENV_mkdir           (char* <name>, ´´´);
+·  char     yENV_create          (char  <type>, char* <name>, ´´´);
+
+---destroy-------------------------------------
+¼  char     yENV_removier        (char  <type>, char* <name>);
+´  char     yENV_rm              (char* <name>);
+·  char     yENV_rmdir           (char* <name>);
+·  char     yENV_rmdir_fully     (char* <name>);
+
+.SH C) DETAILS
+these functions interrogate the existance and properties of existing files.
+by doing so, they remove a great deal of reduntant effort from my security
+related programs like themis, argus, hermes, etc.
+
+.SS char  yENV_exists (char* <name>);
+returns the type of the filesystem object, or YENV_NONE if it does not exist
+or was not found.
+
+.SS char  yENV_detail (char* <name>, ´´´);
+gathers extensive list of characteristics (16) data about any give file
+system object.  to save time, if a argument return variable is NULL, that
+part of the code does not execute.
+
+returns the type of the filesystem object, or YENV_NONE if it does not exist
+or was not found.
+
+.RS 3
+.B char* <a_name> filesystem object to be interrogated
+.RE
+
+.RS 3
+.B char* <r_tdesc> a short type description for reporting
+.RE
+
+.RS 3
+.B int* <r_uid> id of user owning file
+.RE
+
+.RS 3
+.B char* <r_owner> name of user owning file
+.RE
+
+.RS 3
+.B int* <r_gid> id of group owning file
+.RE
+
+.RS 3
+.B char* <r_group> name of group owning file
+.RE
+
+.RS 3
+.B int* <r_prm> octal permissions
+.RE
+
+.RS 3
+.B char* <r_perms> name of permissions standard (see yENV_perms (3))
+.RE
+
+.RS 3
+.B char* <r_pdisp> display version of permissions
+.RE
+
+.RS 3
+.B long* <r_bytes> size in bytes
+.RE
+
+.RS 3
+.B int* <r_epoch> date of last modification as epoch number
+.RE
+
+.RS 3
+.B int* <r_major> if device, major device number
+.RE
+
+.RS 3
+.B int* <r_minor> if device, minor device number
+.RE
+
+.RS 3
+.B char* <r_link> if symlink, name of destination
+.RE
+
+.RS 3
+.B int* <r_dev> storage device on which kept
+.RE
+
+.RS 3
+.B int* <r_inode> storage device on which kept
+.RE
+
+.RS 3
+.B char* <r_hash> full SHA1 hash of contents
+.RE
+
+.SS char  yENV_hash (char <type>, char* <name>, char* <hash>);
+processing the file into a SHA1 hash string.  this is very useful to identify
+whether a file has been changed through comparing before and after.
+
+.SH D) CREATE
+these functions create new filesystem objects, if they don't already exist.
+they are exceptional at assisting with unit-tests.
+
+.SS char  yENV_touchier (char <type>, char* <name>, ´´´);
+returns the type of the filesystem object, or YENV_NONE if it does not exist
+or was not found.
+
+returns type of the new entry, or YENV_NONE if not created.
+
+.RS 3
+.B char <a_type> one of the standard types (see yENV (3))
+.RE
+
+.RS 3
+.B char* <a_name> new name including path
+.RE
+
+.RS 3
+.B char* <a_owner> owning user -- ¶root¶ or ¶1000¶
+.RE
+
+.RS 3
+.B char* <a_group> owning group -- ¶user¶ or ¶123"
+.RE
+
+.RS 3
+.B char* <r_perms> permissions -- ¶0644¶, ¶f_control¶, or ¶rw-r--r--¶
+.RE
+
+.RS 3
+.B int <a_major> if device, major device number
+.RE
+
+.RS 3
+.B int <a_minor> if device, minor device number
+.RE
+
+.RS 3
+.B char* <a_link> if symlink, name of destination
+.RE
+
+.SS char  yENV_touch (char* <name>, ´´´);
+creates a new regular file as a simpifier for yENV_touchier.
+
+.RS 3
+.B char* <a_name> new name including path
+.RE
+
+.RS 3
+.B char* <a_owner> owning user -- ¶root¶ or ¶1000¶
+.RE
+
+.RS 3
+.B char* <a_group> owning group -- ¶user¶ or ¶123"
+.RE
+
+.RS 3
+.B char* <r_perms> permissions -- ¶0644¶, ¶f_control¶, or ¶rw-r--r--¶
+.RE
+
+.SS char  yENV_mkdir (char* <name>, ´´´);
+creates a new directory as a simpifier for yENV_touchier.
+
+.RS 3
+.B char* <a_name> new name including path
+.RE
+
+.RS 3
+.B char* <a_owner> owning user -- ¶root¶ or ¶1000¶
+.RE
+
+.RS 3
+.B char* <a_group> owning group -- ¶user¶ or ¶123"
+.RE
+
+.RS 3
+.B char* <r_perms> permissions -- ¶0644¶, ¶f_control¶, or ¶rw-r--r--¶
+.RE
+
+.SS char  yENV_create (char <type>, char* <name>, ´´´);
+an alternate yENV_touchier that uses purely numeric characteristics.
+
+returns type of the new entry, or YENV_NONE if not created.
+
+.RS 3
+.B char <a_type> one of the standard types (see yENV (3))
+.RE
+
+.RS 3
+.B char* <a_name> new name including path
+.RE
+
+.RS 3
+.B int <a_uid> owning user id
+.RE
+
+.RS 3
+.B int <a_gid> owning group id
+.RE
+
+.RS 3
+.B int <a_perms> octal permissions
+.RE
+
+.RS 3
+.B int <a_major> if device, major device number
+.RE
+
+.RS 3
+.B int <a_minor> if device, minor device number
+.RE
+
+.RS 3
+.B char* <a_link> if symlink, name of destination
+.RE
+
+.SH E) DESTROY
+these functions remove existing filesystem objects, if they do exist.
+they are exceptional at assisting with unit-tests.
+
+.SS char  yENV_removier (char <type>, char* <name>);
+returns YENV_NONE, or the type of the filesystem object if still exists.
+
+.RS 3
+.B char <a_type> one of the standard types (see yENV (3))
+.RE
+
+.RS 3
+.B char* <a_name> new name including path
+.RE
+
+.SS char  yENV_rm (char* <name>);
+removes regular file as a simpifier for yENV_removier.
+
+.SS char  yENV_rmdir (char* <name>);
+removes directory, if empty, as a simpifier for yENV_removier.
+
+.SS char  yENV_rmdir_fully (char* <name>);
+removes directory (and underlying files) as a simpifier for yENV_removier.
+this is only allowed to work under ¶/tmp¶
+
+
+
+

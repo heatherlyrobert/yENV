@@ -173,7 +173,7 @@ char        yENV_mkdir              (char a_name [LEN_PATH], char a_own [LEN_USE
 char        yENV_removier           (char a_type, char a_name [LEN_PATH]);
 char        yENV_rm                 (char a_name [LEN_PATH]);
 char        yENV_rmdir              (char a_name [LEN_PATH]);
-char        yENV_rmdir_and_files    (char a_name [LEN_PATH]);
+char        yENV_rmdir_fully        (char a_name [LEN_PATH]);
 /*---(checking)-------------*/
 char        yENV_exists             (char a_name [LEN_PATH]);
 char*       yENV_typedesc           (char a_type);

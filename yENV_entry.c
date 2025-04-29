@@ -384,7 +384,7 @@ char yENV_rm            (char a_name [LEN_PATH]) { yENV_removier (YENV_ANY  , a_
 char yENV_rmdir         (char a_name [LEN_PATH]) { yENV_removier (YENV_DIR  , a_name); }
 
 char
-yENV_rmdir_and_files    (char a_name [LEN_PATH])
+yENV_rmdir_fully        (char a_name [LEN_PATH])
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
