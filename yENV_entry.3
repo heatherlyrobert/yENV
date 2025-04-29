@@ -26,6 +26,7 @@ yENV_uver (3)      interfacing with micro, code-inclusion version
 yENV_peek (3)      interfacing with file content review
 .B yENV_entry (3)´´´´´interfacing with creation/removal functions
 yENV_audit (3)     interfacing with auditing functions
+yENV_file (3)      interfacing with file open/close functions
 yENV_user (3)      interfacing with users/owners
 yENV_group (3)     interfacing with groups
 yENV_perms (3)     interfacing with permissions
@@ -302,6 +303,10 @@ removes directory, if empty, as a simpifier for yENV_removier.
 removes directory (and underlying files) as a simpifier for yENV_removier.
 this is only allowed to work under ¶/tmp¶
 
+.SH BUGS
+yENV is incredibly stable for me, but if anyone else used it it might explode
+and take the universe with it.
 
-
-
+.SH COLOPHON
+this page is part of a documentation package meant to make the use of the
+heatherly tools easier and faster
