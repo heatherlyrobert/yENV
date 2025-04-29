@@ -1,0 +1,75 @@
+.TH yENV· 7 2024-may "linux" "interfacing with micro, code-inclusion version"
+
+.SH NAME
+yENV \- provide consistent linux filesystem and security services
+
+.SH PATRON (see HERITAGE at bottom for more)
+tartarus-eeroeis (murky one) linux filesystem and security services
+
+.SH IMAGERY
+dreaded place of darkness and punishment reserved for the worst sinners
+
+.SH SUMMARY (see yENV (7) for more information)
+yENV and yENV_uver allow for consistent auditing and access to the
+linux security system so that many of my programs can take advantage
+of my latest updates with little work.
+
+.SH SERIOUS FOREWARNING
+i am a crazy, selfish, dog-fooding c-programmer.  my code tends to be
+experimental and constantly evolving.  my point is NOT to be the best, it is
+to challenge myself, build from scratch, and allow fast problem solving.
+
+.SH DOCUMENTATION
+.nf
+yENV (3)           interfacing with yENV in general
+yENV_uver (3)      interfacing with micro, code-inclusion version
+yENV_peek (3)      interfacing with file content review
+yENV_entry (3)     interfacing with creation/removal functions
+yENV_audit (3)     interfacing with auditing functions
+yENV_touch (3)     interfacing with creation/removal functions
+yENV_file (3)      interfacing with file open/close functions
+yENV_user (3)      interfacing with users/owners
+yENV_group (3)     interfacing with groups
+yENV_perms (3)     interfacing with permissions
+yENV_score (3)     interfacing with application scoring
+yENV (7)´´´´´´´´´´´decision rationale, scope, and objectives
+
+.SH TABLE OF CONTENTS
+.nf  
+a) situation       .
+b) legacy answer   .
+c) complication    .
+d) reaction        .
+e) answer          .
+f) focus           .
+g) value           .
+h) requirements    .
+i) warnings        .
+j) alternatives    .
+k) decision        .
+
+.SH A) SITUATION (S)
+some of my data and many of my programs require files to be secured from
+outside access and tampering which could misled, damage, or corrupt my
+hard fought gains.  this will only grow in the future.
+
+.SH B) LEGACY (L)
+systems where administered by dedicated people who approved all changes,
+monitoried access, and scheduled programs.  these systems were tight and
+secure, people were held accoutable.
+
+.SH C) COMPLICATION (C)
+modern systems are flexible, open, distributed, and administered by amateurs
+(yes i include myself).  now security is downloaded from "galactic headquarters"
+and few of us understand how it really works.  in other words, dangerous.
+
+.SH D) REACTION (R)
+i found myself building the same checks, balances, and concepts into many
+programs; THEN, back-porting newer code into the previous programs and testing
+it is many places.  kinda good, learned a lot, but also half-baked.
+
+.SH E) ANSWER
+this library is the reaction to that frustration ;) i have brought my best,
+maybe overwrought, solutions from hermes, themis, unit testing, etc. into a
+single place.
+

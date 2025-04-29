@@ -1,0 +1,192 @@
+.TH yENV_audit· 3 2024-may "linux" "interfacing with micro, code-inclusion version"
+
+.SH NAME
+yENV \- provide consistent linux filesystem and security services
+
+.SH PATRON (see HERITAGE at bottom for more)
+tartarus-eeroeis (murky one) linux filesystem and security services
+
+.SH IMAGERY
+dreaded place of darkness and punishment reserved for the worst sinners
+
+.SH SUMMARY (see yENV (7) for more information)
+yENV and yENV_uver allow for consistent auditing and access to the
+linux security system so that many of my programs can take advantage
+of my latest updates with little work.
+
+.SH SERIOUS FOREWARNING
+i am a crazy, selfish, dog-fooding c-programmer.  my code tends to be
+experimental and constantly evolving.  my point is NOT to be the best, it is
+to challenge myself, build from scratch, and allow fast problem solving.
+
+.SH DOCUMENTATION
+.nf
+yENV (3)           interfacing with yENV in general
+yENV_uver (3)      interfacing with micro, code-inclusion version
+yENV_peek (3)      interfacing with file content review
+yENV_entry (3)     interfacing with creation/removal functions
+.B yENV_audit (3)´´´´´interfacing with auditing functions
+yENV_file (3)      interfacing with file open/close functions
+yENV_user (3)      interfacing with users/owners
+yENV_group (3)     interfacing with groups
+yENV_perms (3)     interfacing with permissions
+yENV_score (3)     interfacing with application scoring
+yENV_base (3)      interfacing with whoami function
+yENV (7)           decision rationale, scope, and objectives
+
+.SH TABLE OF CONTENTS
+.nf  
+a) overview        quick summary
+b) synopsis        function overview
+c) fullsome        maximum audit interface
+d) simplified      more focused wrappers
+
+.SH A) OVERVIEW
+yENV provides a one stop ability to verify the existing, security, and critical
+characteristics of a file system entry in order to authorize its use.  in that
+vein, it can also remove and create these entiies if necessary.
+
+.SH B) SYNOPSIS
+.nf
+usage is noted on the far-left of each entry...
+   ! means once-per-program
+   ¼ primary interface
+   ´ every program
+   · not in every program
+
+---fullsome------------------------------------
+·  char     yENV_audit_full         (char* <type>, ´´´);
+
+---simplifiers---------------------------------
+·  char     yENV_audit_reg          (char <c_flag>, char <c_naming>, ´´´);
+·  char     yENV_audit_del          (char <c_flag>, char* <a_dir>, ´´´);
+·  char     yENV_audit_local        (char* <a_dir>, char* <a_name>, ´´´);
+·  char     yENV_audit_local_dir    (char* <a_dir>, ´´´);
+·  char     yENV_audit_central      (char <c_flag>, char* <a_dir>, ´´´);
+·  char     yENV_audit_central_dir  (char <c_flag>, char* <a_dir>, ´´´);
+
+.SH C) FULLSOME
+the following is the full and complete version which exposes everything it
+can do.  one use of this ability is auditing file changes down to inodes and
+hashes to find updates and if executables have been altered.  those checks
+are now trivial to do with this function.
+
+.SS char  yENV_audit_full (char <type>, ´´´);
+returns the type of the filesystem object, or YENV_NONE if it does not exist
+or was not found.
+
+.RS 3
+.B char <a_type> one of the standard types (see yENV (3))
+.RE
+
+.RS 3
+.B char <c_flag> one of standard fix flags (see yENV (3))
+.RE
+
+.RS 3
+.B char <c_naming> one of standard naming types (see yENV (3)) 
+.RE
+
+.RS 3
+.B char* <a_dir> path to filesystem entry
+.RE
+
+.RS 3
+.B char* <a_name> name of filesystem entry
+.RE
+
+.RS 3
+.B char* <a_owner> owning user -- ¶root¶ or ¶1000¶
+.RE
+
+.RS 3
+.B char* <a_group> owning group -- ¶user¶ or ¶123"
+.RE
+
+.RS 3
+.B char* <a_perms> permissions -- ¶0644¶, ¶f_control¶, or ¶rw-r--r--¶
+.RE
+
+.RS 3
+.B int <a_major> if device, major device number
+.RE
+
+.RS 3
+.B int <a_minor> if device, minor device number
+.RE
+
+.RS 3
+.B char <a_ttype> if symlink, type of target entry
+.RE
+
+.RS 3
+.B char* <a_target> if symlink, name of target entry
+.RE
+
+.RS 3
+.B char* <a_prefix> file prefix required if c_naming [slc]
+.RE
+
+.RS 3
+.B char* <a_suffix> file suffix required if c_naming [slc]
+.RE
+
+.RS 3
+.B int <a_epoch> date of last modification expected
+.RE
+
+.RS 3
+.B long <a_bytes> size in bytes expected
+.RE
+
+.RS 3
+.B int <a_inode> entry inode expected
+.RE
+
+.RS 3
+.B char* <a_hash> full SHA1 hash expected
+.RE
+
+.RS 3
+.B char* <r_full> full, proper name build from dir and file
+.RE
+
+.RS 3
+.B int* <r_fuid> actual user id owning file
+.RE
+
+.RS 3
+.B char* <r_fuser> actual user name owning file
+.RE
+
+.SH D) SIMPLIFIED
+
+.SS char  yENV_audit_reg (char <c_flag>, char <c_naming>, ´´´);
+audits a regular file using c_flag, c_naming, a_dir, a_name, a_owner, a_group,
+and a_perms
+
+.SS char  yENV_audit_del (char <c_flag>, char* <a_dir>, char* <a_name>);
+removes entry using c_flag, a_dir, and a_name.
+
+.SS char  yENV_audit_local (char* <a_dir>, char* <a_name>, ´´´);
+audits local file using a_dir, a_name, a_prefix, a_suffix.  it then returns
+r_full, r_fuid, and r_fuser.
+
+.SS char  yENV_audit_local_dir (char* <a_dir>, ´´´);
+audits central directory using a_dir.  it then returns r_full, r_fuid,
+and r_fuser.
+
+.SS char  yENV_audit_central (char <c_flag>, char* <a_dir>, ´´´);
+audits central file using c_flag, a_dir, a_name, a_prefix, a_suffix.  it then
+returns r_full, r_fuid, and r_fuser.
+
+.SS char  yENV_audit_central_dir (char <c_flag>, char* <a_dir>, ´´´);
+audits central directory using c_flag, a_dir, a_perms.
+
+.SH BUGS
+yENV is incredibly stable for me, but if anyone else used it it might explode
+and take the universe with it.
+
+.SH COLOPHON
+this page is part of a documentation package meant to make the use of the
+heatherly tools easier and faster

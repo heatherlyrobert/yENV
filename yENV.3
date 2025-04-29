@@ -1,0 +1,100 @@
+.TH yENV· 3 2024-may "linux" "interfacing with micro, code-inclusion version"
+
+.SH NAME
+yENV \- provide consistent linux filesystem and security services
+
+.SH PATRON (see HERITAGE at bottom for more)
+tartarus-eeroeis (murky one) linux filesystem and security services
+
+.SH IMAGERY
+dreaded place of darkness and punishment reserved for the worst sinners
+
+.SH SUMMARY (see yENV (7) for more information)
+yENV and yENV_uver allow for consistent auditing and access to the
+linux security system so that many of my programs can take advantage
+of my latest updates with little work.
+
+.SH SERIOUS FOREWARNING
+i am a crazy, selfish, dog-fooding c-programmer.  my code tends to be
+experimental and constantly evolving.  my point is NOT to be the best, it is
+to challenge myself, build from scratch, and allow fast problem solving.
+
+.SH DOCUMENTATION
+.nf
+.B yENV (3)´´´´´´´´´´´interfacing with yENV in general
+yENV_uver (3)      interfacing with micro, code-inclusion version
+yENV_peek (3)      interfacing with file content review
+yENV_entry (3)     interfacing with creation/removal functions
+yENV_audit (3)     interfacing with auditing functions
+yENV_touch (3)     interfacing with creation/removal functions
+yENV_file (3)      interfacing with file open/close functions
+yENV_user (3)      interfacing with users/owners
+yENV_group (3)     interfacing with groups
+yENV_perms (3)     interfacing with permissions
+yENV_score (3)     interfacing with application scoring
+yENV_base (3)      interfacing with whoami function
+yENV (7)           decision rationale, scope, and objectives
+
+.SH TABLE OF CONTENTS
+.nf  
+a) overview        quick summary
+b) entry types     standard file entry types
+c) file access     standard file access types
+d) fix flags       standard file changes allowed
+e) file naming     configurable file naming checks
+
+.SH A) OVERVIEW
+in order to drive this library, right or wrong, many things must be standardized
+and clear to ensure consistent behavior.  these standards are shown below.
+
+.SH B) ENTRY TYPES
+in order to drive this library, the exact nature of the filesystem entry must
+be clear as they are oftentimes handled and created differently.
+
+.nf
+   YENV_BLOCK       'b'   block device
+   YENV_CHAR        'c'   character device
+   YENV_DIR         'd'   directory
+   YENV_HARD        'h'   hard-linked regular file
+   YENV_IPSOC       'i'   ip socket
+   YENV_PIPE        'p'   named pipe
+   YENV_REG         'r'   regular file
+   YENV_SYM         's'   symbolic link
+
+.nf
+   YENV_NONE        '-'   non-existant
+   YENV_WTF         '?'   unknown
+   YENV_ANY         '!'   do not care (when requesting)
+
+.SH C) FILE ACCESS
+
+.nf
+   'r'    rt    read text
+   'R'    rb    read binary
+   'w'    wt    write text
+   'W'    wb    write binary
+
+.SH D) FIX FLAGS
+
+.nf
+   YENV_NONE        '-'   just check
+   YENV_FIX         'f'   can update owner, group, and/or permissions
+   YENV_FORCE       'F'   can create if necessary, on top of fix
+   YENV_HAMMER      '!'   can remove, create, and/or fix
+
+.SH E) FILE NAMING
+
+.nf
+   YENV_WILD        '-'   checks full name and 7-bit naming
+   YENV_NORMAL      'n'   wild plus, name is [A-Za-z0-9_/.] and not hidden
+   YENV_STANDARD    's'   normal plus, standard suffixes and prefixes
+   YENV_LOCAL       'l'   standard plus, specific home-type directories
+   YENV_CENTRAL     'c'   standard plus, specific data/config directories
+
+.SH BUGS
+yENV is incredibly stable for me, but if anyone else used it it might explode
+and take the universe with it.
+
+.SH COLOPHON
+this page is part of a documentation package meant to make the use of the
+heatherly tools easier and faster

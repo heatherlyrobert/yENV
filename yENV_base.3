@@ -1,0 +1,110 @@
+.TH yENV_base· 3 2024-may "linux" "interfacing with micro, code-inclusion version"
+
+.SH NAME
+yENV \- provide consistent linux filesystem and security services
+
+.SH PATRON (see HERITAGE at bottom for more)
+tartarus-eeroeis (murky one) linux filesystem and security services
+
+.SH IMAGERY
+dreaded place of darkness and punishment reserved for the worst sinners
+
+.SH SUMMARY (see yENV (7) for more information)
+yENV and yENV_uver allow for consistent auditing and access to the
+linux security system so that many of my programs can take advantage
+of my latest updates with little work.
+
+.SH SERIOUS FOREWARNING
+i am a crazy, selfish, dog-fooding c-programmer.  my code tends to be
+experimental and constantly evolving.  my point is NOT to be the best, it is
+to challenge myself, build from scratch, and allow fast problem solving.
+
+.SH DOCUMENTATION
+.nf
+yENV (3)           interfacing with yENV in general
+yENV_uver (3)      interfacing with micro, code-inclusion version
+yENV_peek (3)      interfacing with file content review
+yENV_entry (3)     interfacing with creation/removal functions
+.B yENV_audit (3)´´´´´interfacing with auditing functions
+yENV_file (3)      interfacing with file open/close functions
+yENV_user (3)      interfacing with users/owners
+yENV_group (3)     interfacing with groups
+yENV_perms (3)     interfacing with permissions
+yENV_score (3)     interfacing with application scoring
+yENV_base (3)      interfacing with whoami function
+yENV (7)           decision rationale, scope, and objectives
+
+.SH TABLE OF CONTENTS
+.nf  
+a) overview        quick summary
+b) synopsis        function overview
+c) whoami          main function
+
+.SH A) OVERVIEW
+yENV_whoami provides any program with all the basics about itself at a single
+step.  i struggled with where to put this function, but finally wanted it in
+one of the earliet libraries that was truly system focused.
+
+.SH B) SYNOPSIS
+.nf
+usage is noted on the far-left of each entry...
+   ! means once-per-program
+   ¼ primary interface
+   ´ every program
+   · not in every program
+
+---fullsome------------------------------------
+·  char     yENV_whoami             (int* <r_pid>, ´´´);
+
+.SH C) WHOAMI
+
+.SS char  yENV_whoami (int* <r_pid>, int* <r_ppid>, ´´´);
+typically called during program startup to verify its environment.
+
+.RS 3
+.B int* <r_pid> returns its process id
+.RE
+
+.RS 3
+.B int* <r_ppid> returns its parent process id
+.RE
+
+.RS 3
+.B int* <r_uid> returns the executing user's uid
+.RE
+
+.RS 3
+.B int* <r_euid> returns the executing effective uid
+.RE
+
+.RS 3
+.B char* <r_root> returns whether this process can get root privileges
+.RE
+
+.RS 3
+.B char* <r_user> returns the executing user's name
+.RE
+
+.RS 3
+.B char <a_wheel> tells the program whether to request root privileges
+.RE
+
+.RS 3
+.B int* <r_gid> returns the executing gid
+.RE
+
+.RS 3
+.B int* <r_egid> returns the executing effective gid
+.RE
+
+.RS 3
+.B char* <r_group> returns the executing group name
+.RE
+
+.SH BUGS
+yENV is incredibly stable for me, but if anyone else used it it might explode
+and take the universe with it.
+
+.SH COLOPHON
+this page is part of a documentation package meant to make the use of the
+heatherly tools easier and faster
