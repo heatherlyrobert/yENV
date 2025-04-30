@@ -295,6 +295,7 @@ char
 yENV_score_init         (tENV_SCORE *a_table)
 {
    s_TABLE = a_table;
+   yENV_score_clear ();
    return 0;
 }
 
@@ -624,7 +625,7 @@ char yENV_score_value  (char a_label [LEN_TERSE])  { return yenv_score__value (s
 static void      o___REPORT________o (void) {;};
 
 char*
-yenv_score__rpt_heads   (tENV_SCORE *a_table, char n)
+yenv_score__header      (tENV_SCORE *a_table, char n)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -674,8 +675,8 @@ yenv_score__rpt_heads   (tENV_SCORE *a_table, char n)
    return g_print;
 }
 
-char* yenv_score_rpt_heads    (char n)   { return yenv_score__rpt_heads (s_audits, n); }
-char* yENV_score_rpt_heads    (char n)   { return yenv_score__rpt_heads (s_TABLE , n); }
+char* yenv_score_header  (char n)   { return yenv_score__header    (s_audits, n); }
+char* yENV_score_header  (char n)   { return yenv_score__header    (s_TABLE , n); }
 
 char*
 yenv_score__title       (tENV_SCORE *a_table, char a_type)

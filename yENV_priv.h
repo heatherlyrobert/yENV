@@ -38,8 +38,8 @@
 /*········· ··········· ´·····························´········································*/
 #define     P_VERMAJOR  "1.--, production improvements"
 #define     P_VERMINOR  "1.2-, adding detailed audit, open, close ability"
-#define     P_VERNUM    "1.2s"
-#define     P_VERTXT    "cleaned up yENV_audit... related code, and built the man file"
+#define     P_VERNUM    "1.2t"
+#define     P_VERTXT    "cleaned up yENV_score related code, and built the man file"
 /*········· ··········· ´·····························´········································*/
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -280,8 +280,8 @@ char        yenv_score_pos          (char a_label [LEN_TERSE], short *r_norm, sh
 char        yenv_score_mark         (char a_label [LEN_TERSE], uchar a_mark);
 char        yenv_score_value        (char a_label [LEN_TERSE]);
 /*---(reporting)------------*/
+char*       yenv_score_header       (char n);
 char*       yenv_score_title        (char a_type);
-char*       yenv_score_rpt_heads    (char n);
 /*---(masking)--------------*/
 char        yenv_score_mask         (char a_beg [LEN_TERSE], char a_end [LEN_TERSE]);
 char        yenv_score_nocheck      (void);

@@ -1,0 +1,292 @@
+.TH yENV_score· 3 2024-may "linux" "interfacing with micro, code-inclusion version"
+
+.SH NAME
+yENV \- provide consistent linux filesystem and security services
+
+.SH PATRON (see HERITAGE at bottom for more)
+tartarus-eeroeis (murky one) linux filesystem and security services
+
+.SH IMAGERY
+dreaded place of darkness and punishment reserved for the worst sinners
+
+.SH SUMMARY (see yENV (7) for more information)
+yENV and yENV_uver allow for consistent auditing and access to the
+linux security system so that many of my programs can take advantage
+of my latest updates with little work.
+
+.SH SERIOUS FOREWARNING
+i am a crazy, selfish, dog-fooding c-programmer.  my code tends to be
+experimental and constantly evolving.  my point is NOT to be the best, it is
+to challenge myself, build from scratch, and allow fast problem solving.
+
+.SH DOCUMENTATION
+.nf
+yENV (3)           interfacing with yENV in general
+yENV_uver (3)      interfacing with micro, code-inclusion version
+yENV_peek (3)      interfacing with file content review
+yENV_entry (3)     interfacing with creation/removal functions
+yENV_audit (3)     interfacing with auditing functions
+yENV_file (3)      interfacing with file open/close functions
+yENV_user (3)      interfacing with users/owners
+yENV_group (3)     interfacing with groups
+yENV_perms (3)     interfacing with permissions
+.B yENV_score (3)´´´´´interfacing with application scoring
+yENV_base (3)      interfacing with whoami function
+yENV (7)           decision rationale, scope, and objectives
+
+.SH TABLE OF CONTENTS
+.nf  
+a) overview        quick summary
+b) sample          sample output (for yENV_audit)
+c) table           sample of the table format
+d) synopsis        function overview
+e) preparing       intializing scoring
+f) auditing        conducting audit on scoring table setup
+g) marking         marking individual progress milestones
+h) retrieving      pulling the scores back to host
+i) reporting       helpers for titles and legends
+
+.SH A) OVERVIEW
+yENV_score provides a form of application scoring for debugging to yENV_audit
+as well as any other application that wants it -- themis and yJOBS are the
+source of this idea.
+
+.SH B) SAMPLE
+the result is a single c-string line that tracks results.  just below is a
+full line with a representative summary header above.  the middle line
+is a full one, which is never the case, but makes a good sample.  the bottom
+one is an ¶empty¶ one when the table is initialized.
+
+   NAME²²²²²²²²²²²²²²².   EXPECT²²²²²²²²²²²²²²².   CHECK²²²²²²²²²²². >
+   NMá cdf nb npsd hH ´   EXá r ogp jn rt ebih ´   PRá r ogp jn rt ´ >
+   NMá ··· ·· ···· ·· -   EXá · ··· ·· ·· ···· -   PRá · ··· ·· ·· - >
+
+this is not meant to be a clear, open-text account.  it is a summary that
+can point to where the troubles took place.  i have found it very useful.
+
+keep in mind that each position on the line often has many potential values,
+such as the ¶type¶ field under expect below (shows a 'r' on the second row).
+
+   NAME²²²²²²²²²²²²²²².   EXPECT²²²²²²²²²²²²²²².   CHECK²²²²²²²²²²². >
+   NMá ··· ·· ···· ·· -   EXá r ··· ·· ·· ···· -   PRá · ··· ·· ·· - >
+
+that field actually can have any of these twelve (12) values....
+
+   default          '·'   not run yet or not needed
+   error            '°'   hard error
+
+   YENV_NONE        '-'   non-existant
+   YENV_BLOCK       'b'   block device
+   YENV_CHAR        'c'   character device
+   YENV_DIR         'd'   directory
+   YENV_HARD        'h'   hard-linked regular file
+   YENV_IPSOC       'i'   ip socket
+   YENV_PIPE        'p'   named pipe
+   YENV_REG         'r'   regular file
+   YENV_SYM         's'   symbolic link
+   YENV_WTF         '?'   unknown
+
+
+below is a representative vertical header, automatically created for the
+first two blocks.
+
+   i  NAME²²²²²²²²²²²²²²²²²²²²²².   EXPECT²²²²²²²²²²²²²²²²²²²²²²². >
+   i  · · ·  · ·  · p s ·  · u  i   ·  · · ·  · ·  · t  · · · ·  i >
+   i  · · ·  · s  n r u ·  · s  i   ·  o g p  m m  t a  e b i ·  i >
+   i  c · f  f t  d e f d  · a  i   t  w r e  a i  t r  p y n h  i >
+   i  o d i  u y  o f f e  l b  i   y  n o r  j n  y g  o t o a  i >
+   i  n i l  l l  t i i s  o l  i   p  e u m  o o  p e  c e d s  i >
+   i  f r e  l e  s x x c  c e  i   e  r p s  r r  e t  h s e h  i >
+   i  - - -  - -  - - - -  - -  -   -  - - -  - -  - -  - - - -  - >
+   i  c d f  n b  n p s d  h H  ´   r  o g p  j n  r t  e b i h  ´ >
+
+below is a representative expanded header, automatically created for the
+first block.
+
+   NAME²LEGEND²²²²²²²>>   --label--  -print-  ---description------------ >
+   i   .²²²²²²²²²²²²²²²²² NCONF²²²²²²conf²²²²²naming²standard²applied²²> >
+   i   ..²²²²²²²²²²²²²²²² NDIR²²²²²²²dir²²²²²²directory²requested²²²²²²> >
+   i   ...²²²²²²²²²²²²²²² NFILE²²²²²²file²²²²²file²name²requested²²²²²²> >
+   i   ... .²²²²²²²²²²²²² NFULL²²²²²²full²²²²²name²quality²checking²²²²> >
+   i   ... ..²²²²²²²²²²²² NSTYLE²²²²²style²²²²naming²style²²²²²²²²²²²²²> >
+   i   ... .. .²²²²²²²²²² NDOTS²²²²²²ndots²²²²file²name²separators²²²²²> >
+   i   ... .. ..²²²²²²²²² NPREFIX²²²²prefix²²²required²prefix²²²²²²²²²²> >
+   i   ... .. ...²²²²²²²² NSUFFIX²²²²suffix²²²required²suffix²²²²²²²²²²> >
+   i   ... .. ....²²²²²²² NDESC²²²²²²desc²²²²²remaining²description²²²²> >
+   i   ... .. .... .²²²²² NLOC²²²²²²²loc²²²²²²file²location²type²²²²²²²> >
+   i   ... .. .... ..²²²² NUSE²²²²²²²usable²²²file²location²usable²²²²²> >
+   i   ... .. .... .. .²² NAME²²²²²²²²²²²²²²²²[[²name²judgement²]]²²²²²> >
+   NMá cdf nb npsd hH ´   --label--  -print-  ---description------------ >
+
+i use these lines consistently in reporting and audits.  once they become
+familiar, the are very informative and the noise falls away.
+
+.SH C) TABLE
+all the functionality henges on the following table with six (6) fields per
+milestone tracked.  each progress milestone is meant to display a status,
+warning, or hard error (°) which is easily spotted.  these errors can then
+track back to where in the code they are set.  fast tracking.
+
+below is the actual table definition from the public yENV header...
+
+   struct cENV_SCORE {
+      char        s_label     [LEN_TERSE];
+      char        s_default;
+      char        s_sample;  
+      char        s_print     [LEN_TERSE];  
+      char        s_desc      [LEN_DESC];
+      char        s_legend    [LEN_FULL];
+   };
+   typedef   struct   cENV_SCORE   tENV_SCORE;
+
+below is a sample of the first block of the yENV scoring table which i will
+refer to below...
+
+   const static tENV_SCORE s_audits [LEN_FULL] = {
+   /*===[[ NAME ]]==========================================================*/
+   { "NMá "     , ' ' ,  0  , "NAME"     , ""                                 
+   /*===[[ REQUEST TYPE ]]==================================================*/
+   { "NCONF"    , '·' , 'c' , "conf"     , "naming²standard²applied"          
+   { "NDIR"     , '·' , 'd' , "dir"      , "directory²requested"              
+   { "NFILE"    , '·' , 'f' , "file"     , "file²name²requested"              
+   { " "        , ' ' ,  1  , ""         , ""                                 
+   /*===[[ NAMING ]]========================================================*/
+   { "NFULL"    , '·' , 'n' , "full"     , "name²quality²checking"            
+   { "NSTYLE"   , '·' , 'b' , "style"    , "naming²style"                     
+   { " "        , ' ' ,  1  , ""         , ""                                 
+   /*===[[ STANDARDS ]]=====================================================*/
+   { "NDOTS"    , '·' , 'n' , "ndots"    , "file²name²separators"             
+   { "NPREFIX"  , '·' , 'p' , "prefix"   , "required²prefix"                  
+   { "NSUFFIX"  , '·' , 's' , "suffix"   , "required²suffix"                  
+   { "NDESC"    , '·' , 'd' , "desc"     , "remaining²description"            
+   { " "        , ' ' ,  1  , ""         , ""                                 
+   /*===[[ LOCATION ]]======================================================*/
+   { "NLOC"     , '·' , 'h' , "loc"      , "file²location²type"               
+   { "NUSE"     , '·' , 'H' , "usable"   , "file²location²usable"             
+   { " "        , ' ' ,  1  , ""         , ""                                 
+   /*===[[ REQUEST ]]=======================================================*/
+   { "NAME"     , '-' , '´' , "iiiiii"   , "[[²name²judgement²]]"             
+   { "   "      , ' ' ,  3  , ""         , ""                                 
+   ´
+   ´
+   ´
+   /*===[[ END-OF-LIST ]]===================================================*/
+   { "end-list" , '·' , '·' , ""         , "end-of-entries"                   
+   /*===[[ DONE ]]==========================================================*/
+   };
+
+   outside of comments, there are four types of lines in the definition which
+   can be separated by what goes in the third field (sample).
+
+      0 block header which is always a two character id, plus a tick (á)
+      and a space, e.g., "AAá ". the s_print field is used for the all the
+      headers.
+
+      1 small separator of one space.
+
+      3 large separator of three spaces.
+
+      any other are actual lines with a all caps 3-9 character label and a
+      sample entry, short name (for vertical headers), and short description
+      (for legends).
+
+.SH D) SYNOPSIS
+.nf
+usage is noted on the far-left of each entry...
+   ! means once-per-program
+   ¼ primary interface
+   ´ every program
+   · not in every program
+
+---prepare-------------------------------------
+!  char     yENV_score_init         (tENV_SCORE* <a_table>);
+·  char     yENV_score_clear        (void);
+
+---marking-------------------------------------
+´  char     yENV_score_mark         (char* <a_label>, uchar <a_mark>);
+·  char     yENV_score_value        (char* <a_label>);
+·  char     yENV_score_mask         (char* <a_beg>, char* <a_beg>);
+
+---retrieving----------------------------------
+´  char*    yENV_score              (void);
+·  char*    yENV_score_terse        (void);
+·  char*    yENV_score_report       (void);
+
+---reporting-----------------------------------
+·  char*    yENV_score_title        (char <a_type>);
+·  char*    yENV_score_header       (char <n>);
+·  char*    yENV_score_legend       (char <n>, char* <block>);
+
+---auditing------------------------------------
+·  char     yENV_score_audit        (void);
+
+.SH E) PREPARING
+after building the table and including the library, the next step is to
+get it ready for action.  there are two functions to help with this.
+
+.SS char  yENV_score_init (tENV_SCORE* <a_table>)
+triggers yENV to use your table for all scoring going forward and calls clear.
+
+.SS char  yENV_score_clear (void)
+causes yENV to clear the scores back to defaults.
+
+.SH F) AUDITING
+before attempting to use the table, run an audit to find any hidden troubles.
+this will provide somewhat helpful warnings and errors to guide you in making
+the table ready for use.
+
+.SS char  yENV_score_audit (void);
+runs the audit have gives warnings/errors to stdout/stderr.
+
+.SH G) MARKING
+marks individual progress milestones with values when appropriate.
+
+.SS char  yENV_score_make (char* <a_label>, uchar <a_mark>);
+finds a_label in first column of table, and changes mark to a_mark.
+
+.SS char  yENV_score_value (char* <a_label>);
+finds a_label in first column of table, and returns current mark.
+
+.SS char  yENV_score_marsk (char* <a_beg>, char* <a_end>);
+finds both a_beg and a_end in first column of table, the places mask characters
+(¬) in each position inbetween, inclusive.
+
+.SH H) RETRIEVING
+retrieves the entire scroring line, either score, terse, or report.
+
+.SS char* yENV_score (void)
+returns the normal score
+
+.SS char* yENV_score_terse (void)
+returns the terse version of  score
+
+.SS char* yENV_score_report (void)
+returns the report version of  score
+
+.SH H) REPORTING
+the scoring lines above are the real data, these functions provide optional
+titles, headers, and legends for reporting.
+
+.SS char* yENV_title (char <a_type>)
+returns the single title line of the blocks using a_type to designate for
+terse, normal, or report views.
+
+.SS char* yENV_header (char <n>)
+only used for report view, this provides lines 0 to 6 of the vertical element
+titles, as shown in section B sample.
+
+.SS char* yENV_legend (char <n>, char* <a_block>)
+only used for legend view, this provides lines 0 to ? of the legend headers,
+as shown in section B sample.  the specific block is selected in a_block and
+must match a line type '0', e.g., "NMá ".
+
+.SH BUGS
+yENV is incredibly stable for me, but if anyone else used it it might explode
+and take the universe with it.
+
+.SH COLOPHON
+this page is part of a documentation package meant to make the use of the
+heatherly tools easier and faster
+
+
+
