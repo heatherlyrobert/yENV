@@ -75,6 +75,9 @@ yENV_upeekier           (char a_name [LEN_PATH], char a_dir, int n, int *r_count
       myenv_ulast = -1;
       return "(reset)";
       break;
+   case YDLST_COUNT :
+      x_curr = 666;
+      break;
    default :
       x_curr = n;
       break;
@@ -94,20 +97,23 @@ yENV_upeekier           (char a_name [LEN_PATH], char a_dir, int n, int *r_count
    }
    /*---(close)--------------------------*/
    fclose (f);
+   /*---(save-back)----------------------*/
+   if (r_count != NULL)  *r_count = c;
+   /*---(handle count)-------------------*/
+   if (a_dir == YDLST_COUNT)  return "(count-only)";
    /*---(fix cursor)---------------------*/
    if      (x_curr == 999)  x_curr = c - 1;
    else if (x_curr >= c)    return myenv_overrun;
+   /*---(save-position)------------------*/
    myenv_ulast = x_curr;
    /*---(fix end)------------------------*/
    x_len = strlen (myenv_upeek);
    if (x_len > 0 && myenv_upeek [x_len - 1] == '\n')  myenv_upeek [--x_len] = '\0';
-   /*---(save-back)----------------------*/
-   if (r_count != NULL)  *r_count = c;
    /*---(complete)-----------------------*/
    return myenv_upeek;
 }
 
-int    yENV_ulines  (char a_name [LEN_PATH])        { int c = 0;  yENV_upeekier (a_name, '.'  , 0, &c); return c; }
+int    yENV_ulines  (char a_name [LEN_PATH])        { int c = 0;  yENV_upeekier (a_name, 0    , 0, &c); return c; }
 
 char*  yENV_upeek   (char a_name [LEN_PATH], char a_dir) { return yENV_upeekier (a_name, a_dir, 0, NULL); }
 char*  yENV_uindex  (char a_name [LEN_PATH], int  n    ) { return yENV_upeekier (a_name, 0    , n, NULL); }

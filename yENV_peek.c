@@ -63,6 +63,9 @@ yENV_peekier            (char a_style, char a_name [LEN_PATH], char a_dir, int n
       myenv_last = -1;
       return "(reset)";
       break;
+   case YDLST_COUNT :
+      x_curr = 666;
+      break;
    default :
       x_curr = n;
       break;
@@ -82,13 +85,14 @@ yENV_peekier            (char a_style, char a_name [LEN_PATH], char a_dir, int n
    }
    /*---(close)--------------------------*/
    fclose (f);
+   /*---(save-back)----------------------*/
+   if (a_count != NULL)  *a_count = c;
+   /*---(handle count)-------------------*/
+   if (a_dir == YDLST_COUNT)  return "(count-only)";
    /*---(fix cursor)---------------------*/
    if      (x_curr == 999)  x_curr = c - 1;
    else if (x_curr >= c)    return myenv_over;
    myenv_last = x_curr;
-   /*> if (a_dir == YDLST_TAIL)  x_curr = c - 1;                                             <* 
-    *> if (a_dir == YDLST_NEXT && strcmp (myenv_peek, "(n/a)") == 0)  x_curr = myenv_last;   <* 
-    *> myenv_last = x_curr;                                                                  <*/
    /*---(fix end)------------------------*/
    x_len = strlen (myenv_peek);
    if (x_len > 0 && myenv_peek [x_len - 1] == '\n')  myenv_peek [--x_len] = '\0';
@@ -106,8 +110,6 @@ yENV_peekier            (char a_style, char a_name [LEN_PATH], char a_dir, int n
          if (a_style == 'v' && myenv_peek [i] == G_KEY_SPACE) myenv_peek [i] = G_CHAR_STORAGE;
       }
    }
-   /*---(save-back)----------------------*/
-   if (a_count != NULL)  *a_count = c;
    /*---(complete)-----------------------*/
    return myenv_peek;
 }
