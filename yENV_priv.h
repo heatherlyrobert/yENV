@@ -37,9 +37,9 @@
 #define     P_CREATED   "2024-05"
 /*········· ··········· ´·····························´········································*/
 #define     P_VERMAJOR  "1.--, production improvements"
-#define     P_VERMINOR  "1.2-, adding detailed audit, open, close ability"
-#define     P_VERNUM    "1.2u"
-#define     P_VERTXT    "updated yENV_uver code"
+#define     P_VERMINOR  "1.3-, paring extra abilities into ySCORE and yAUDIT"
+#define     P_VERNUM    "1.3a"
+#define     P_VERTXT    "ySCORE fully integrated and unit tested"
 /*········· ··········· ´·····························´········································*/
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -73,6 +73,7 @@
 
 #include    <yLOG.h>
 #include    <yURG.h>
+#include    <ySCORE.h>
 #include    <yDLST_solo.h>
 #include    <yCOLOR_solo.h>  /* CUSTOM : heatherly color constants            */
 
@@ -179,6 +180,8 @@ extern char  g_print   [LEN_RECD];
 #define    IF_DEV         if (strchr ("bc", x_type) != NULL) 
 
 
+extern const tSCORE_TABLE s_audits [LEN_FULL];
+
 
 /*===[[ yENV_audit_beg.c ]]===================================================*/
 /*········· ´······················ ´·········································*/
@@ -224,15 +227,6 @@ char        yenv_name_location      (char a_type, char c_naming, char a_full [LE
 
 
 
-/*===[[ yENV_test.c ]]========================================================*/
-/*········· ´······················ ´·········································*/
-char        yENV__unit_quiet        (void);
-char        yENV__unit_loud         (void);
-char        yENV__unit_end          (void);
-/*---(done)-----------------*/
-
-
-
 /*===[[ yENV_entry.c ]]=======================================================*/
 /*········· ´······················ ´·········································*/
 char        yenv_creator            (char a_curr, char a_type, char a_name [LEN_PATH], int a_uid, int a_gid, int a_prm, int a_major, int a_minor, char a_link [LEN_PATH]);
@@ -266,37 +260,10 @@ char        yENV_close              (FILE **b_file);
 
 
 
-/*===[[ yENV_score.c ]]=======================================================*/
+/*===[[ yENV_ySCORE.c ]]======================================================*/
 /*········· ´······················ ´·········································*/
-/*---(program)--------------*/
-char        yenv_score_clear        (void);
-/*---(quick)----------------*/
-char*       yenv_score_terse        (void);
-char*       yenv_score              (void);
-char*       yenv_score_full         (void);
-char*       yenv_score_report       (void);
-/*---(marking)--------------*/
-char        yenv_score_pos          (char a_label [LEN_TERSE], short *r_norm, short *r_terse, short *r_report);
-char        yenv_score_mark         (char a_label [LEN_TERSE], uchar a_mark);
-char        yenv_score_value        (char a_label [LEN_TERSE]);
-/*---(reporting)------------*/
-char*       yenv_score_header       (char n);
-char*       yenv_score_title        (char a_type);
-/*---(masking)--------------*/
-char        yenv_score_mask         (char a_beg [LEN_TERSE], char a_end [LEN_TERSE]);
-char        yenv_score_nocheck      (void);
-char        yenv_score_nohacked     (void);
-/*---(auditing)-------------*/
-char        yenv_score__asample     (short n, uchar a_sample);
-char        yenv_score__adefault    (short n, uchar a_sample, uchar a_default);
-char        yenv_score__alabel      (short n, uchar s_sample, char s_label [LEN_TERSE]);
-char        yenv_score__aprint      (short n, uchar a_sample, char a_print [LEN_TERSE]);
-char        yenv_score__aline       (short n, char a_label [LEN_TERSE], char a_default, char a_sample, char a_print [LEN_TERSE], char a_desc [LEN_TERSE], char a_legend [LEN_TERSE]);
-char        yenv_score__adup        (tENV_SCORE *a_table, char n, char a_label [LEN_TERSE]);
-char        yenv_score_audit        (void);
-/*---(legend)---------------*/
-char*       yenv_score__legend      (tENV_SCORE *a_table, char a_line, char a_label [LEN_TERSE], char a_terse [LEN_FULL]);
-char*       yenv_score_legend       (char a_line, char a_label [LEN_TERSE]);
+char        ySCORE_nocheck          (void);
+char        ySCORE_nohacked         (void);
 /*---(done)-----------------*/
 
 

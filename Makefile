@@ -7,9 +7,8 @@
 NAME_BASE  = yENV
 # additional standard and outside libraries
 LIB_STD    = -lcrypto -lssl
-LIB_STD    = -lcrypto
 # all heatherly libraries used, debug versions whenever available
-LIB_MINE   =
+LIB_MINE   = -lySCORE_debug
 # directory for production code, no trailing slash
 INST_DIR   = 
 

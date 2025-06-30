@@ -62,17 +62,6 @@
 #define     YENV_NOPASS      '?'
 
 
-struct cENV_SCORE {
-   char        s_label     [LEN_TERSE];
-   char        s_default;
-   char        s_sample;  
-   char        s_print     [LEN_TERSE];  
-   char        s_desc      [LEN_DESC];
-   char        s_legend    [LEN_FULL];
-};
-typedef   struct   cENV_SCORE   tENV_SCORE;
-
-
 
 /*===[[ yENV_base.c ]]========================================================*/
 /*········· ´······················ ´·········································*/
@@ -195,37 +184,12 @@ char        yENV_audit_local        (char a_dir [LEN_PATH], char a_file [LEN_PAT
 char        yENV_audit_localdir     (char a_dir [LEN_PATH], char r_full [LEN_PATH], int *r_fuid, char r_fuser [LEN_USER]);
 char        yENV_audit_central      (char c_flag, char a_dir [LEN_PATH], char a_file [LEN_PATH], char a_prefix [LEN_TERSE], char a_suffix [LEN_TERSE], char r_full [LEN_PATH], int *r_fuid, char r_fuser [LEN_USER]);
 char        yENV_audit_centraldir   (char c_flag, char a_dir [LEN_PATH], char a_perms [LEN_TERSE]);
-/*---(helpers)--------------*/
 /*---(done)-----------------*/
 
 
 char        yENV_name_full          (char a_dir [LEN_PATH], char a_file [LEN_PATH], char *r_style, char r_full [LEN_PATH]);
 char        yENV_name_split         (char a_full [LEN_PATH], char *r_style, char r_dir [LEN_PATH], char r_file [LEN_PATH]);
 
-
-
-
-
-/*===[[ yENV_score.c ]]=======================================================*/
-/*········· ´······················ ´·········································*/
-char        yENV_score_init         (tENV_SCORE *a_table);
-char        yENV_score_clear        (void);
-
-char*       yENV_score_terse        (void);
-char*       yENV_score              (void);
-char*       yENV_score_full         (void);
-char*       yENV_score_report       (void);
-
-char        yENV_score_pos          (char a_label [LEN_TERSE], short *r_norm, short *r_terse, short *r_report);
-char        yENV_score_mark         (char a_label [LEN_TERSE], uchar a_mark);
-char        yENV_score_value        (char a_label [LEN_TERSE]);
-
-char*       yENV_score_title        (char a_type);
-char*       yENV_score_header       (char n);
-
-char        yENV_score_mask         (char a_beg [LEN_TERSE], char a_end [LEN_TERSE]);
-
-char        yENV_score_audit        (void);
 
 
 #endif

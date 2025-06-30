@@ -43,9 +43,9 @@ yenv_audit_precheck     (char a_full [LEN_PATH], char a_etype, char a_eowner [LE
    if (r_add    != NULL)   *r_add   = '-';
    if (r_upd    != NULL)   *r_upd   = '-';
    /*---(scores)-------------------------*/
-   yenv_score_mark ("FDEL"    , '-');
-   yenv_score_mark ("FADD"    , '-');
-   yenv_score_mark ("FUPD"    , '-');
+   ySCORE_mark ("FDEL"    , '-');
+   ySCORE_mark ("FADD"    , '-');
+   ySCORE_mark ("FUPD"    , '-');
    /*---(get data)-----------------------*/
    x_atype = yENV_detail (a_full, x_atdesc, NULL, x_aowner, NULL, x_agroup, NULL, x_aperms, NULL, NULL, NULL, &x_amajor, &x_aminor, x_alink, NULL, &x_inode, NULL);
    DEBUG_YENV   yLOG_value   ("detail"    , x_atype);
@@ -54,7 +54,7 @@ yenv_audit_precheck     (char a_full [LEN_PATH], char a_etype, char a_eowner [LE
       DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   yenv_score_mark ("CTYPE"   , x_atype);
+   ySCORE_mark ("CTYPE"   , x_atype);
    /*---(quick out)----------------------*/
    DEBUG_YENV   yLOG_char    ("x_atype"   , x_atype);
    if (x_atype == YENV_NONE && a_etype == YENV_NONE) {
@@ -66,7 +66,7 @@ yenv_audit_precheck     (char a_full [LEN_PATH], char a_etype, char a_eowner [LE
    else if (a_etype  == YENV_NONE)            { x_del = 'y';            ;            ;  strcat (x_miss, "existance, "); }
    /*---(type changes)-------------------       ----del----; ----add----; ----upd----;*/
    else if (x_atype  != a_etype) {
-      yenv_score_mark ("CTYPE"   , toupper (x_atype));
+      ySCORE_mark ("CTYPE"   , toupper (x_atype));
       if (strchr ("hs", a_etype) != NULL &&
             strchr ("hs", x_atype) != NULL)   { x_del = 'y'; x_add = 'y';            ;  strcat (x_miss, "type, "     ); }
       else                                    { x_del = '!'; x_add = 'y';            ;  strcat (x_miss, "type, "     ); }
@@ -75,55 +75,55 @@ yenv_audit_precheck     (char a_full [LEN_PATH], char a_etype, char a_eowner [LE
    if (x_atype == a_etype) {
       switch (a_etype) {
       case YENV_BLOCK : case YENV_CHAR  :
-         yenv_score_mark ("CMAJOR"  , 'j');
-         yenv_score_mark ("CMINOR"  , 'n');
-         if (x_amajor != a_emajor)            { x_del = 'y'; x_add = 'y';            ;  strcat (x_miss, "maj, "      );  yenv_score_mark ("CMAJOR"  , 'J'); }
-         if (x_aminor != a_eminor)            { x_del = 'y'; x_add = 'y';            ;  strcat (x_miss, "min, "      );  yenv_score_mark ("CMINOR"  , 'N'); }
+         ySCORE_mark ("CMAJOR"  , 'j');
+         ySCORE_mark ("CMINOR"  , 'n');
+         if (x_amajor != a_emajor)            { x_del = 'y'; x_add = 'y';            ;  strcat (x_miss, "maj, "      );  ySCORE_mark ("CMAJOR"  , 'J'); }
+         if (x_aminor != a_eminor)            { x_del = 'y'; x_add = 'y';            ;  strcat (x_miss, "min, "      );  ySCORE_mark ("CMINOR"  , 'N'); }
          break;
       case YENV_SYM   :
          rc = yENV_detail (a_etarget, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-         yenv_score_mark ("CTTYPE"  , rc);
-         if (rc != a_ettype)  yenv_score_mark ("CTTYPE"  , toupper (rc));
-         yenv_score_mark ("CTARGET" , 't');
-         if (strcmp (x_alink, a_etarget) != 0) { x_del = 'y'; x_add = 'y';            ;  strcat (x_miss, "target, "   );  yenv_score_mark ("CTARGET" , 'T'); }
+         ySCORE_mark ("CTTYPE"  , rc);
+         if (rc != a_ettype)  ySCORE_mark ("CTTYPE"  , toupper (rc));
+         ySCORE_mark ("CTARGET" , 't');
+         if (strcmp (x_alink, a_etarget) != 0) { x_del = 'y'; x_add = 'y';            ;  strcat (x_miss, "target, "   );  ySCORE_mark ("CTARGET" , 'T'); }
 
          break;
       case YENV_HARD  :
          rc = yENV_detail (a_etarget, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &n, NULL);
-         yenv_score_mark ("CTTYPE"  , rc);
+         ySCORE_mark ("CTTYPE"  , rc);
          if (rc != a_ettype) {
-            if (a_ettype == YENV_REG && rc == YENV_HARD)  yenv_score_mark ("CTTYPE"  , YENV_REG);
-            else                                          yenv_score_mark ("CTTYPE"  , toupper (rc));
+            if (a_ettype == YENV_REG && rc == YENV_HARD)  ySCORE_mark ("CTTYPE"  , YENV_REG);
+            else                                          ySCORE_mark ("CTTYPE"  , toupper (rc));
          }
-         yenv_score_mark ("CTARGET" , 't');
-         if (x_inode != n)                    { x_del = 'y'; x_add = 'y';            ;  strcat (x_miss, "target, "   );  yenv_score_mark ("CTARGET" , 'T'); }
+         ySCORE_mark ("CTARGET" , 't');
+         if (x_inode != n)                    { x_del = 'y'; x_add = 'y';            ;  strcat (x_miss, "target, "   );  ySCORE_mark ("CTARGET" , 'T'); }
          break;
       }
    }
    /*---(small fixest)-------------------       ----del----; ----add----; ----upd----;*/
    if (x_atype == a_etype && x_add != 'y' && a_etype != YENV_SYM) {
-      yenv_score_mark ("COWNER"  , 'o');
-      yenv_score_mark ("CGROUP"  , 'g');
-      yenv_score_mark ("CPERMS"  , 'p');
-      if (strcmp (x_aowner, a_eowner) != 0)   {            ;            ; x_upd = 'y';  strcat (x_miss, "owner, "    );  yenv_score_mark ("COWNER"  , 'O'); }
-      if (strcmp (x_agroup, a_egroup) != 0)   {            ;            ; x_upd = 'y';  strcat (x_miss, "group, "    );  yenv_score_mark ("CGROUP"  , 'G'); }
-      if (strcmp (x_aperms, a_eperms) != 0)   {            ;            ; x_upd = 'y';  strcat (x_miss, "perms, "    );  yenv_score_mark ("CPERMS"  , 'P'); }
+      ySCORE_mark ("COWNER"  , 'o');
+      ySCORE_mark ("CGROUP"  , 'g');
+      ySCORE_mark ("CPERMS"  , 'p');
+      if (strcmp (x_aowner, a_eowner) != 0)   {            ;            ; x_upd = 'y';  strcat (x_miss, "owner, "    );  ySCORE_mark ("COWNER"  , 'O'); }
+      if (strcmp (x_agroup, a_egroup) != 0)   {            ;            ; x_upd = 'y';  strcat (x_miss, "group, "    );  ySCORE_mark ("CGROUP"  , 'G'); }
+      if (strcmp (x_aperms, a_eperms) != 0)   {            ;            ; x_upd = 'y';  strcat (x_miss, "perms, "    );  ySCORE_mark ("CPERMS"  , 'P'); }
    }
    /*---(entry fixes)--------------------       ----del----; ----add----; ----upd----;*/
    l = strlen (x_miss);
    if (l > 0) {
-      yenv_score_mark ("CHECK"   , 'Þ');
+      ySCORE_mark ("CHECK"   , 'Þ');
       if (l > 2)  x_miss [l - 2] = '\0';
       yURG_err ('w', "troubles with entry %s", x_miss);
       rc_final = RC_POSITIVE;
    } else {
-      yenv_score_mark ("CHECK"   , '´');
+      ySCORE_mark ("CHECK"   , '´');
    }
    /*---(finalize)-----------------------*/
-   if (x_del == '!')  yenv_score_mark ("FDEL"    , '!');
-   if (x_del == 'y')  yenv_score_mark ("FDEL"    , 'r');
-   if (x_add != '-')  yenv_score_mark ("FADD"    , 'c');
-   if (x_upd != '-')  yenv_score_mark ("FUPD"    , 'u');
+   if (x_del == '!')  ySCORE_mark ("FDEL"    , '!');
+   if (x_del == 'y')  ySCORE_mark ("FDEL"    , 'r');
+   if (x_add != '-')  ySCORE_mark ("FADD"    , 'c');
+   if (x_upd != '-')  ySCORE_mark ("FUPD"    , 'u');
    /*---(save-back)----------------------*/
    if (r_atype  != NULL)   *r_atype = x_atype;
    if (r_atdesc != NULL)   strlcpy (r_atdesc, x_atdesc, LEN_TERSE);
@@ -157,12 +157,12 @@ yenv_audit_remove       (char a_full [LEN_PATH], char a_atype, char a_atdesc [LE
    }
    /*---(header)-------------------------*/
    DEBUG_YENV   yLOG_enter   (__FUNCTION__);
-   yenv_score_mark ("REMOVE"  , '°');
+   ySCORE_mark ("REMOVE"  , '°');
    /*---(does not exist)-----------------*/
    rc = yENV_exists (a_full);
    DEBUG_YENV   yLOG_complex ("exists"    , "%d/%c", rc, rc);
    --rce;  if (rc < 0 || rc == YENV_NONE) {
-      yenv_score_mark ("REMOVE"  , '?');
+      ySCORE_mark ("REMOVE"  , '?');
       sprintf (x_msg, "%s (%c) removal impossible, entry does not exist" , a_atdesc, a_atype);
       yenv_audit_fatal ("FIXES"   , x_msg);
       DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
@@ -179,7 +179,7 @@ yenv_audit_remove       (char a_full [LEN_PATH], char a_atype, char a_atdesc [LE
             return rce;
          }
       } else {
-         yenv_score_mark ("REMOVE"  , '!');
+         ySCORE_mark ("REMOVE"  , '!');
          sprintf (x_msg, "%s (%c) conflicting entry removal (%c) requires critical force (!), but used (%c)" , a_atdesc, a_atype, c_del, c_force);
          yenv_audit_fatal ("FIXES"   , x_msg);
          DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
@@ -197,7 +197,7 @@ yenv_audit_remove       (char a_full [LEN_PATH], char a_atype, char a_atdesc [LE
             return rce;
          }
       } else {
-         yenv_score_mark ("REMOVE"  , '!');
+         ySCORE_mark ("REMOVE"  , '!');
          sprintf (x_msg, "%s (%c) conflicting entry removal (%c) requires any force (!y), but used (%c)" , a_atdesc, a_atype, c_del, c_force);
          yenv_audit_fatal ("FIXES"   , x_msg);
          DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
@@ -205,7 +205,7 @@ yenv_audit_remove       (char a_full [LEN_PATH], char a_atype, char a_atdesc [LE
       }
    }
    /*---(message)------------------------*/
-   yenv_score_mark ("REMOVE"  , 'R');
+   ySCORE_mark ("REMOVE"  , 'R');
    yURG_msg ('-', "%s (%c) conflicting entry removed successfully because of force flag (%c)", a_atdesc, a_atype, c_force);
    /*---(complete)-----------------------*/
    DEBUG_YENV    yLOG_exit    (__FUNCTION__);
@@ -235,12 +235,12 @@ yenv_audit_create       (char a_full [LEN_PATH], char a_etype, char a_etdesc [LE
    }
    /*---(header)-------------------------*/
    DEBUG_YENV   yLOG_enter   (__FUNCTION__);
-   yenv_score_mark ("CREATE"  , '°');
+   ySCORE_mark ("CREATE"  , '°');
    /*---(already exists)-----------------*/
    rc = yENV_exists (a_full);
    DEBUG_YENV   yLOG_complex ("exists"    , "%d/%c", rc, rc);
    --rce;  if (rc != YENV_NONE) {
-      yenv_score_mark ("CREATE"  , '?');
+      ySCORE_mark ("CREATE"  , '?');
       strlcpy (x_tdesc, yENV_typedesc (rc), LEN_TERSE);
       sprintf (x_msg, "%s (%c) creation stopped, FOUND it as %s (%c) already" , a_etdesc, a_etype, x_tdesc, rc);
       yenv_audit_fatal ("FIXES"   , x_msg);
@@ -258,14 +258,14 @@ yenv_audit_create       (char a_full [LEN_PATH], char a_etype, char a_etdesc [LE
          return rce;
       }
    } else {
-      yenv_score_mark ("CREATE"  , '!');
+      ySCORE_mark ("CREATE"  , '!');
       sprintf (x_msg, "%s (%c) requested creation (%c) requires any force (!y), but used (%c)" , a_etdesc, a_etype, c_add, c_force);
       yenv_audit_fatal ("FIXES"   , x_msg);
       DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(message)------------------------*/
-   yenv_score_mark ("CREATE"  , 'C');
+   ySCORE_mark ("CREATE"  , 'C');
    yURG_msg ('-', "%s (%c) entry created successfully because of force flag (%c)", a_etdesc, a_etype, c_force);
    /*---(complete)-----------------------*/
    DEBUG_YENV    yLOG_exit    (__FUNCTION__);
@@ -294,12 +294,12 @@ yenv_audit_update       (char a_full [LEN_PATH], char a_atype, char a_atdesc [LE
    }
    /*---(header)-------------------------*/
    DEBUG_YENV   yLOG_enter   (__FUNCTION__);
-   yenv_score_mark ("UPDATE"  , '°');
+   ySCORE_mark ("UPDATE"  , '°');
    /*---(does not exist)-----------------*/
    rc = yENV_exists (a_full);
    DEBUG_YENV   yLOG_complex ("exists"    , "%d/%c", rc, rc);
    --rce;  if (rc < 0 || rc == YENV_NONE) {
-      yenv_score_mark ("UPDATE"  , '?');
+      ySCORE_mark ("UPDATE"  , '?');
       sprintf (x_msg, "%s (%c) update stopped, does not exist" , a_atdesc, a_atype);
       yenv_audit_fatal ("FIXES"   , x_msg);
       DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
@@ -316,14 +316,14 @@ yenv_audit_update       (char a_full [LEN_PATH], char a_atype, char a_atdesc [LE
          return rce;
       }
    } else {
-      yenv_score_mark ("UPDATE"  , '!');
+      ySCORE_mark ("UPDATE"  , '!');
       sprintf (x_msg, "%s (%c) requested update (%c) requires fix (y), but used (%c)" , a_atdesc, a_atype, c_upd, c_fix);
       yenv_audit_fatal ("FIXES"   , x_msg);
       DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(message)------------------------*/
-   yenv_score_mark ("UPDATE"  , 'U');
+   ySCORE_mark ("UPDATE"  , 'U');
    yURG_msg ('-', "%s (%c) entry updated successfully because of fix flag (%c)", a_atdesc, a_atype, c_fix);
    /*---(complete)-----------------------*/
    DEBUG_YENV    yLOG_exit    (__FUNCTION__);

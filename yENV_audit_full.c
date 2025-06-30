@@ -71,7 +71,7 @@ yENV_audit_full         (char a_type, char c_flag, char c_naming, char a_dir [LE
       return rce;
    }
    /*---(name sign-off)------------------*/
-   yenv_score_mark ("NAME"    , '´');
+   ySCORE_mark ("NAME"    , '´');
    /*---(expected)-----------------------*/
    rc = yenv_audit_expect   (a_type, x_eowner, x_egroup, x_eperms, &x_euid, &x_egid, &x_eprm, x_edisp);
    if (rc > rc_final)  rc_final = rc;
@@ -89,7 +89,7 @@ yENV_audit_full         (char a_type, char c_flag, char c_naming, char a_dir [LE
       return rce;
    }
    /*---(expect sign-off)----------------*/
-   yenv_score_mark ("EXPECT"  , '´');
+   ySCORE_mark ("EXPECT"  , '´');
    /*---(precheck)-----------------------*/
    rc = yenv_audit_precheck (x_full, a_type, x_eowner, x_egroup, x_eperms, a_major, a_minor, a_ttype, a_target, &x_atype, x_atdesc, &x_del, &x_add, &x_upd, c_force, c_fix);
    if (rc > rc_final)  rc_final = rc;
@@ -123,7 +123,7 @@ yENV_audit_full         (char a_type, char c_flag, char c_naming, char a_dir [LE
       return rce;
    }
    /*---(expect sign-off)----------------*/
-   yenv_score_mark ("FIXES"   , '´');
+   ySCORE_mark ("FIXES"   , '´');
    /*---(final check)--------------------*/
    rc = yenv_audit_final    (x_full, a_type, x_etdesc, x_eowner, x_egroup, x_eperms, x_euid, x_egid, x_eprm, x_edisp, a_major, a_minor, a_ttype, a_target);
    if (rc > rc_final)  rc_final = rc;

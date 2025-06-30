@@ -1,9 +1,11 @@
-#include  <stdio.h>
-#include  <stdarg.h>                   /* va_arg                              */
-#include  <unistd.h>                   /* unlink                              */
+#include    <stdio.h>
+#include    <stdarg.h>                   /* va_arg                              */
+#include    <unistd.h>                   /* unlink                              */
+#include    <sys/stat.h>          /* fstat, umask                                */
 
 #include  <yDLST_solo.h>
 
+typedef struct stat      tSTAT;
 /*
  *  half this code is only to make unit testing tighter and
  *  more conclusive, as well as debugging faster.
@@ -37,7 +39,7 @@ char yenv_unormal   (void) { strcpy (myenv_underrun, "(n/a)"  ); strcpy (myenv_o
 
 
 char*
-yENV_upeekier           (char a_name [LEN_PATH], char a_dir, int n, int *r_count)
+yenv_upeekier           (char a_name [LEN_PATH], char a_dir, int n, int *r_count)
 {
    /*---(locals)-----------+-----+-----+-*/
    int         x_curr      =    0;
@@ -113,11 +115,27 @@ yENV_upeekier           (char a_name [LEN_PATH], char a_dir, int n, int *r_count
    return myenv_upeek;
 }
 
-int    yENV_ulines  (char a_name [LEN_PATH])        { int c = 0;  yENV_upeekier (a_name, 0    , 0, &c); return c; }
+int    yenv_ulines  (char a_name [LEN_PATH])        { int c = 0;  yenv_upeekier (a_name, 0    , 0, &c); return c; }
 
-char*  yENV_upeek   (char a_name [LEN_PATH], char a_dir) { return yENV_upeekier (a_name, a_dir, 0, NULL); }
-char*  yENV_uindex  (char a_name [LEN_PATH], int  n    ) { return yENV_upeekier (a_name, 0    , n, NULL); }
+char*  yenv_upeek   (char a_name [LEN_PATH], char a_dir) { return yenv_upeekier (a_name, a_dir, 0, NULL); }
+char*  yenv_uindex  (char a_name [LEN_PATH], int  n    ) { return yenv_upeekier (a_name, 0    , n, NULL); }
 
-char *yENV_uwhich   (void)  { return myenv_usave; }
-int   yENV_uwhere   (void)  { return myenv_ulast; }
+char*  yenv_uwhich   (void)  { return myenv_usave; }
+int    yenv_uwhere   (void)  { return myenv_ulast; }
+
+char
+yenv_uexists         (char a_name [LEN_PATH])
+{
+   char        rce         =  -10;
+   char        rc          =    0;
+   tSTAT       s;
+   /*---(defense)------------------------*/
+   --rce;  if (a_name     == NULL)   return 0;
+   --rce;  if (a_name [0] == '\0')   return 0;
+   /*---(check existance)----------------*/
+   rc = lstat (a_name, &s);
+   --rce;  if (rc < 0)               return 0;
+   if (S_ISREG  (s.st_mode))         return 1;
+   return 0;
+}
 
