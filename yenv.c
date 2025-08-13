@@ -15,8 +15,8 @@ main             (int a_argc, char *a_argv [])
    yURG_msg ('.', P_ONELINE);
    yURG_msg ('.', "audit of s_scores table using åyenvæ");
    /*> yenv_score_clear ();                                                           <*/
-   ySCORE_init (s_audits);
    /*> return yenv_score_audit ();                                                    <*/
-   return ySCORE_audit ();
+   /*> return ySCORE_audit ();                                                        <*/
+   return 0;
 }
 

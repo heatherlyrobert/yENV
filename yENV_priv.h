@@ -38,8 +38,8 @@
 /*········· ··········· ´·····························´········································*/
 #define     P_VERMAJOR  "1.--, production improvements"
 #define     P_VERMINOR  "1.3-, paring extra abilities into ySCORE and yAUDIT"
-#define     P_VERNUM    "1.3a"
-#define     P_VERTXT    "ySCORE fully integrated and unit tested"
+#define     P_VERNUM    "1.3c"
+#define     P_VERTXT    "added time update/modified to yENV_touchier and yENV_modified"
 /*········· ··········· ´·····························´········································*/
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -84,6 +84,7 @@ typedef struct stat      tSTAT;
 typedef struct passwd    tPASSWD;
 typedef struct group     tGROUP;
 typedef struct tm        tTIME;
+typedef struct timespec  tSPEC;
 
 
 
@@ -180,49 +181,48 @@ extern char  g_print   [LEN_RECD];
 #define    IF_DEV         if (strchr ("bc", x_type) != NULL) 
 
 
-extern const tSCORE_TABLE s_audits [LEN_FULL];
+/*> extern const tSCORE_TABLE s_audits [LEN_FULL];                                    <*/
 
 
 /*===[[ yENV_audit_beg.c ]]===================================================*/
 /*········· ´······················ ´·········································*/
-char        yenv_audit_fatal        (char a_label [LEN_LABEL], char a_msg [LEN_HUND]);
-char        yenv_audit_prepare      (char a_type, char c_flag, char c_naming, char a_dir [LEN_PATH], char a_file [LEN_PATH], char r_tdesc [LEN_TERSE], char *r_check, char *r_force, char *r_fix);
-char        yenv_audit_expect       (char a_type, char b_owner [LEN_USER], char b_group [LEN_USER], char b_perms [LEN_TERSE], int *r_uid, int *r_gid, int *r_prm, char r_disp [LEN_LABEL]);
-char        yenv_audit_extra        (char a_type, int a_major, int a_minor, char a_ttype, char a_target [LEN_PATH], int a_epoch, long a_bytes, int a_inode, char a_hash [LEN_DESC]);
+/*> char        yenv_audit_fatal        (char a_label [LEN_LABEL], char a_msg [LEN_HUND]);                                                                                                               <* 
+ *> char        yenv_audit_prepare      (char a_type, char c_flag, char c_naming, char a_dir [LEN_PATH], char a_file [LEN_PATH], char r_tdesc [LEN_TERSE], char *r_check, char *r_force, char *r_fix);   <* 
+ *> char        yenv_audit_expect       (char a_type, char b_owner [LEN_USER], char b_group [LEN_USER], char b_perms [LEN_TERSE], int *r_uid, int *r_gid, int *r_prm, char r_disp [LEN_LABEL]);          <* 
+ *> char        yenv_audit_extra        (char a_type, int a_major, int a_minor, char a_ttype, char a_target [LEN_PATH], int a_epoch, long a_bytes, int a_inode, char a_hash [LEN_DESC]);                 <*/
 /*---(done)-----------------*/
 
 
 
 /*===[[ yENV_audit_chg.c ]]===================================================*/
 /*········· ´······················ ´·········································*/
-char        yenv_audit_precheck     (char a_full [LEN_PATH], char a_etype, char a_eowner [LEN_USER], char a_egroup [LEN_USER], char a_eperms [LEN_TERSE], int a_emajor, int a_eminor, char a_ettype, char a_etarget [LEN_PATH], char *r_atype, char r_atdesc [LEN_TERSE], char *r_del, char *r_add, char *r_upd, char c_force, char c_fix);
-char        yenv_audit_remove       (char a_full [LEN_PATH], char a_atype, char a_atdesc [LEN_TERSE], char c_force, char c_del);
-char        yenv_audit_create       (char a_full [LEN_PATH], char a_etype, char a_etdesc [LEN_TERSE], char a_eowner [LEN_USER], char a_egroup [LEN_USER], char a_eperms [LEN_TERSE], int a_emajor, int a_eminor, char a_etarget [LEN_PATH], char c_force, char c_add);
-char        yenv_audit_update       (char a_full [LEN_PATH], char a_atype, char a_atdesc [LEN_TERSE], char a_eowner [LEN_USER], char a_egroup [LEN_USER], char a_eperms [LEN_TERSE], int a_emajor, int a_eminor, char a_etarget [LEN_PATH], char c_fix, char c_upd);
+/*> char        yenv_audit_precheck     (char a_full [LEN_PATH], char a_etype, char a_eowner [LEN_USER], char a_egroup [LEN_USER], char a_eperms [LEN_TERSE], int a_emajor, int a_eminor, char a_ettype, char a_etarget [LEN_PATH], char *r_atype, char r_atdesc [LEN_TERSE], char *r_del, char *r_add, char *r_upd, char c_force, char c_fix);   <* 
+ *> char        yenv_audit_remove       (char a_full [LEN_PATH], char a_atype, char a_atdesc [LEN_TERSE], char c_force, char c_del);                                                                                                                                                                                                              <* 
+ *> char        yenv_audit_create       (char a_full [LEN_PATH], char a_etype, char a_etdesc [LEN_TERSE], char a_eowner [LEN_USER], char a_egroup [LEN_USER], char a_eperms [LEN_TERSE], int a_emajor, int a_eminor, char a_etarget [LEN_PATH], char c_force, char c_add);                                                                        <* 
+ *> char        yenv_audit_update       (char a_full [LEN_PATH], char a_atype, char a_atdesc [LEN_TERSE], char a_eowner [LEN_USER], char a_egroup [LEN_USER], char a_eperms [LEN_TERSE], int a_emajor, int a_eminor, char a_etarget [LEN_PATH], char c_fix, char c_upd);                                                                          <*/
 /*---(done)-----------------*/
 
 
 
 /*===[[ yENV_audit_end.c ]]===================================================*/
 /*········· ´······················ ´·········································*/
-char        yenv_audit_typing       (char a_etype, char a_etdesc [LEN_TERSE], char a_atype, char a_atdesc [LEN_TERSE]);
-char        yenv_audit_final        (char a_full [LEN_PATH], char a_etype, char a_etdesc [LEN_TERSE], char a_eowner [LEN_USER], char a_egroup [LEN_USER], char a_eperms [LEN_TERSE], int a_euid, int a_egid, int a_eprm, char a_adisp [LEN_LABEL], int a_emajor, int a_eminor, char a_ettype, char a_etarget [LEN_PATH]);
-char        yenv_audit_hacked       (char a_full [LEN_PATH], int a_epoch, long a_bytes, int a_inode, char a_hash [LEN_DESC]);
+/*> char        yenv_audit_typing       (char a_etype, char a_etdesc [LEN_TERSE], char a_atype, char a_atdesc [LEN_TERSE]);                                                                                                                                                                                                     <* 
+ *> char        yenv_audit_final        (char a_full [LEN_PATH], char a_etype, char a_etdesc [LEN_TERSE], char a_eowner [LEN_USER], char a_egroup [LEN_USER], char a_eperms [LEN_TERSE], int a_euid, int a_egid, int a_eprm, char a_adisp [LEN_LABEL], int a_emajor, int a_eminor, char a_ettype, char a_etarget [LEN_PATH]);   <* 
+ *> char        yenv_audit_hacked       (char a_full [LEN_PATH], int a_epoch, long a_bytes, int a_inode, char a_hash [LEN_DESC]);                                                                                                                                                                                               <*/
 /*---(done)-----------------*/
 
 
 
 /*===[[ yENV_name.c ]]========================================================*/
 /*········· ´······················ ´·········································*/
-char        yenv_name__defense      (char a_use, char a_type, char c_naming, char a_dir [LEN_PATH], char a_file [LEN_PATH], char a_prefix [LEN_TERSE], char a_suffix [LEN_TERSE]);
-char        yenv_name_quality       (char a_type, char c_naming, char a_dir [LEN_PATH], char a_file [LEN_PATH], char *r_style, char r_full [LEN_PATH]);
-char        yenv_name__dots         (char c_naming, char a_file [LEN_PATH], char a_prefix [LEN_TERSE], char a_suffix [LEN_TERSE], short *r_beg, short *r_end);
-char        yenv_name__prefix       (char a_file [LEN_PATH], short a_beg, char a_prefix [LEN_TERSE], char r_prefix [LEN_TERSE]);
-char        yenv_name__suffix       (char a_file [LEN_PATH], short a_end, char a_suffix [LEN_TERSE]);
-char        yenv_name_standard      (char a_type, char c_naming, char c_style, char a_dir [LEN_PATH], char a_file [LEN_PATH], char a_prefix [LEN_TERSE], char a_suffix [LEN_TERSE]);
-char        yenv_name_local         (int a_ruid, char a_ruser [LEN_USER], char a_full [LEN_PATH], char b_owner [LEN_USER], char b_group [LEN_USER], char b_perms [LEN_TERSE]);
-char        yenv_name_central       (int a_ruid, char a_ruser [LEN_USER], char a_full [LEN_PATH], char b_owner [LEN_USER], char b_group [LEN_USER], char b_perms [LEN_TERSE]);
-char        yenv_name_location      (char a_type, char c_naming, char a_full [LEN_PATH], char b_owner [LEN_USER], char b_group [LEN_USER], char b_perms [LEN_TERSE]);
+/*> char        yenv_name_quality       (char a_type, char c_naming, char a_dir [LEN_PATH], char a_file [LEN_PATH], char *r_style, char r_full [LEN_PATH]);                                <* 
+ *> char        yenv_name__dots         (char c_naming, char a_file [LEN_PATH], char a_prefix [LEN_TERSE], char a_suffix [LEN_TERSE], short *r_beg, short *r_end);                         <* 
+ *> char        yenv_name__prefix       (char a_file [LEN_PATH], short a_beg, char a_prefix [LEN_TERSE], char r_prefix [LEN_TERSE]);                                                       <* 
+ *> char        yenv_name__suffix       (char a_file [LEN_PATH], short a_end, char a_suffix [LEN_TERSE]);                                                                                  <* 
+ *> char        yenv_name_standard      (char a_type, char c_naming, char c_style, char a_dir [LEN_PATH], char a_file [LEN_PATH], char a_prefix [LEN_TERSE], char a_suffix [LEN_TERSE]);   <* 
+ *> char        yenv_name_local         (int a_ruid, char a_ruser [LEN_USER], char a_full [LEN_PATH], char b_owner [LEN_USER], char b_group [LEN_USER], char b_perms [LEN_TERSE]);         <* 
+ *> char        yenv_name_central       (int a_ruid, char a_ruser [LEN_USER], char a_full [LEN_PATH], char b_owner [LEN_USER], char b_group [LEN_USER], char b_perms [LEN_TERSE]);         <* 
+ *> char        yenv_name_location      (char a_type, char c_naming, char a_full [LEN_PATH], char b_owner [LEN_USER], char b_group [LEN_USER], char b_perms [LEN_TERSE]);                  <*/
 /*---(done)-----------------*/
 
 
@@ -243,6 +243,7 @@ char*       yenv_octal2display      (int a_perms);
 char        yenv_perms_by_name      (char a_text [LEN_TERSE], int *r_index, char r_name [LEN_TERSE], int *r_perms, char r_disp [LEN_TERSE], char r_desc [LEN_TITLE]);
 char        yenv_perms_by_disp      (char a_text [LEN_TERSE], int *r_index, char r_name [LEN_TERSE], int *r_perms, char r_disp [LEN_TERSE], char r_desc [LEN_TITLE]);
 char        yenv_perms_by_octal     (char a_text [LEN_TERSE], int *r_index, char r_name [LEN_TERSE], int *r_perms, char r_disp [LEN_TERSE], char r_desc [LEN_HUND]);
+char*       yenv_perms_detail       (int n);
 /*---(driver)---------------*/
 char        yENV_perms_full         (char a_type, char a_text [LEN_TERSE], char r_name [LEN_TERSE], int *r_perms, char r_disp [LEN_TERSE], char r_desc [LEN_TITLE], char r_handle [LEN_LABEL]);
 char        yENV_perms              (char a_text [LEN_TERSE], char r_name [LEN_TERSE], int *r_perms, char r_disp [LEN_TERSE], char r_desc [LEN_TITLE]);
@@ -250,29 +251,22 @@ char        yENV_perms              (char a_text [LEN_TERSE], char r_name [LEN_T
 
 
 
-/*===[[ yENV_file.c ]]========================================================*/
-/*········· ´······················ ´·········································*/
-char        yENV_open_full          (char a_label [LEN_LABEL], char a_dir [LEN_PATH], char a_file [LEN_PATH], char a_mode, char r_mode [LEN_SHORT], char r_note [LEN_LABEL], char r_full [LEN_PATH], FILE **b_file);
-char        yENV_open               (char a_dir [LEN_PATH], char a_file [LEN_PATH], char a_mode, FILE **b_file);
-char        yENV_close_full         (char a_label [LEN_LABEL], FILE **b_file, char c_sync);
-char        yENV_close              (FILE **b_file);
-/*---(done)-----------------*/
-
-
 
 /*===[[ yENV_ySCORE.c ]]======================================================*/
 /*········· ´······················ ´·········································*/
-char        ySCORE_nocheck          (void);
-char        ySCORE_nohacked         (void);
+/*> char        ySCORE_nocheck          (void);                                       <*/
+/*> char        ySCORE_nohacked         (void);                                       <*/
 /*---(done)-----------------*/
 
 
 char        yenv_user_quality       (char a_user [LEN_HUND]);
 char        yenv_user_login         (char a_shell [LEN_HUND]);
 char        yenv_user_active        (char a_pass [LEN_LABEL]);
+char*       yenv_user_detail        (char a_user [LEN_USER]);
 
 char        yenv_groups__by_user    (char a_recd [LEN_RECD], char a_user [LEN_LABEL], char r_names [LEN_HUND], char r_gids [LEN_HUND]);
 char        yenv_group__users       (char a_recd [LEN_RECD], char a_group [LEN_LABEL], char r_names [LEN_HUND], char r_uids [LEN_HUND]);
+char*       yenv_group_detail       (char a_group [LEN_USER]);
 char        yenv_group__lister      (char a_type, char a_text  [LEN_USER], char r_names [LEN_HUND], char r_ids [LEN_HUND]);
 char        yenv_group_users        (char a_group [LEN_USER], char r_names [LEN_HUND], char r_uids [LEN_HUND]);
 char        yenv_groups_by_user     (char a_user [LEN_USER], char r_names [LEN_HUND], char r_gids [LEN_HUND]);

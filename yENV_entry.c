@@ -37,14 +37,8 @@ yENV_typedesc           (char a_type)
 }
 
 char
-yENV_exists             (char a_name [LEN_PATH])
+yENV_size               (char a_name [LEN_PATH], long *r_bytes)
 {
-   /*---(design notes)-------------------*/
-   /*
-    *  just a subset of the yENV_detail function, but allows extensive
-    *  use in unit testing due simplicity and to speed increase
-    *
-    */
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    char        rc          =    0;
@@ -52,6 +46,8 @@ yENV_exists             (char a_name [LEN_PATH])
    tSTAT       s;
    /*---(header)-------------------------*/
    DEBUG_YENV    yLOG_senter  (__FUNCTION__);
+   /*---(default)------------------------*/
+   if (r_bytes != NULL)  *r_bytes = 0;
    /*---(defense)------------------------*/
    DEBUG_YENV    yLOG_spoint  (a_name);
    --rce;  if (a_name  == NULL) {
@@ -83,10 +79,14 @@ yENV_exists             (char a_name [LEN_PATH])
    DEBUG_YENV    yLOG_sint    (s.st_nlink);
    if (x_type == YENV_REG   && s.st_nlink > 1) x_type = YENV_HARD ;
    DEBUG_YENV    yLOG_schar   (x_type);
+   /*---(check size)---------------------*/
+   if (strchr ("rh", x_type) != NULL && r_bytes != NULL) *r_bytes = s.st_size;
    /*---(complete)-----------------------*/
    DEBUG_YENV    yLOG_sexit   (__FUNCTION__);
    return x_type;
 }
+
+char yENV_exists (char a_name [LEN_PATH]) { return yENV_size (a_name, NULL); }
 
 
 
@@ -189,7 +189,7 @@ yENV_create             (char a_type, char a_name [LEN_PATH], int a_uid, int a_g
 }
 
 char
-yENV_touchier           (char a_type, char a_name [LEN_PATH], char a_owner [LEN_USER], char a_group [LEN_USER], char a_perms [LEN_TERSE], int a_major, int a_minor, char a_link [LEN_PATH])
+yENV_touchier           (char a_type, char a_name [LEN_PATH], char a_owner [LEN_USER], char a_group [LEN_USER], char a_perms [LEN_TERSE], int a_major, int a_minor, char a_link [LEN_PATH], char a_modified)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -200,6 +200,7 @@ yENV_touchier           (char a_type, char a_name [LEN_PATH], char a_owner [LEN_
    int         x_prm       =   -1;
    int         i, l, x_euid, x_egid, x_eprm, x_emaj, x_emin;
    char        x_link      [LEN_PATH];
+   tSPEC       x_time      [2];
    /*---(header)-------------------------*/
    DEBUG_YENV    yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
@@ -315,13 +316,20 @@ yENV_touchier           (char a_type, char a_name [LEN_PATH], char a_owner [LEN_
          return rce;
       }
    }
+   /*---(update time)--------------------*/
+   if (a_modified == 'y') {
+      x_time [0].tv_sec  = x_time [1].tv_sec  = time (NULL);
+      x_time [0].tv_nsec = x_time [1].tv_nsec = 0;
+      rc = utimensat (AT_FDCWD, a_name, x_time, 0);
+   }
    /*---(complete)-----------------------*/
    DEBUG_YENV    yLOG_exit    (__FUNCTION__);
    return x_curr;
 }
 
-char yENV_touch              (char a_name [LEN_PATH], char a_owner [LEN_USER], char a_group [LEN_USER], char a_perms [LEN_TERSE]) { return yENV_touchier (YENV_REG  , a_name, a_owner, a_group, a_perms, 0, 0, ""); }
-char yENV_mkdir              (char a_name [LEN_PATH], char a_owner [LEN_USER], char a_group [LEN_USER], char a_perms [LEN_TERSE]) { return yENV_touchier (YENV_DIR  , a_name, a_owner, a_group, a_perms, 0, 0, ""); }
+char yENV_touch              (char a_name [LEN_PATH], char a_owner [LEN_USER], char a_group [LEN_USER], char a_perms [LEN_TERSE]) { return yENV_touchier (YENV_REG  , a_name, a_owner, a_group, a_perms, 0, 0, "", '-'); }
+char yENV_mkdir              (char a_name [LEN_PATH], char a_owner [LEN_USER], char a_group [LEN_USER], char a_perms [LEN_TERSE]) { return yENV_touchier (YENV_DIR  , a_name, a_owner, a_group, a_perms, 0, 0, "", '-'); }
+char yENV_modified           (char a_name [LEN_PATH]) { return yENV_touchier (YENV_REG  , a_name, "-", "-", "-", 0, 0, "", '-'); }
 
 
 
@@ -413,7 +421,7 @@ yENV_rmdir_fully        (char a_name [LEN_PATH])
    if (x_name [l - 1] != '/')  strlcat (x_name, "/", LEN_PATH);
    DEBUG_YENV    yLOG_info    ("x_name"    , x_name);
    /*---(remove files in dir)------------*/
-   snprintf (x_cmd, LEN_FULL, "rm -f %s*.*  > /dev/null  2>&1", x_name);
+   snprintf (x_cmd, LEN_FULL, "rm -rf %s  > /dev/null  2>&1", x_name);
    DEBUG_YENV    yLOG_info    ("x_cmd"     , x_cmd);
    rc = system (x_cmd);
    DEBUG_YENV    yLOG_value   ("rc"        , rc);
@@ -523,8 +531,6 @@ yENV_detail             (char a_name [LEN_PATH], char r_tdesc [LEN_TERSE], int *
    char        rce         =  -10;
    char        rc          =    0;
    tSTAT       s;
-   /*> tPASSWD    *x_owner     = NULL;                                                <*/
-   /*> tGROUP     *x_group     = NULL;                                                <*/
    char        x_type      = YENV_NONE;
    char        x_tdesc     [LEN_TERSE] = "WTF";
    int         x_prm       =    0;
