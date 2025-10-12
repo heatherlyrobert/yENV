@@ -261,6 +261,7 @@ koios_code_unormal (char a_scrp, char a_list, char a_unit)
    yUNIT_minstr   ("... check prev (BOOM)"              , yenv_upeek  (s_file, YDLST_PREV) , "(n/a)");
    yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    0);
    yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,    9);
+   yUNIT_mindnoc  ();
 
    yUNIT_mincond  ("verify forward cursor bounce in normal mode");
    yUNIT_minstr   ("... check tail"                     , yenv_upeek  (s_file, YDLST_TAIL) , "# end-of-file.  done, finito, completare, whimper [Ï´···");
@@ -269,6 +270,7 @@ koios_code_unormal (char a_scrp, char a_list, char a_unit)
    yUNIT_minstr   ("... check next (BOOM)"              , yenv_upeek  (s_file, YDLST_NEXT) , "(n/a)");
    yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    8);
    yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,    9);
+   yUNIT_mindnoc  ();
 
    yenv_uunit ();
 
@@ -279,6 +281,7 @@ koios_code_unormal (char a_scrp, char a_list, char a_unit)
    yUNIT_minstr   ("... check prev (BOOM)"              , yenv_upeek  (s_file, YDLST_PREV) , "(under)");
    yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    0);
    yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,    9);
+   yUNIT_mindnoc  ();
 
    yUNIT_mincond  ("verify forward cursor bounce in unit test mode");
    yUNIT_minstr   ("... check tail"                     , yenv_upeek  (s_file, YDLST_TAIL) , "# end-of-file.  done, finito, completare, whimper [Ï´···");
@@ -287,6 +290,220 @@ koios_code_unormal (char a_scrp, char a_list, char a_unit)
    yUNIT_minstr   ("... check next (BOOM)"              , yenv_upeek  (s_file, YDLST_NEXT) , "(over)");
    yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    8);
    yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,    9);
+   yUNIT_mindnoc  ();
+
+   yENV__unit_end    ();
+   yUNIT_minprcs  ();
+   return 0;
+}
+
+char
+koios_code_uopen   (char a_scrp, char a_list, char a_unit)
+{
+   char        s_file      [LEN_HUND]  = "/tmp/yenv_test.txt";
+   FILE       *f           = NULL;
+
+   yUNIT_minscrpy ("yENV", "yENV_uver", "(UVER) verify micro version of file open/cloce");
+   if (a_list == '!')    { yUNIT_minprcs (); return 0; }
+   if (a_unit != 0 && a_scrp != a_unit)  return 0;
+   if (a_list == 'y')                    return 0;
+   yENV__unit_quiet  ();
+
+   yUNIT_mincond  ("open a file for writting");
+   yUNIT_minval   ("open file"                          , yenv_uopen  (s_file, 'w', &f)     ,    1);
+   yUNIT_minptr   ("... check pointer"                  , f                                 ,    1);
+   yUNIT_mindnoc  ();
+
+   yUNIT_mincond  ("attempt to double open");
+   yUNIT_minval   ("open file"                          , yenv_uopen  (s_file, 'w', &f)     , -999);
+   yUNIT_minptr   ("... check pointer"                  , f                                 ,    1);
+   yUNIT_mindnoc  ();
+
+   yUNIT_mincond  ("close an open file");
+   yUNIT_minval   ("close file"                         , yenv_uclose (&f)                  ,    1);
+   yUNIT_minptr   ("... check pointer"                  , f                                 ,    0);
+   yUNIT_mindnoc  ();
+
+   yUNIT_mincond  ("attempt to double close");
+   yUNIT_minval   ("close file"                         , yenv_uclose (&f)                  , -999);
+   yUNIT_minptr   ("... check pointer"                  , f                                 ,    0);
+   yUNIT_mindnoc  ();
+
+   yUNIT_mincond  ("attempt to open with nulls and empties name");
+   yUNIT_minval   ("open file"                          , yenv_uopen  (NULL  , 'w', &f)     , -999);
+   yUNIT_minptr   ("... check pointer"                  , f                                 ,    0);
+   yUNIT_minval   ("open file"                          , yenv_uopen  (""    , 'w', &f)     , -999);
+   yUNIT_minptr   ("... check pointer"                  , f                                 ,    0);
+   yUNIT_minval   ("open file"                          , yenv_uopen  (""    , 'w', NULL)   , -999);
+   yUNIT_minptr   ("... check pointer"                  , f                                 ,    0);
+   yUNIT_mindnoc  ();
+
+   yUNIT_mincond  ("open the file for writing, again");
+   yUNIT_minval   ("open file"                          , yenv_uopen  (s_file, 'w', &f)     ,    1);
+   yUNIT_minptr   ("... check pointer"                  , f                                 ,    1);
+   yUNIT_mindnoc  ();
+
+   yUNIT_mincond  ("attempt to close a null file");
+   yUNIT_minval   ("close file"                         , yenv_uclose (NULL)                , -999);
+   yUNIT_minptr   ("... check pointer"                  , f                                 ,    1);
+   yUNIT_mindnoc  ();
+
+   yUNIT_mincond  ("close an open file");
+   yUNIT_minval   ("close file"                         , yenv_uclose (&f)                  ,    1);
+   yUNIT_minptr   ("... check pointer"                  , f                                 ,    0);
+   yUNIT_mindnoc  ();
+
+   yUNIT_mincond  ("attempt to open will bad modes");
+   yUNIT_minval   ("open file"                          , yenv_uopen  (s_file,  0 , NULL)   , -999);
+   yUNIT_minptr   ("... check pointer"                  , f                                 ,    0);
+   yUNIT_minval   ("open file"                          , yenv_uopen  (s_file, ' ', NULL)   , -999);
+   yUNIT_minptr   ("... check pointer"                  , f                                 ,    0);
+   yUNIT_minval   ("open file"                          , yenv_uopen  (s_file, '·', NULL)   , -999);
+   yUNIT_minptr   ("... check pointer"                  , f                                 ,    0);
+   yUNIT_minval   ("open file"                          , yenv_uopen  (s_file, '2', NULL)   , -999);
+   yUNIT_minptr   ("... check pointer"                  , f                                 ,    0);
+   yUNIT_mindnoc  ();
+
+   yUNIT_mincond  ("open the file for reading (since it now exists)");
+   yUNIT_minval   ("open file"                          , yenv_uopen  (s_file, 'r', &f)     ,    1);
+   yUNIT_minptr   ("... check pointer"                  , f                                 ,    1);
+   yUNIT_mindnoc  ();
+
+   yUNIT_mincond  ("close an open file");
+   yUNIT_minval   ("close file"                         , yenv_uclose (&f)                  ,    1);
+   yUNIT_minptr   ("... check pointer"                  , f                                 ,    0);
+   yUNIT_mindnoc  ();
+
+   yUNIT_mincond  ("attempt to open a non-existant file for reading");
+   unlink (s_file);
+   yUNIT_minval   ("open file"                          , yenv_uopen  (s_file, 'r', &f)     , -999);
+   yUNIT_minptr   ("... check pointer"                  , f                                 ,    0);
+   yUNIT_mindnoc  ();
+
+   yENV__unit_end    ();
+   yUNIT_minprcs  ();
+   return 0;
+}
+
+char
+koios_code_ustdin  (char a_scrp, char a_list, char a_unit)
+{
+   char        s_file      [LEN_HUND]  = "stdin";
+   FILE       *f           = NULL;
+
+   yUNIT_minscrpy ("yENV", "yENV_uver", "(UVER) verify handling stdin checking");
+   if (a_list == '!')    { yUNIT_minprcs (); return 0; }
+   if (a_unit != 0 && a_scrp != a_unit)  return 0;
+   if (a_list == 'y')                    return 0;
+   yENV__unit_quiet  ();
+
+   yUNIT_mincond  ("open a stdin for reading");
+   yUNIT_minval   ("open file"                          , yenv_uopen  (s_file, 'r', &f)     ,    1);
+   yUNIT_minptr   ("... check pointer"                  , f                                 ,    1);
+   yUNIT_minval   ("... unload stdin"                   , yenv_upurge_stdin ()              ,    0);
+   yUNIT_mindnoc  ();
+
+   yUNIT_mincond  ("check stdin is empty");
+   yUNIT_minval   ("check stdin"                        , yenv_ucheck_stdin ()              ,    0);
+   yUNIT_mindnoc  ();
+
+   yUNIT_mincond  ("load and check stdin is ready");
+   yUNIT_minval   ("load stdin"                         , yenv_uload_stdin ("hello¦")       ,    1);
+   yUNIT_minval   ("check stdin"                        , yenv_ucheck_stdin ()              ,    1);
+   yUNIT_mindnoc  ();
+
+   yUNIT_mincond  ("purge stdin and verify it is empty");
+   yUNIT_minval   ("... unload stdin"                   , yenv_upurge_stdin ()              ,    0);
+   yUNIT_minval   ("check stdin"                        , yenv_ucheck_stdin ()              ,    0);
+   yUNIT_mindnoc  ();
+
+   yUNIT_mincond  ("close an open file");
+   yUNIT_minval   ("close file"                         , yenv_uclose (&f)                  ,    1);
+   yUNIT_minptr   ("... check pointer"                  , f                                 ,    0);
+   yUNIT_minval   ("... unload stdin"                   , yenv_upurge_stdin ()              ,    0);
+   yUNIT_mindnoc  ();
+
+   yENV__unit_end    ();
+   yUNIT_minprcs  ();
+   return 0;
+}
+
+char
+koios_code_uread   (char a_scrp, char a_list, char a_unit)
+{
+   char        s_file      [LEN_HUND]  = "/tmp/yenv_test.txt";
+   FILE       *f           = NULL;
+   char        x_recd      [LEN_RECD]  = "";
+   short       x_total     =    0;
+   short       x_accept    =    0;
+
+   yUNIT_minscrpy ("yENV", "yENV_uver", "(UVER) verify micro version of file open/cloce");
+   if (a_list == '!')    { yUNIT_minprcs (); return 0; }
+   if (a_unit != 0 && a_scrp != a_unit)  return 0;
+   if (a_list == 'y')                    return 0;
+   yENV__unit_quiet  ();
+
+   yUNIT_mincond  ("open a file for reading");
+   system ("echo \"line one\"           >  /tmp/yenv_test.txt");
+   system ("echo \"\"                   >> /tmp/yenv_test.txt");
+   system ("echo \"line two\"           >> /tmp/yenv_test.txt");
+   system ("echo \"\"                   >> /tmp/yenv_test.txt");
+   system ("echo \"\"                   >> /tmp/yenv_test.txt");
+   system ("echo \"line three\"         >> /tmp/yenv_test.txt");
+   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,    6);
+   yUNIT_minstr   ("... check line"                     , yenv_upeek  (s_file, YDLST_HEAD) , "line one"  );
+   yUNIT_minstr   ("... check line"                     , yenv_upeek  (s_file, YDLST_NEXT) , ""          );
+   yUNIT_minstr   ("... check line"                     , yenv_upeek  (s_file, YDLST_NEXT) , "line two"  );
+   yUNIT_minstr   ("... check line"                     , yenv_upeek  (s_file, YDLST_NEXT) , ""          );
+   yUNIT_minstr   ("... check line"                     , yenv_upeek  (s_file, YDLST_NEXT) , ""          );
+   yUNIT_minstr   ("... check line"                     , yenv_upeek  (s_file, YDLST_NEXT) , "line three");
+   yUNIT_minstr   ("... check line"                     , yenv_upeek  (s_file, YDLST_NEXT) , "(n/a)"     );
+   yUNIT_mindnoc  ();
+
+   yUNIT_mincond  ("open a file for reading");
+   yUNIT_minval   ("open file"                          , yenv_uopen  (s_file, 'r', &f)     ,    1);
+   yUNIT_minptr   ("... check pointer"                  , f                                 ,    1);
+   yUNIT_mindnoc  ();
+
+   yUNIT_mincond  ("read a line");
+   yUNIT_minval   ("call read"                          , yenv_uread  (f, LEN_HUND, x_recd, &x_total, &x_accept)     ,    1);
+   yUNIT_minstr   ("... check line"                     , x_recd   , "line one");
+   yUNIT_minval   ("... check total lines"              , x_total  ,          1);
+   yUNIT_minval   ("... check accepted"                 , x_accept ,          1);
+   yUNIT_mindnoc  ();
+
+   yUNIT_mincond  ("read a line");
+   yUNIT_minval   ("call read"                          , yenv_uread  (f, LEN_HUND, x_recd, &x_total, &x_accept)     ,    1);
+   yUNIT_minstr   ("... check line"                     , x_recd   , "line two");
+   yUNIT_minval   ("... check total lines"              , x_total  ,          3);
+   yUNIT_minval   ("... check accepted"                 , x_accept ,          2);
+   yUNIT_mindnoc  ();
+
+   yUNIT_mincond  ("read a line");
+   yUNIT_minval   ("call read"                          , yenv_uread  (f, LEN_HUND, x_recd, &x_total, &x_accept)     ,    1);
+   yUNIT_minstr   ("... check line"                     , x_recd   , "line three");
+   yUNIT_minval   ("... check total lines"              , x_total  ,          6);
+   yUNIT_minval   ("... check accepted"                 , x_accept ,          3);
+   yUNIT_mindnoc  ();
+
+   yUNIT_mincond  ("read a line (EOF)");
+   yUNIT_minval   ("call read"                          , yenv_uread  (f, LEN_HUND, x_recd, &x_total, &x_accept)     ,    0);
+   yUNIT_minstr   ("... check line"                     , x_recd   , ""        );
+   yUNIT_minval   ("... check total lines"              , x_total  ,          6);
+   yUNIT_minval   ("... check accepted"                 , x_accept ,          3);
+   yUNIT_mindnoc  ();
+
+   yUNIT_mincond  ("read a line (way past EOF)");
+   yUNIT_minval   ("call read"                          , yenv_uread  (f, LEN_HUND, x_recd, &x_total, &x_accept)     , -999);
+   yUNIT_minstr   ("... check line"                     , x_recd   , ""        );
+   yUNIT_minval   ("... check total lines"              , x_total  ,          6);
+   yUNIT_minval   ("... check accepted"                 , x_accept ,          3);
+   yUNIT_mindnoc  ();
+
+   yUNIT_mincond  ("close an open file");
+   yUNIT_minval   ("close file"                         , yenv_uclose (&f)                  ,    1);
+   yUNIT_minptr   ("... check pointer"                  , f                                 ,    0);
+   yUNIT_mindnoc  ();
 
    yENV__unit_end    ();
    yUNIT_minprcs  ();
@@ -320,6 +537,9 @@ main                    (int a_argc, char *a_argv [])
    koios_code_upeek     (++n, x_list, x_unit);
    koios_code_umixed    (++n, x_list, x_unit);
    koios_code_unormal   (++n, x_list, x_unit);
+   koios_code_uopen     (++n, x_list, x_unit);
+   koios_code_ustdin    (++n, x_list, x_unit);
+   koios_code_uread     (++n, x_list, x_unit);
    /*---(wrapup)-------------------------*/
    yUNIT_mintinu    ();
    /*---(complete)-----------------------*/

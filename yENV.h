@@ -100,6 +100,7 @@ char        yENV_user_full          (char a_type, char a_text [LEN_USER], char r
 /*---(simplifiers)----------*/
 char        yENV_user               (char a_text [LEN_USER], char r_name [LEN_USER], int *r_uid);
 char        yENV_user_uid           (char a_type, int a_value, char r_name [LEN_USER], int *r_uid);
+char        yENV_user_basics        (char a_text [LEN_USER], int *r_uid, int *r_gid, char r_home [LEN_HUND], char r_shell [LEN_HUND]);
 /*---(unit-testing)---------*/
 char        yENV_user_add           (char a_name [LEN_USER], int a_uid, char a_home, char a_shell);
 char        yENV_user_del           (char a_name [LEN_USER]);

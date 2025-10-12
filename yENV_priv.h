@@ -38,8 +38,8 @@
 /*········· ··········· ´·····························´········································*/
 #define     P_VERMAJOR  "1.--, production improvements"
 #define     P_VERMINOR  "1.3-, paring extra abilities into ySCORE and yAUDIT"
-#define     P_VERNUM    "1.3c"
-#define     P_VERTXT    "added time update/modified to yENV_touchier and yENV_modified"
+#define     P_VERNUM    "1.3d"
+#define     P_VERTXT    "added and tested yENV_user_basics simplifier to better support libraries"
 /*········· ··········· ´·····························´········································*/
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"

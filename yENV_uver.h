@@ -1,9 +1,6 @@
-#include    <stdio.h>
-#include    <stdarg.h>                   /* va_arg                              */
-#include    <unistd.h>                   /* unlink                              */
-#include    <sys/stat.h>          /* fstat, umask                                */
+#include    "yENV_solo.h"
 
-#include  <yDLST_solo.h>
+
 
 typedef struct stat      tSTAT;
 /*
@@ -129,13 +126,276 @@ yenv_uexists         (char a_name [LEN_PATH])
    char        rce         =  -10;
    char        rc          =    0;
    tSTAT       s;
+   /*---(header)-------------------------*/
+   DEBUG_YENV  yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
-   --rce;  if (a_name     == NULL)   return 0;
-   --rce;  if (a_name [0] == '\0')   return 0;
+   --rce;  if (a_name     == NULL) {
+      DEBUG_YENV  yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   --rce;  if (a_name [0] == '\0') {
+      DEBUG_YENV  yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(check existance)----------------*/
    rc = lstat (a_name, &s);
-   --rce;  if (rc < 0)               return 0;
-   if (S_ISREG  (s.st_mode))         return 1;
+   DEBUG_YENV  yLOG_value   ("rc"        , rc);
+   --rce;  if (rc < 0) {
+      DEBUG_YENV  yLOG_note    ("file not found");
+      DEBUG_YENV  yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   if (S_ISREG  (s.st_mode)) {
+      DEBUG_YENV  yLOG_note    ("found regular file");
+      DEBUG_YENV  yLOG_exit    (__FUNCTION__);
+      return 1;
+   }
+   DEBUG_YENV  yLOG_note    ("file not a regular file");
+   /*---(complete)-----------------------*/
+   DEBUG_YENV  yLOG_exit    (__FUNCTION__);
    return 0;
 }
+
+char
+yenv_uopen              (char a_name [LEN_HUND], char a_mode, FILE **r_file)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   FILE       *f           = NULL;
+   char        x_mode      [LEN_TERSE] = "rt";
+   /*---(header)-------------------------*/
+   DEBUG_YENV  yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   DEBUG_YENV  yLOG_point   ("a_name"    , a_name);
+   --rce;  if (a_name     == NULL) {
+      DEBUG_YENV  yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_YENV  yLOG_info    ("a_name"    , a_name);
+   --rce;  if (a_name [0] == '\0') {
+      DEBUG_YENV  yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_YENV  yLOG_point   ("r_file"    , r_file);
+   --rce;  if (r_file  == NULL) {
+      DEBUG_YENV  yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_YENV  yLOG_point   ("*r_file"   , *r_file);
+   --rce;  if (*r_file != NULL) {
+      DEBUG_YENV  yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_YENV  yLOG_char    ("a_mode"    , a_mode);
+   --rce;  if (a_mode  == 0) {
+      DEBUG_YENV  yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_YENV  yLOG_info    ("allowed"   , "rwa");
+   --rce;  if (strchr ("rwa", a_mode) == NULL) {
+      DEBUG_YENV  yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(open)---------------------------*/
+   sprintf (x_mode, "%ct", a_mode);
+   DEBUG_YENV  yLOG_info    ("x_mode"    , x_mode);
+   if      (strcmp (a_name, "stdin" ) == 0)  f = stdin;
+   else if (strcmp (a_name, "stdout") == 0)  f = stdout;
+   else if (strcmp (a_name, "stderr") == 0)  f = stderr;
+   else                                      f = fopen (a_name, x_mode);
+   DEBUG_YENV  yLOG_point   ("f"         , f);
+   --rce;  if (f == NULL) {
+      DEBUG_YENV  yLOG_complex ("error"     , "%d) %s", errno, strerror (errno));
+      DEBUG_YENV  yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(save-back)----------------------*/
+   if (r_file  != NULL)  *r_file = f;
+   /*---(complete)-----------------------*/
+   DEBUG_YENV  yLOG_exit    (__FUNCTION__);
+   return 1;
+}
+
+char
+yenv_uclose             (FILE **r_file)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   /*---(header)-------------------------*/
+   DEBUG_YENV  yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   DEBUG_YENV  yLOG_point   ("r_file"    , r_file);
+   --rce;  if (r_file  == NULL) {
+      DEBUG_YENV  yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_YENV  yLOG_point   ("*r_file"   , *r_file);
+   --rce;  if (*r_file == NULL) {
+      DEBUG_YENV  yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(close)--------------------------*/
+   if      (*r_file == stdin ) ;
+   else if (*r_file == stdout) ;
+   else if (*r_file == stderr) ;
+   else    rc = fclose (*r_file);
+   --rce;  if (rc != 0) {
+      DEBUG_YENV  yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(save-back)----------------------*/
+   if (r_file  != NULL)  *r_file = NULL;
+   /*---(complete)-----------------------*/
+   DEBUG_YENV  yLOG_exit    (__FUNCTION__);
+   return 1;
+}
+
+char
+yenv__ustdin            (char a_clear)
+{
+   /*---(locals)-----------+-----------+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   char        rc_final    =    0;
+   int         x_flags     =    0;
+   int         x_ch        =  ' ';
+   /*---(set stdin to non-blocking)------*/
+   x_flags = fcntl (0, F_GETFL, 0);
+   rc = fcntl (0, F_SETFL, x_flags | O_NONBLOCK);
+   --rce;  if (rc < 0) {
+      DEBUG_YENV  yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(test stdin for input)-----------*/
+   x_ch = getc (stdin);
+   if   (x_ch == -1)    rc_final = 0;
+   else               { rc_final = 1; ungetc (x_ch, stdin); }
+   /*---(check clear)--------------------*/
+   if (a_clear == 'y') {
+      while (x_ch = getc (stdin)) {
+         if (x_ch < 0)  break;
+      }
+      rc_final = 0;
+   }
+   /*---(put stdin back to normal)-------*/
+   rc = fcntl  (0, F_SETFL, x_flags);
+   --rce;  if (rc < 0) {
+      DEBUG_YENV  yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(complete)-----------------------*/
+   return rc_final;
+}
+
+char yenv_ucheck_stdin  (void) { return yenv__ustdin ('-'); }
+char yenv_upurge_stdin  (void) { return yenv__ustdin ('y'); }
+
+char
+yenv_uload_stdin        (char a_recd [LEN_RECD])
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   int         l           =    0;
+   char        x_recd      [LEN_RECD]  = "";
+   int         i           =    0;
+   /*---(defense)------------------------*/
+   if (a_recd   == NULL)                            return rce;
+   if (a_recd [0] == '\0')                          return 0;
+   strlcpy (x_recd, a_recd, LEN_RECD);
+   /*---(fix record)-------------------*/
+   l = strlen (x_recd) - 1;
+   if (x_recd [l] == '¦') x_recd [l] = '\n';
+   /*---(normal stdin)-----------------*/
+   for (i = l; i >= 0; --i) {
+      ungetc (x_recd [i], stdin);
+   }
+   /*---(complete)---------------------*/
+   return 1;
+}
+
+char
+yenv_uread              (FILE *a_file, short a_max, char r_recd [LEN_RECD], short *b_total, short *b_accept)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   char        x_eof       =    0;
+   char        x_stdin     =    0;
+   int         l           =    0;
+   /*---(header)-------------------------*/
+   DEBUG_YENV  yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   DEBUG_YENV  yLOG_point   ("a_file"    , a_file);
+   --rce;  if (a_file == NULL) {
+      DEBUG_YENV  yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   x_eof = feof (a_file);
+   DEBUG_YENV  yLOG_value   ("x_eof"     , x_eof);
+   --rce;  if (x_eof)  {
+      DEBUG_YENV  yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_YENV  yLOG_value   ("a_max"     , a_max);
+   --rce;  if (a_max < 1)      {
+      DEBUG_YENV  yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_YENV  yLOG_point   ("r_recd"    , r_recd);
+   if (r_recd   == NULL)       {
+      DEBUG_YENV  yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(prepare)------------------------*/
+   if (a_file == stdin)   x_stdin = 'y';
+   DEBUG_YENV  yLOG_char    ("x_stdin"   , x_stdin);
+   strcpy (r_recd, "");
+   /*---(walk-records)-------------------*/
+   while (1) {
+      /*---(read)------------------------*/
+      if (x_stdin == 'y') {
+         rc = yenv_ucheck_stdin ();
+         DEBUG_YENV  yLOG_value   ("ucheck"    , rc);
+         if (rc == 0) {
+            DEBUG_YENV  yLOG_note    ("nothing waiting in stdin");
+            DEBUG_YENV  yLOG_exit    (__FUNCTION__);
+            return 0;
+         }
+      }
+      fgets (r_recd, a_max, a_file);
+      if (feof (a_file)) {
+         DEBUG_YENV  yLOG_note    ("hit end-of-file");
+         DEBUG_YENV  yLOG_exit    (__FUNCTION__);
+         return 0;
+      }
+      if (b_total  != NULL)  *b_total  += 1;
+      /*---(fix)-------------------------*/
+      l = strlen (r_recd);
+      if (l > 0 && r_recd [l - 1] == '\n')  r_recd [--l] = '\0';
+      DEBUG_YENV  yLOG_complex ("r_recd"    , "%3då%sæ", l, r_recd);
+      /*---(filter)----------------------*/
+      if (l < 1)  {
+         DEBUG_YENV  yLOG_note    ("empty record, skipping");
+         continue;
+      }
+      if (r_recd [0] == ' ') {
+         DEBUG_YENV  yLOG_note    ("starts with a space, skipping");
+         continue;
+      }
+      break;
+      /*---(done)------------------------*/
+   }
+   /*---(accept)-------------------------*/
+   DEBUG_YENV  yLOG_note    ("accepted, returning record");
+   if (b_accept != NULL) {
+      *b_accept += 1;
+      DEBUG_YENV  yLOG_value   ("b_accept"  , b_accept);
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_YENV  yLOG_exit    (__FUNCTION__);
+   return 1;
+}
+
 

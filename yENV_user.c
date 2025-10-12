@@ -235,6 +235,12 @@ yENV_user_uid           (char a_type, int a_value, char r_name [LEN_USER], int *
    return yENV_user_full (a_type, x_text, r_name, r_uid, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 }
 
+char
+yENV_user_basics       (char a_text [LEN_USER], int *r_uid, int *r_gid, char r_home [LEN_HUND], char r_shell [LEN_HUND])
+{
+   return yENV_user_full (YENV_REG, a_text, NULL, r_uid, r_gid, r_home, r_shell, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+}
+
 
 
 /*====================------------------------------------====================*/
