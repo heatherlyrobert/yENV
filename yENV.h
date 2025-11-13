@@ -148,7 +148,7 @@ char        yENV_perms_octal        (char a_type, int a_value, char r_name [LEN_
 int         yENV_perms_count        (void);
 char*       yENV_perms_by_cursor    (char a_dir);
 char*       yENV_perms_by_text      (char a_text [LEN_TERSE]);
-/*---(done)-----------------*/
+/*········· ´·················DONE· ´·········································*/
 
 
 
@@ -172,28 +172,16 @@ char        yENV_size               (char a_name [LEN_PATH], long *r_bytes);
 char*       yENV_typedesc           (char a_type);
 char        yENV_detail             (char a_name [LEN_PATH], char r_tdesc [LEN_TERSE], int *r_uid, char r_owner [LEN_USER], int *r_gid, char r_group [LEN_USER], int *r_prm, char r_perms [LEN_TERSE], char r_pdisp [LEN_TERSE], long *r_bytes, int *r_epoch, int *r_major, int *r_minor, char r_link [LEN_PATH], int *r_dev, int *r_inode, char r_hash [LEN_DESC]);
 char*       yENV_detail_unit        (char a_name [LEN_PATH]);
-/*---(done)-----------------*/
+/*········· ´·················DONE· ´·········································*/
 
 
 
-/*===[[ yENV_audit.c ]]=======================================================*/
+/*===[[ yENV_name.c ]]========================================================*/
 /*········· ´······················ ´·········································*/
-/*---(driver)---------------*/
-/*> char        yENV_audit_full         (char a_type, char c_flag, char c_naming, char a_dir [LEN_PATH], char a_file [LEN_PATH], char a_owner [LEN_USER], char a_group [LEN_USER], char a_perms [LEN_TERSE], int a_major, int a_minor, char a_ttype, char a_target [LEN_PATH], char a_prefix [LEN_TERSE], char a_suffix [LEN_TERSE], int a_epoch, long a_bytes, int a_inode, char a_hash [LEN_DESC], char r_full [LEN_PATH], int *r_fuid, char r_fuser [LEN_USER]);   <*/
-/*---(simplifiers)----------*/
-/*> char        yENV_audit              (char a_type, char c_flag, char c_naming, char a_dir [LEN_PATH], char a_file [LEN_PATH], char a_owner [LEN_USER], char a_group [LEN_USER], char a_perms [LEN_TERSE], int a_major, int a_minor, char a_ttype, char a_target [LEN_PATH]);   <* 
- *> char        yENV_audit_del          (char c_flag, char a_dir [LEN_PATH], char a_file [LEN_PATH]);                                                                                                                                                                             <* 
- *> char        yENV_audit_reg          (char c_flag, char c_naming, char a_dir [LEN_PATH], char a_file [LEN_PATH], char a_owner [LEN_USER], char a_group [LEN_USER], char a_perms [LEN_TERSE]);                                                                                  <* 
- *> char        yENV_audit_local        (char a_dir [LEN_PATH], char a_file [LEN_PATH], char a_prefix [LEN_TERSE], char a_suffix [LEN_TERSE], char r_full [LEN_PATH], int *r_fuid, char r_fuser [LEN_USER]);                                                                      <* 
- *> char        yENV_audit_localdir     (char a_dir [LEN_PATH], char r_full [LEN_PATH], int *r_fuid, char r_fuser [LEN_USER]);                                                                                                                                                    <* 
- *> char        yENV_audit_central      (char c_flag, char a_dir [LEN_PATH], char a_file [LEN_PATH], char a_prefix [LEN_TERSE], char a_suffix [LEN_TERSE], char r_full [LEN_PATH], int *r_fuid, char r_fuser [LEN_USER]);                                                         <* 
- *> char        yENV_audit_centraldir   (char c_flag, char a_dir [LEN_PATH], char a_perms [LEN_TERSE]);                                                                                                                                                                           <*/
-/*---(done)-----------------*/
-
-
 char        yENV_name_full          (char a_dir [LEN_PATH], char a_file [LEN_PATH], char *r_style, char r_full [LEN_PATH]);
 char        yENV_name_split         (char a_full [LEN_PATH], char *r_style, char r_dir [LEN_PATH], char r_file [LEN_PATH]);
 char        yENV_name_detail        (char a_full [LEN_PATH], char *r_style, char r_dir [LEN_PATH], char r_file [LEN_FULL], char r_proj [LEN_LABEL], char r_base [LEN_HUND], char r_ext [LEN_TERSE], char *r_level, char *r_quality);
+/*········· ´·················DONE· ´·········································*/
 
 
 
@@ -203,7 +191,26 @@ char        yENV_open_full          (char a_label [LEN_LABEL], char a_dir [LEN_P
 char        yENV_open               (char a_dir [LEN_PATH], char a_file [LEN_PATH], char a_mode, FILE **b_file);
 char        yENV_close_full         (char a_label [LEN_LABEL], FILE **b_file, char c_sync);
 char        yENV_close              (FILE **b_file);
-/*---(done)-----------------*/
+/*········· ´·················DONE· ´·········································*/
+
+
+
+/*===[[ yENV_memory.c ]]======================================================*/
+/*········· ´················alloc· ´·········································*/
+char        yENV_new                (char *a_terse, int a_size, void **a_new, int *a_count, char a_force, char *a_wiper (void *));
+char        yENV_free               (char *a_terse, void **a_old, int *a_count);
+/*········· ´·················unit· ´·········································*/
+char        yENV_check_beg          (void);
+char        yENV_check_char         (char a_char);
+char        yENV_check_str          (char *a_str);
+char        yENV_check_ptr          (void *a_ptr);
+char        yENV_check_num          (int a_num);
+char        yENV_check_spacer       (void);
+char        yENV_check_cat          (char *a_str);
+char        yENV_check_end          (void);
+char*       yENV_check              (void);
+/*········· ´·················DONE· ´·········································*/
+
 
 
 #endif
