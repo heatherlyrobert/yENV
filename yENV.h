@@ -186,11 +186,12 @@ char        yENV_name_detail        (char a_full [LEN_PATH], char *r_style, char
 
 
 /*===[[ yENV_file.c ]]========================================================*/
-/*········· ´······················ ´·········································*/
-char        yENV_open_full          (char a_label [LEN_LABEL], char c_force, char a_dir [LEN_PATH], char a_file [LEN_PATH], char a_mode, char r_mode [LEN_SHORT], char r_note [LEN_LABEL], char r_full [LEN_PATH], FILE **b_file);
-char        yENV_open               (char a_dir [LEN_PATH], char a_file [LEN_PATH], char a_mode, FILE **b_file);
+/*········· ´···············access· ´·········································*/
+char        yENV_open_full          (char a_label [LEN_LABEL], char c_force, char a_dir [LEN_PATH], char a_file [LEN_HUND], char a_mode, char r_mode [LEN_SHORT], char r_note [LEN_LABEL], char r_full [LEN_PATH], FILE **b_file);
+char        yENV_open               (char a_dir [LEN_PATH], char a_file [LEN_HUND], char a_mode, FILE **b_file);
 char        yENV_close_full         (char a_label [LEN_LABEL], FILE **b_file, char c_sync);
 char        yENV_close              (FILE **b_file);
+/*········· ´················input· ´·········································*/
 char        yENV_read               (FILE *a_file, char c_comment, char c_visible, int *b_read, int *b_accept, char b_curr [LEN_RECD], char r_prev [LEN_RECD]);
 /*········· ´·················DONE· ´·········································*/
 

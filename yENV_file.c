@@ -2,41 +2,10 @@
 #include    "yENV.h"
 #include    "yENV_priv.h"
 
-/*> char                                                                                                                    <* 
- *> yENV_copy            (char a_dir [LEN_PATH], char a_file [LEN_PATH], char a_2dir [LEN_PATH], char a_2file [LEN_PATH])   <* 
- *> {                                                                                                                       <* 
- *>    /+> /+---(make full new file name)------------+/                                             <*                      <* 
- *>     *> rc = yENV_name_full (a_cdir, x_new, NULL, x_full);                                       <*                      <* 
- *>     *> DEBUG_YJOBS   yLOG_value   ("full"      , rc);                                           <*                      <* 
- *>     *> --rce;  if (rc < 0) {                                                                    <*                      <* 
- *>     *>    yjobs_ends_failure (a_mode, "could not create full name", x_fatal);                   <*                      <* 
- *>     *>    DEBUG_YJOBS   yLOG_exitr   (__FUNCTION__, rce);                                       <*                      <* 
- *>     *>    return rce;                                                                           <*                      <* 
- *>     *> }                                                                                        <*                      <* 
- *>     *> /+> yURG_msg ('-', "central file name %2då%sæ", strlen (x_full), x_full);          <+/   <*                      <* 
- *>     *> DEBUG_YJOBS   yLOG_info    ("x_full"    , x_full);                                       <*                      <* 
- *>     *> /+---(copy file)--------------------------+/                                             <*                      <* 
- *>     *> snprintf (x_cmd, LEN_RECD, "cp -f %s %s > /dev/null  2>&1", a_file, x_full);             <*                      <* 
- *>     *> DEBUG_YJOBS   yLOG_info    ("x_cmd"     , x_cmd);                                        <*                      <* 
- *>     *> rc = system   (x_cmd);                                                                   <*                      <* 
- *>     *> DEBUG_YJOBS   yLOG_value   ("system"    , rc);                                           <*                      <* 
- *>     *> --rce;  if (rc < 0) {                                                                    <*                      <* 
- *>     *>    sprintf (x_msg, "could not copy (system) to å%sæ", a_cdir);                           <*                      <* 
- *>     *>    yjobs_ends_failure (a_mode, x_msg, x_fatal);                                          <*                      <* 
- *>     *>    DEBUG_YJOBS   yLOG_exitr   (__FUNCTION__, rce);                                       <*                      <* 
- *>     *>    return rce;                                                                           <*                      <* 
- *>     *> }                                                                                        <*                      <* 
- *>     *> DEBUG_YJOBS   yLOG_value   ("wifexited" , WIFEXITED(rc));                                <*                      <* 
- *>     *> if (WIFEXITED(rc) <  0) {                                                                <*                      <* 
- *>     *>    sprintf (x_msg, "could not copy (wifexited) to å%sæ", a_cdir);                        <*                      <* 
- *>     *>    yjobs_ends_failure (a_mode, x_msg, x_fatal);                                          <*                      <* 
- *>     *>    DEBUG_YJOBS   yLOG_exitr   (__FUNCTION__, rce);                                       <*                      <* 
- *>     *>    return rce;                                                                           <*                      <* 
- *>     *> }                                                                                        <+/                     <* 
- *> }                                                                                                                       <*/
+
 
 char
-yENV_open_full          (char a_label [LEN_LABEL], char c_force, char a_dir [LEN_PATH], char a_file [LEN_PATH], char a_mode, char r_mode [LEN_SHORT], char r_note [LEN_LABEL], char r_full [LEN_PATH], FILE **b_file)
+yENV_open_full          (char a_label [LEN_LABEL], char c_force, char a_dir [LEN_PATH], char a_file [LEN_HUND], char a_mode, char r_mode [LEN_SHORT], char r_note [LEN_LABEL], char r_full [LEN_PATH], FILE **b_file)
 {
    /*---(design notes)-------------------*/
    /*
@@ -168,7 +137,7 @@ yENV_open_full          (char a_label [LEN_LABEL], char c_force, char a_dir [LEN
 }
 
 char
-yENV_open                (char a_dir [LEN_PATH], char a_file [LEN_PATH], char a_mode, FILE **b_file)
+yENV_open                (char a_dir [LEN_PATH], char a_file [LEN_HUND], char a_mode, FILE **b_file)
 {
    return yENV_open_full ("file", '-', a_dir, a_file, a_mode, NULL, NULL, NULL, b_file);
 }
@@ -270,6 +239,7 @@ yENV_read               (FILE *a_file, char c_comment, char c_visible, int *b_re
       if (feof (a_file)) {
          DEBUG_YENV   yLOG_note    ("hit end-of-file");
          if (b_curr   != NULL)  strlcpy (b_curr, "", LEN_RECD);
+         if (b_read   != NULL)  *b_read   = x_line;;
          DEBUG_YENV   yLOG_exit    (__FUNCTION__);
          return 0;
       }
@@ -285,13 +255,24 @@ yENV_read               (FILE *a_file, char c_comment, char c_visible, int *b_re
          DEBUG_YENV   yLOG_note    ("blank line");
          continue;
       }
-      if (strncmp (x_recd, "##", 2) == 0) {
-         DEBUG_YENV   yLOG_note    ("double comment line");
-         continue;
-      }
-      if (c_comment == 'y' && x_recd [0] == '#') {
-         DEBUG_YENV   yLOG_note    ("single comment line");
-         continue;
+      if (x_recd [0] == '#') {
+         DEBUG_YENV   yLOG_char    ("c_comment" , c_comment);
+         if (c_comment == 'y') {
+            DEBUG_YENV   yLOG_note    ("ignoring all comment lines");
+            continue;
+         }
+         switch (x_recd [1]) {
+         case '>' :
+            DEBUG_YENV   yLOG_note    ("allowing koios-style saved comments");
+            break;
+         case '@' :
+            DEBUG_YENV   yLOG_note    ("allowing gyges-style exim configuraton");
+            break;
+         default  :
+            DEBUG_YENV   yLOG_note    ("ignoring comment line");
+            continue;
+            break;
+         }
       }
       if (x_len <= 10)  {
          DEBUG_YENV   yLOG_note    ("too short, skipping");

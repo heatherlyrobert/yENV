@@ -36,10 +36,11 @@ yENV (7)           decision rationale, scope, and objectives
 
 .SH TABLE OF CONTENTS
 .nf  
-a) overview        quick summary
-b) synopsis        function overview
-c) openning        verify and open file
-d) closing         close file
+A) overview        quick summary
+B) synopsis        function overview
+C) ope             verify and open file
+D) close           close file
+E) read            read next record
 
 .SH A) OVERVIEW
 yENV provides a confirmation interface for openning and closing files, where
@@ -48,93 +49,158 @@ very, very, very bloody useful in secure programs.
 
 .SH B) SYNOPSIS
 .nf
-usage is noted on the far-left of each entry...
-   ! means once-per-program
-   ¼ primary interface
-   ´ every program
-   · not in every program
-
 ---openning------------------------------------
-·  char     yENV_open_full       (char* <label>, char* <dir>, ´´´);
-·  char     yENV_open            (char* <dir>, ´´´);
+·  char     yENV_open_full       (´´´);
+·  char     yENV_open            (´´´);
 
+.nf
 ---closing-------------------------------------
-·  char     yENV_close_full      (char* <label>, ´´´);
-·  char     yENV_close           (FILE** <file>);
+·  char     yENV_close_full      (´´´);
+·  char     yENV_close           (´´´);
+
+.nf
+---reading-------------------------------------
+·  char     yENV_read            (´´´);
 
 .SH C) OPENNING
-openning regular files is easy, but consistently confirming their security
-before openning is fussy and time-consuming.  these functions remove a great
-deal of reduntant effort from my security related programs like themis, argus,
-hermes, etc.
+openning regular files is easy, but doing it consistently and carefully is
+fussy and time-consuming.  these functions remove a great deal of reduntant
+effort from my everyday applications (high security is yAUDIT).
 
-.SS char  yENV_open_full (char* <label>, char* <name>, ´´´);
-opens a file if it meets all the security requirements.
+.SS char  yENV_open_full (´´´)
+detailed method for openning files to meet all my needs.
 
+.B char*²a_label²²²[LEN_LABEL]
 .RS 3
-.B char* <a_label> short label for debugging and tracing
+short label for debugging and tracing
 .RE
 
+.B char*²²a_dir²²²²²[LEN_PATH]
 .RS 3
-.B char* <a_dir> path to regular file
+directory storing file
 .RE
 
+.B char*²²a_name²²²²[LEN_HUND]
 .RS 3
-.B char* <a_name> name of regular file
+name of the file itself
 .RE
 
+.B char²²²a_mode
 .RS 3
-.B char <a_mode> one character file access mode (see yENV (3))
+r=text read, R=binary read, w=text write, W=binary write
 .RE
 
+.B char*²²r_mode²²²²[LEN_SHORT]
 .RS 3
-.B char* <r_mode> actual file access mode (for logging/debugging)
+two-character linux mode, i.e., "rt" for a_mode of 'r'
 .RE
 
+.B char*²²r_note²²²²[LEN_LABEL]
 .RS 3
-.B char* <r_note> short description of mode (for logging/debugging)
+longer mode description, i.e., "reading as text" for a_mode of 'r'
 .RE
 
+.B char*²²r_full²²²²[LEN_PATH]
 .RS 3
-.B char* <r_full> cleaned up, full name of file
+fully concatinated, cleaned up, name of file
 .RE
 
+.B FILE**²b_file
 .RS 3
-.B FILE** <b_file> actual file pointer, must be NULL to open.
+actual file pointer, must start be NULL to open.
 .RE
 
-.SS char  yENV_open (char* <dir>, char* <file>, ´´´);
-simplified version of yENV_open_full.  it only uses a_dir, a_name, a_mode,
-and b_file.
+.B return code
+.RS 3
+1 for open, negative for trouble
+.RE
+
+NOTE : you can put entire dir/file in a_dir and the function will sort that
+out automatically.
+
+.SS char  yENV_open (´´´)
+simplified interface which in turn calls yENV_open_full using a_dir, a_file,
+a_mode, and r_full.
 
 .SH D) CLOSING
 closing file is much simplier, but this function is a pair to yENV_open_full,
 checks the pointer, and grounds after closing.
 
-.SS char  yENV_close_full (char* <label>, FILE** <file>, ´´´);
+.SS char  yENV_close_full (´´´)
 opens a file if it meets all the security requirements.
 
+.B char*²²a_label²²²[LEN_LABEL]
 .RS 3
-.B char* <a_label> short label for debugging and tracing
+short label for debugging and tracing
 .RE
 
+.B FILE**²b_file
 .RS 3
-.B FILE** <b_file> actual file pointer, grounds after closing.
+actual file pointer, must start be set to close.
 .RE
 
+.B char²²c_sync
 .RS 3
-.B char* <c_sync> if yes, the drive is sync'd too
+y = sync drives after closing
 .RE
 
-.SS char  yENV_close (FILE** <file>);
-simplified version of yENV_close_full.  it only uses b_file.
+.B return code
+.RS 3
+1 for closed, negative for trouble
+.RE
 
-.SS char  yENV_rmdir (char* <name>);
-removes directory, if empty, as a simpifier for yENV_removier.
+.SS char  yENV_close (´´´)
+simplified interface which in turn calls yENV_close_full using only b_file.
 
-.SS char  yENV_rmdir_fully (char* <name>);
-removes directory (and underlying files) as a simpifier for yENV_removier.
-this is only allowed to work under ¶/tmp¶
+.SH E) READING
+reading normal, everyday files is just a simple slog and one that i tire of
+repeating ;) this function removes a great deal of reduntant effort from
+my everyday applications in keeping counters and skipping empty records,
+comments, etc.
+
+.SS char  yENV_read (´´´)
+more detailed interface for reading records from file.  there is no
+simplified interface at this time.
+
+.B FILE*²²a_file
+.RS 3
+actual file pointer, must be set to continue
+.RE
+
+.B char²²²c_comment
+.RS 3
+y = ignore any # prefixed line, - means keep #> and #@ lines
+.RE
+
+.B char²²²c_visible
+.RS 3
+y = convert ascii field sperator to visible (§)
+.RE
+
+.B int*²²²b_read
+.RS 3
+updates read counter every fgets ()
+.RE
+
+.B int*²²²b_accept
+.RS 3
+updates accept counter when usable record found and returns
+.RE
+
+.B char*²²b_curr²²²²[LEN_RECD]
+.RS 3
+latest usable record from file
+.RE
+
+.B char*²²r_prev²²²²[LEN_RECD]
+.RS 3
+previous usable record from file
+.RE
+
+.B return code
+.RS 3
+1 for closed, 0 for normal end-of-file, negative for trouble
+.RE
 
 .SH BUGS
 yENV is incredibly stable for me, but if anyone else used it it might explode
