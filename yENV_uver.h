@@ -112,10 +112,10 @@ yenv_upeekier           (char a_name [LEN_PATH], char a_dir, int n, int *r_count
    return myenv_upeek;
 }
 
-int    yenv_ulines  (char a_name [LEN_PATH])        { int c = 0;  yenv_upeekier (a_name, 0    , 0, &c); return c; }
+int    yenv_ulines  (char a_name [LEN_PATH])        { int c = 0;  yenv_upeekier (a_name, YDLST_COUNT, 0, &c); return c; }
 
-char*  yenv_upeek   (char a_name [LEN_PATH], char a_dir) { return yenv_upeekier (a_name, a_dir, 0, NULL); }
-char*  yenv_uindex  (char a_name [LEN_PATH], int  n    ) { return yenv_upeekier (a_name, 0    , n, NULL); }
+char*  yenv_upeek   (char a_name [LEN_PATH], char a_dir) { return yenv_upeekier (a_name, a_dir      , 0, NULL); }
+char*  yenv_uindex  (char a_name [LEN_PATH], int  n    ) { return yenv_upeekier (a_name, 0          , n, NULL); }
 
 char*  yenv_uwhich   (void)  { return myenv_usave; }
 int    yenv_uwhere   (void)  { return myenv_ulast; }
@@ -366,6 +366,7 @@ yenv_uread              (FILE *a_file, short a_max, char r_recd [LEN_RECD], shor
       }
       fgets (r_recd, a_max, a_file);
       if (feof (a_file)) {
+         strcpy (r_recd, "");
          DEBUG_YENV  yLOG_note    ("hit end-of-file");
          DEBUG_YENV  yLOG_exit    (__FUNCTION__);
          return 0;
@@ -383,6 +384,20 @@ yenv_uread              (FILE *a_file, short a_max, char r_recd [LEN_RECD], shor
       if (r_recd [0] == ' ') {
          DEBUG_YENV  yLOG_note    ("starts with a space, skipping");
          continue;
+      }
+      if (r_recd [0] == '#') {
+         switch (r_recd [1]) {
+         case '>' :
+            DEBUG_YENV   yLOG_note    ("allowing koios-style saved comments");
+            break;
+         case '@' :
+            DEBUG_YENV   yLOG_note    ("allowing gyges-style exim configuraton");
+            break;
+         default  :
+            DEBUG_YENV   yLOG_note    ("non-critical comment line, skipping");
+            continue;
+            break;
+         }
       }
       break;
       /*---(done)------------------------*/

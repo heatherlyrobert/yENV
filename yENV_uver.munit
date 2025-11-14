@@ -16,8 +16,11 @@ static char       *s_alt   = "/tmp/yenv_alt.txt";
 char
 koios_uver__dataset     (void)
 {
+
    yUNIT_mincond  ("create primary data set");
-   system ("echo \"# theia is the greek titan of sight and the shinning light of the clear blue sky\"  > /tmp/yenv_theia.txt");
+   system ("echo \"#!/usr/local/bin/theia\"                                                            > /tmp/yenv_theia.txt");
+   system ("echo \"# theia is the greek titan of sight and the shinning light of the clear blue sky\" >> /tmp/yenv_theia.txt");
+   system ("echo \"#@ bounds ......  this is a gyges-style emix configuration line\"                  >> /tmp/yenv_theia.txt");
    system ("echo \"\"                                                                                 >> /tmp/yenv_theia.txt");
    system ("echo \"# UNITTEST §     § ===[ LOCKED ]======= § t § -0----black----8- §\"                >> /tmp/yenv_theia.txt");
    system ("echo \"# rec type § hex § ---scheme-name------ § y §   norm  §  bright §\"                >> /tmp/yenv_theia.txt");
@@ -25,8 +28,11 @@ koios_uver__dataset     (void)
    system ("echo \"foreground § õ61 § unit test classic    § - § õ000000 § õ404040 §\"                >> /tmp/yenv_theia.txt");
    system ("echo \"foreground § õ62 § unit test mega       § f § õ881066 § õdd20aa §\"                >> /tmp/yenv_theia.txt");
    system ("echo \"\"                                                                                 >> /tmp/yenv_theia.txt");
+   system ("echo \"#> this is a save line\"                                                           >> /tmp/yenv_theia.txt");
    system ("echo \"# end-of-file.  done, finito, completare, whimper [Ï´···\"                         >> /tmp/yenv_theia.txt");
    yUNIT_mindnoc  ();
+
+
 
    yUNIT_mincond  ("create secondary data set");
    system ("echo \"one\"                                                                               > /tmp/yenv_alt.txt");
@@ -52,20 +58,20 @@ koios_uver_upeekier  (char a_scrp, char a_list, char a_unit)
    koios_uver__dataset ();
 
    yUNIT_mincond  ("verify quick success");
-   yUNIT_minstr   ("... check normal"                   , yenv_upeekier (s_file,  0,  0, NULL) , "# theia is the greek titan of sight and the shinning light of the clear blue sky");
+   yUNIT_minstr   ("... check normal"                   , yenv_upeekier (s_file,  0,  1, NULL) , "# theia is the greek titan of sight and the shinning light of the clear blue sky");
    yUNIT_minstr   ("... check which"                    , yenv_uwhich ()           , s_file);
-   yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    0);
-   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,    9);
+   yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    1);
+   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,   12);
    yUNIT_mindnoc  ();
 
    yUNIT_mincond  ("attempt with NULL file name");
-   yUNIT_minstr   ("... check normal"                   , yenv_upeekier (NULL  ,  0,  0, NULL) , "(null name)");
+   yUNIT_minstr   ("... check normal"                   , yenv_upeekier (NULL  ,  0,  1, NULL) , "(null name)");
    yUNIT_minstr   ("... check which"                    , yenv_uwhich ()           , "");
    yUNIT_minval   ("... check where"                    , yenv_uwhere ()           , -1);
    yUNIT_mindnoc  ();
 
    yUNIT_mincond  ("attempt with empty file name");
-   yUNIT_minstr   ("... check normal"                   , yenv_upeekier (""    ,  0,  0, NULL) , "(empty name)");
+   yUNIT_minstr   ("... check normal"                   , yenv_upeekier (""    ,  0,  1, NULL) , "(empty name)");
    yUNIT_minstr   ("... check which"                    , yenv_uwhich ()           , "");
    yUNIT_minval   ("... check where"                    , yenv_uwhere ()           , -1);
    yUNIT_mindnoc  ();
@@ -101,29 +107,29 @@ koios_uver_uindex  (char a_scrp, char a_list, char a_unit)
    koios_uver__dataset ();
 
    yUNIT_mincond  ("verify quick success by index");
-   yUNIT_minstr   ("... check normal"                   , yenv_uindex (s_file,          0) , "# theia is the greek titan of sight and the shinning light of the clear blue sky");
+   yUNIT_minstr   ("... check normal"                   , yenv_uindex (s_file,          0) , "#!/usr/local/bin/theia");
    yUNIT_minstr   ("... check which"                    , yenv_uwhich ()           , s_file);
    yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    0);
-   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,    9);
+   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,   12);
    yUNIT_mindnoc  ();
 
    yUNIT_mincond  ("verify ordinal access");
-   yUNIT_minstr   ("... check normal"                   , yenv_uindex (s_file,          0) , "# theia is the greek titan of sight and the shinning light of the clear blue sky");
-   yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    0);
-   yUNIT_minstr   ("... check normal"                   , yenv_uindex (s_file,          2) , "# UNITTEST §     § ===[ LOCKED ]======= § t § -0----black----8- §");
-   yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    2);
-   yUNIT_minstr   ("... check normal"                   , yenv_uindex (s_file,          4) , "foreground § õ60 § unit test mine       § c § õ553311 § õcc8855 §");
+   yUNIT_minstr   ("... check normal"                   , yenv_uindex (s_file,          1) , "# theia is the greek titan of sight and the shinning light of the clear blue sky");
+   yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    1);
+   yUNIT_minstr   ("... check normal"                   , yenv_uindex (s_file,          4) , "# UNITTEST §     § ===[ LOCKED ]======= § t § -0----black----8- §");
    yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    4);
-   yUNIT_minstr   ("... check normal"                   , yenv_uindex (s_file,          6) , "foreground § õ62 § unit test mega       § f § õ881066 § õdd20aa §");
+   yUNIT_minstr   ("... check normal"                   , yenv_uindex (s_file,          6) , "foreground § õ60 § unit test mine       § c § õ553311 § õcc8855 §");
    yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    6);
-   yUNIT_minstr   ("... check normal"                   , yenv_uindex (s_file,          8) , "# end-of-file.  done, finito, completare, whimper [Ï´···");
+   yUNIT_minstr   ("... check normal"                   , yenv_uindex (s_file,          8) , "foreground § õ62 § unit test mega       § f § õ881066 § õdd20aa §");
    yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    8);
-   yUNIT_minstr   ("... check normal"                   , yenv_uindex (s_file,          9) , "(over)");
-   yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    8);
+   yUNIT_minstr   ("... check normal"                   , yenv_uindex (s_file,         11) , "# end-of-file.  done, finito, completare, whimper [Ï´···");
+   yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,   11);
+   yUNIT_minstr   ("... check normal"                   , yenv_uindex (s_file,         12) , "(over)");
+   yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,   11);
    yUNIT_mindnoc  ();
 
    yUNIT_mincond  ("verify a negative/reset");
-   yUNIT_minstr   ("... check normal"                   , yenv_uindex (s_file,         -1) , "(reset)");
+   yUNIT_minstr   ("... check normal"                   , yenv_uindex (s_file,         -1) , "(under)");
    yUNIT_minstr   ("... check which"                    , yenv_uwhich ()           , s_file);
    yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,   -1);
    yUNIT_mindnoc  ();
@@ -136,7 +142,6 @@ koios_uver_uindex  (char a_scrp, char a_list, char a_unit)
 char
 koios_code_upeek   (char a_scrp, char a_list, char a_unit)
 {
-   char        s_file      [LEN_HUND]  = "/tmp/yurg_theia.txt";
 
    yUNIT_minscrpy ("yENV", "yENV_uver", "(UVER) verify micro version of peek");
    if (a_list == '!')    { yUNIT_minprcs (); return 0; }
@@ -148,48 +153,48 @@ koios_code_upeek   (char a_scrp, char a_list, char a_unit)
    koios_uver__dataset ();
 
    yUNIT_mincond  ("verify cursor access (forward)");
-   yUNIT_minstr   ("... check head"                     , yenv_upeek  (s_file, YDLST_HEAD) , "# theia is the greek titan of sight and the shinning light of the clear blue sky");
+   yUNIT_minstr   ("... check head"                     , yenv_upeek  (s_file, YDLST_HEAD) , "#!/usr/local/bin/theia");
    yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    0);
-   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,    9);
+   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,   12);
    yUNIT_minstr   ("... check prev (BOOM)"              , yenv_upeek  (s_file, YDLST_PREV) , "(under)");
    yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    0);
-   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,    9);
-   yUNIT_minstr   ("... check next"                     , yenv_upeek  (s_file, YDLST_NEXT) , "");
+   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,   12);
+   yUNIT_minstr   ("... check next"                     , yenv_upeek  (s_file, YDLST_NEXT) , "# theia is the greek titan of sight and the shinning light of the clear blue sky");
    yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    1);
-   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,    9);
-   yUNIT_minstr   ("... check next"                     , yenv_upeek  (s_file, YDLST_NEXT) , "# UNITTEST §     § ===[ LOCKED ]======= § t § -0----black----8- §");
+   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,   12);
+   yUNIT_minstr   ("... check next"                     , yenv_upeek  (s_file, YDLST_NEXT) , "#@ bounds ......  this is a gyges-style emix configuration line");
    yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    2);
-   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,    9);
-   yUNIT_minstr   ("... check next"                     , yenv_upeek  (s_file, YDLST_NEXT) , "# rec type § hex § ---scheme-name------ § y §   norm  §  bright §");
+   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,   12);
+   yUNIT_minstr   ("... check next"                     , yenv_upeek  (s_file, YDLST_NEXT) , "");
    yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    3);
-   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,    9);
-   yUNIT_minstr   ("... check next"                     , yenv_upeek  (s_file, YDLST_NEXT) , "foreground § õ60 § unit test mine       § c § õ553311 § õcc8855 §");
+   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,   12);
+   yUNIT_minstr   ("... check next"                     , yenv_upeek  (s_file, YDLST_NEXT) , "# UNITTEST §     § ===[ LOCKED ]======= § t § -0----black----8- §");
    yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    4);
-   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,    9);
-   yUNIT_minstr   ("... check curr"                     , yenv_upeek  (s_file, YDLST_CURR) , "foreground § õ60 § unit test mine       § c § õ553311 § õcc8855 §");
+   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,   12);
+   yUNIT_minstr   ("... check curr"                     , yenv_upeek  (s_file, YDLST_CURR) , "# UNITTEST §     § ===[ LOCKED ]======= § t § -0----black----8- §");
    yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    4);
-   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,    9);
+   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,   12);
    yUNIT_mindnoc  ();
 
    yUNIT_mincond  ("verify cursor access (backward)");
    yUNIT_minstr   ("... check tail"                     , yenv_upeek  (s_file, YDLST_TAIL) , "# end-of-file.  done, finito, completare, whimper [Ï´···");
-   yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    8);
-   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,    9);
+   yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,   11);
+   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,   12);
    yUNIT_minstr   ("... check tail"                     , yenv_upeek  (s_file, YDLST_CURR) , "# end-of-file.  done, finito, completare, whimper [Ï´···");
-   yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    8);
-   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,    9);
+   yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,   11);
+   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,   12);
    yUNIT_minstr   ("... check next (BOOM)"              , yenv_upeek  (s_file, YDLST_NEXT) , "(over)");
-   yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    8);
-   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,    9);
+   yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,   11);
+   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,   12);
+   yUNIT_minstr   ("... check prev"                     , yenv_upeek  (s_file, YDLST_PREV) , "#> this is a save line");
+   yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,   10);
+   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,   12);
    yUNIT_minstr   ("... check prev"                     , yenv_upeek  (s_file, YDLST_PREV) , "");
-   yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    7);
-   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,    9);
-   yUNIT_minstr   ("... check prev"                     , yenv_upeek  (s_file, YDLST_PREV) , "foreground § õ62 § unit test mega       § f § õ881066 § õdd20aa §");
-   yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    6);
-   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,    9);
-   yUNIT_minstr   ("... check curr"                     , yenv_upeek  (s_file, YDLST_CURR) , "foreground § õ62 § unit test mega       § f § õ881066 § õdd20aa §");
-   yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    6);
-   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,    9);
+   yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    9);
+   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,   12);
+   yUNIT_minstr   ("... check curr"                     , yenv_upeek  (s_file, YDLST_PREV) , "foreground § õ62 § unit test mega       § f § õ881066 § õdd20aa §");
+   yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    8);
+   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,   12);
    yUNIT_mindnoc  ();
 
    yENV__unit_end    ();
@@ -200,7 +205,6 @@ koios_code_upeek   (char a_scrp, char a_list, char a_unit)
 char
 koios_code_umixed  (char a_scrp, char a_list, char a_unit)
 {
-   char        s_file      [LEN_HUND]  = "/tmp/yurg_theia.txt";
 
    yUNIT_minscrpy ("yENV", "yENV_uver", "(UVER) verify micro version of peek");
    if (a_list == '!')    { yUNIT_minprcs (); return 0; }
@@ -212,27 +216,27 @@ koios_code_umixed  (char a_scrp, char a_list, char a_unit)
    koios_uver__dataset ();
 
    yUNIT_mincond  ("verify index move");
-   yUNIT_minstr   ("... go to middle"                   , yenv_uindex (s_file      ,    4) , "foreground § õ60 § unit test mine       § c § õ553311 § õcc8855 §");
-   yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    4);
+   yUNIT_minstr   ("... go to middle"                   , yenv_uindex (s_file      ,    6) , "foreground § õ60 § unit test mine       § c § õ553311 § õcc8855 §");
+   yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    6);
    yUNIT_mindnoc  ();
 
    yUNIT_mincond  ("verify cursoring down");
    yUNIT_minstr   ("... check previous"                 , yenv_upeek  (s_file, YDLST_PREV) , "# rec type § hex § ---scheme-name------ § y §   norm  §  bright §");
-   yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    3);
+   yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    5);
    yUNIT_minstr   ("... check previous"                 , yenv_upeek  (s_file, YDLST_PREV) , "# UNITTEST §     § ===[ LOCKED ]======= § t § -0----black----8- §");
-   yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    2);
+   yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    4);
    yUNIT_mindnoc  ();
 
    yUNIT_mincond  ("verify index move again");
-   yUNIT_minstr   ("... check normal"                   , yenv_uindex (s_file,          6) , "foreground § õ62 § unit test mega       § f § õ881066 § õdd20aa §");
-   yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    6);
+   yUNIT_minstr   ("... check normal"                   , yenv_uindex (s_file,          8) , "foreground § õ62 § unit test mega       § f § õ881066 § õdd20aa §");
+   yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    8);
    yUNIT_mindnoc  ();
 
    yUNIT_mincond  ("verify cursoring up");
    yUNIT_minstr   ("... check next"                     , yenv_upeek  (s_file, YDLST_NEXT) , "");
-   yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    7);
-   yUNIT_minstr   ("... check next" , yenv_upeek  (s_file, YDLST_NEXT) , "# end-of-file.  done, finito, completare, whimper [Ï´···");
-   yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    8);
+   yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    9);
+   yUNIT_minstr   ("... check next"                     , yenv_upeek  (s_file, YDLST_NEXT) , "#> this is a save line");
+   yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,   10);
    yUNIT_mindnoc  ();
 
    yENV__unit_end    ();
@@ -243,7 +247,6 @@ koios_code_umixed  (char a_scrp, char a_list, char a_unit)
 char
 koios_code_unormal (char a_scrp, char a_list, char a_unit)
 {
-   char        s_file      [LEN_HUND]  = "/tmp/yurg_theia.txt";
 
    yUNIT_minscrpy ("yENV", "yENV_uver", "(UVER) verify micro version of peek");
    if (a_list == '!')    { yUNIT_minprcs (); return 0; }
@@ -255,41 +258,41 @@ koios_code_unormal (char a_scrp, char a_list, char a_unit)
    koios_uver__dataset ();
 
    yUNIT_mincond  ("verify backward cursor bounce in normal mode");
-   yUNIT_minstr   ("... check head"                     , yenv_upeek  (s_file, YDLST_HEAD) , "# theia is the greek titan of sight and the shinning light of the clear blue sky");
+   yUNIT_minstr   ("... check head"                     , yenv_upeek  (s_file, YDLST_HEAD) , "#!/usr/local/bin/theia");
    yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    0);
-   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,    9);
+   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,   12);
    yUNIT_minstr   ("... check prev (BOOM)"              , yenv_upeek  (s_file, YDLST_PREV) , "(n/a)");
    yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    0);
-   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,    9);
+   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,   12);
    yUNIT_mindnoc  ();
 
    yUNIT_mincond  ("verify forward cursor bounce in normal mode");
    yUNIT_minstr   ("... check tail"                     , yenv_upeek  (s_file, YDLST_TAIL) , "# end-of-file.  done, finito, completare, whimper [Ï´···");
-   yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    8);
-   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,    9);
+   yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,   11);
+   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,   12);
    yUNIT_minstr   ("... check next (BOOM)"              , yenv_upeek  (s_file, YDLST_NEXT) , "(n/a)");
-   yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    8);
-   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,    9);
+   yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,   11);
+   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,   12);
    yUNIT_mindnoc  ();
 
    yenv_uunit ();
 
    yUNIT_mincond  ("verify backward bounce in unit test mode");
-   yUNIT_minstr   ("... check head"                     , yenv_upeek  (s_file, YDLST_HEAD) , "# theia is the greek titan of sight and the shinning light of the clear blue sky");
+   yUNIT_minstr   ("... check head"                     , yenv_upeek  (s_file, YDLST_HEAD) , "#!/usr/local/bin/theia");
    yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    0);
-   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,    9);
+   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,   12);
    yUNIT_minstr   ("... check prev (BOOM)"              , yenv_upeek  (s_file, YDLST_PREV) , "(under)");
    yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    0);
-   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,    9);
+   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,   12);
    yUNIT_mindnoc  ();
 
    yUNIT_mincond  ("verify forward cursor bounce in unit test mode");
    yUNIT_minstr   ("... check tail"                     , yenv_upeek  (s_file, YDLST_TAIL) , "# end-of-file.  done, finito, completare, whimper [Ï´···");
-   yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    8);
-   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,    9);
+   yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,   11);
+   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,   12);
    yUNIT_minstr   ("... check next (BOOM)"              , yenv_upeek  (s_file, YDLST_NEXT) , "(over)");
-   yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,    8);
-   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,    9);
+   yUNIT_minval   ("... check where"                    , yenv_uwhere ()           ,   11);
+   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,   12);
    yUNIT_mindnoc  ();
 
    yENV__unit_end    ();
@@ -431,7 +434,6 @@ koios_code_ustdin  (char a_scrp, char a_list, char a_unit)
 char
 koios_code_uread   (char a_scrp, char a_list, char a_unit)
 {
-   char        s_file      [LEN_HUND]  = "/tmp/yenv_test.txt";
    FILE       *f           = NULL;
    char        x_recd      [LEN_RECD]  = "";
    short       x_total     =    0;
@@ -443,22 +445,8 @@ koios_code_uread   (char a_scrp, char a_list, char a_unit)
    if (a_list == 'y')                    return 0;
    yENV__unit_quiet  ();
 
-   yUNIT_mincond  ("open a file for reading");
-   system ("echo \"line one\"           >  /tmp/yenv_test.txt");
-   system ("echo \"\"                   >> /tmp/yenv_test.txt");
-   system ("echo \"line two\"           >> /tmp/yenv_test.txt");
-   system ("echo \"\"                   >> /tmp/yenv_test.txt");
-   system ("echo \"\"                   >> /tmp/yenv_test.txt");
-   system ("echo \"line three\"         >> /tmp/yenv_test.txt");
-   yUNIT_minval   ("... check lines"                    , yenv_ulines (s_file)     ,    6);
-   yUNIT_minstr   ("... check line"                     , yenv_upeek  (s_file, YDLST_HEAD) , "line one"  );
-   yUNIT_minstr   ("... check line"                     , yenv_upeek  (s_file, YDLST_NEXT) , ""          );
-   yUNIT_minstr   ("... check line"                     , yenv_upeek  (s_file, YDLST_NEXT) , "line two"  );
-   yUNIT_minstr   ("... check line"                     , yenv_upeek  (s_file, YDLST_NEXT) , ""          );
-   yUNIT_minstr   ("... check line"                     , yenv_upeek  (s_file, YDLST_NEXT) , ""          );
-   yUNIT_minstr   ("... check line"                     , yenv_upeek  (s_file, YDLST_NEXT) , "line three");
-   yUNIT_minstr   ("... check line"                     , yenv_upeek  (s_file, YDLST_NEXT) , "(n/a)"     );
-   yUNIT_mindnoc  ();
+   yenv_unormal   ();
+   koios_uver__dataset ();
 
    yUNIT_mincond  ("open a file for reading");
    yUNIT_minval   ("open file"                          , yenv_uopen  (s_file, 'r', &f)     ,    1);
@@ -467,37 +455,51 @@ koios_code_uread   (char a_scrp, char a_list, char a_unit)
 
    yUNIT_mincond  ("read a line");
    yUNIT_minval   ("call read"                          , yenv_uread  (f, LEN_HUND, x_recd, &x_total, &x_accept)     ,    1);
-   yUNIT_minstr   ("... check line"                     , x_recd   , "line one");
-   yUNIT_minval   ("... check total lines"              , x_total  ,          1);
+   yUNIT_minstr   ("... check line"                     , x_recd   , "#@ bounds ......  this is a gyges-style emix configuration line");
+   yUNIT_minval   ("... check total lines"              , x_total  ,          3);
    yUNIT_minval   ("... check accepted"                 , x_accept ,          1);
    yUNIT_mindnoc  ();
 
    yUNIT_mincond  ("read a line");
    yUNIT_minval   ("call read"                          , yenv_uread  (f, LEN_HUND, x_recd, &x_total, &x_accept)     ,    1);
-   yUNIT_minstr   ("... check line"                     , x_recd   , "line two");
-   yUNIT_minval   ("... check total lines"              , x_total  ,          3);
+   yUNIT_minstr   ("... check line"                     , x_recd   , "foreground § õ60 § unit test mine       § c § õ553311 § õcc8855 §");
+   yUNIT_minval   ("... check total lines"              , x_total  ,          7);
    yUNIT_minval   ("... check accepted"                 , x_accept ,          2);
    yUNIT_mindnoc  ();
 
    yUNIT_mincond  ("read a line");
    yUNIT_minval   ("call read"                          , yenv_uread  (f, LEN_HUND, x_recd, &x_total, &x_accept)     ,    1);
-   yUNIT_minstr   ("... check line"                     , x_recd   , "line three");
-   yUNIT_minval   ("... check total lines"              , x_total  ,          6);
+   yUNIT_minstr   ("... check line"                     , x_recd   , "foreground § õ61 § unit test classic    § - § õ000000 § õ404040 §");
+   yUNIT_minval   ("... check total lines"              , x_total  ,          8);
    yUNIT_minval   ("... check accepted"                 , x_accept ,          3);
+   yUNIT_mindnoc  ();
+
+   yUNIT_mincond  ("read a line");
+   yUNIT_minval   ("call read"                          , yenv_uread  (f, LEN_HUND, x_recd, &x_total, &x_accept)     ,    1);
+   yUNIT_minstr   ("... check line"                     , x_recd   , "foreground § õ62 § unit test mega       § f § õ881066 § õdd20aa §");
+   yUNIT_minval   ("... check total lines"              , x_total  ,          9);
+   yUNIT_minval   ("... check accepted"                 , x_accept ,          4);
+   yUNIT_mindnoc  ();
+
+   yUNIT_mincond  ("read a line");
+   yUNIT_minval   ("call read"                          , yenv_uread  (f, LEN_HUND, x_recd, &x_total, &x_accept)     ,    1);
+   yUNIT_minstr   ("... check line"                     , x_recd   , "#> this is a save line");
+   yUNIT_minval   ("... check total lines"              , x_total  ,         11);
+   yUNIT_minval   ("... check accepted"                 , x_accept ,          5);
    yUNIT_mindnoc  ();
 
    yUNIT_mincond  ("read a line (EOF)");
    yUNIT_minval   ("call read"                          , yenv_uread  (f, LEN_HUND, x_recd, &x_total, &x_accept)     ,    0);
    yUNIT_minstr   ("... check line"                     , x_recd   , ""        );
-   yUNIT_minval   ("... check total lines"              , x_total  ,          6);
-   yUNIT_minval   ("... check accepted"                 , x_accept ,          3);
+   yUNIT_minval   ("... check total lines"              , x_total  ,         12);
+   yUNIT_minval   ("... check accepted"                 , x_accept ,          5);
    yUNIT_mindnoc  ();
 
    yUNIT_mincond  ("read a line (way past EOF)");
    yUNIT_minval   ("call read"                          , yenv_uread  (f, LEN_HUND, x_recd, &x_total, &x_accept)     , -999);
    yUNIT_minstr   ("... check line"                     , x_recd   , ""        );
-   yUNIT_minval   ("... check total lines"              , x_total  ,          6);
-   yUNIT_minval   ("... check accepted"                 , x_accept ,          3);
+   yUNIT_minval   ("... check total lines"              , x_total  ,         12);
+   yUNIT_minval   ("... check accepted"                 , x_accept ,          5);
    yUNIT_mindnoc  ();
 
    yUNIT_mincond  ("close an open file");
