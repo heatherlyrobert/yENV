@@ -14,6 +14,8 @@ yENV_name_full          (char a_dir [LEN_PATH], char a_file [LEN_PATH], char *r_
    int         lf          =    0;
    char        x_style     =  '-';
    char        x_full      [LEN_PATH]  = "";
+   char        x_dir       [LEN_PATH]  = "";
+   char        x_file      [LEN_PATH]  = "";
    /*---(default)------------------------*/
    if (r_style != NULL)  *r_style = '-';
    if (r_full  != NULL)  strcpy (r_full , "");
@@ -23,25 +25,39 @@ yENV_name_full          (char a_dir [LEN_PATH], char a_file [LEN_PATH], char *r_
    /*---(prepare)------------------------*/
    ld = strlen (a_dir);
    lf = strlen (a_file);
+   /*---(check for single field)---------*/
+   if (ld == 0 && lf == 0) {
+      ;
+   } else if (ld == 0) {
+      yENV_name_split (a_file, &x_style, x_dir, x_file);
+   } else if (lf == 0) {
+      yENV_name_split (a_dir , &x_style, x_dir, x_file);
+   } else {
+      strlcpy (x_dir , a_dir , LEN_PATH);
+      strlcpy (x_file, a_file, LEN_PATH);
+   }
+   /*---(prepare)------------------------*/
+   ld = strlen (x_dir);
+   lf = strlen (x_file);
    /*---(more defense)-------------------*/
-   --rce;  if (ld > 0 && a_dir  [0] != '/')  return rce;
-   --rce;  if (lf > 0 && a_file [0] == '/')  return rce;
+   --rce;  if (ld > 0 && x_dir  [0] != '/')  return rce;
+   --rce;  if (lf > 0 && x_file [0] == '/')  return rce;
    /*---(check special)------------------*/
-   if      (strcmp (a_file, "dir"    ) == 0)  lf = 0;
-   else if (strcmp (a_file, "code"   ) == 0)  lf = 0;
-   else if (strcmp (a_file, "source" ) == 0)  lf = 0;
-   else if (strcmp (a_file, "sources") == 0)  lf = 0;
+   if      (strcmp (x_file, "dir"    ) == 0)  lf = 0;
+   else if (strcmp (x_file, "code"   ) == 0)  lf = 0;
+   else if (strcmp (x_file, "source" ) == 0)  lf = 0;
+   else if (strcmp (x_file, "sources") == 0)  lf = 0;
    /*---(concatenate)--------------------*/
    if      (ld == 0 && lf == 0)           x_style = '-';
-   else if (ld == 0)                    { x_style = 'f';  sprintf (x_full, "%s", a_file); }
+   else if (ld == 0)                    { x_style = 'f';  sprintf (x_full, "%s", x_file); }
    else if (lf == 0) {
       x_style = 'd';
-      if (a_dir [ld - 1] != '/')    sprintf (x_full, "%s/", a_dir);
-      else                          sprintf (x_full, "%s" , a_dir);
+      if (x_dir [ld - 1] != '/')    sprintf (x_full, "%s/", x_dir);
+      else                          sprintf (x_full, "%s" , x_dir);
    } else {
       x_style = 'b';
-      if (a_dir [ld - 1] != '/')    sprintf (x_full, "%s/%s", a_dir, a_file);
-      else                          sprintf (x_full, "%s%s" , a_dir, a_file);
+      if (x_dir [ld - 1] != '/')    sprintf (x_full, "%s/%s", x_dir, x_file);
+      else                          sprintf (x_full, "%s%s" , x_dir, x_file);
    }
    /*---(re-check)-----------------------*/
    if (x_style == 'f' && x_full [0] == '/')  x_style = 'b';

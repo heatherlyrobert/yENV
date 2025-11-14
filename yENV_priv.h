@@ -38,8 +38,8 @@
 /*········· ··········· ´·····························´········································*/
 #define     P_VERMAJOR  "1.--, production improvements"
 #define     P_VERMINOR  "1.3-, paring extra abilities into ySCORE and yAUDIT"
-#define     P_VERNUM    "1.3f"
-#define     P_VERTXT    "yENV_memory with shared new, free, and unit testing support"
+#define     P_VERNUM    "1.3g"
+#define     P_VERTXT    "yENV_open, yENV_close, yENV_read to help where yPARSE is too much"
 /*········· ··········· ´·····························´········································*/
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
