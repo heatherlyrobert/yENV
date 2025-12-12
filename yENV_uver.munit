@@ -323,12 +323,12 @@ koios_code_uopen   (char a_scrp, char a_list, char a_unit)
    yUNIT_mindnoc  ();
 
    yUNIT_mincond  ("close an open file");
-   yUNIT_minval   ("close file"                         , yenv_uclose (&f)                  ,    1);
+   yUNIT_minval   ("close file"                         , yenv_uclose (s_file, &f)          ,    1);
    yUNIT_minptr   ("... check pointer"                  , f                                 ,    0);
    yUNIT_mindnoc  ();
 
    yUNIT_mincond  ("attempt to double close");
-   yUNIT_minval   ("close file"                         , yenv_uclose (&f)                  , -999);
+   yUNIT_minval   ("close file"                         , yenv_uclose (s_file, &f)          , -999);
    yUNIT_minptr   ("... check pointer"                  , f                                 ,    0);
    yUNIT_mindnoc  ();
 
@@ -347,12 +347,12 @@ koios_code_uopen   (char a_scrp, char a_list, char a_unit)
    yUNIT_mindnoc  ();
 
    yUNIT_mincond  ("attempt to close a null file");
-   yUNIT_minval   ("close file"                         , yenv_uclose (NULL)                , -999);
+   yUNIT_minval   ("close file"                         , yenv_uclose (s_file, NULL)        , -999);
    yUNIT_minptr   ("... check pointer"                  , f                                 ,    1);
    yUNIT_mindnoc  ();
 
    yUNIT_mincond  ("close an open file");
-   yUNIT_minval   ("close file"                         , yenv_uclose (&f)                  ,    1);
+   yUNIT_minval   ("close file"                         , yenv_uclose (s_file, &f)          ,    1);
    yUNIT_minptr   ("... check pointer"                  , f                                 ,    0);
    yUNIT_mindnoc  ();
 
@@ -373,7 +373,7 @@ koios_code_uopen   (char a_scrp, char a_list, char a_unit)
    yUNIT_mindnoc  ();
 
    yUNIT_mincond  ("close an open file");
-   yUNIT_minval   ("close file"                         , yenv_uclose (&f)                  ,    1);
+   yUNIT_minval   ("close file"                         , yenv_uclose (s_file, &f)          ,    1);
    yUNIT_minptr   ("... check pointer"                  , f                                 ,    0);
    yUNIT_mindnoc  ();
 
@@ -421,7 +421,7 @@ koios_code_ustdin  (char a_scrp, char a_list, char a_unit)
    yUNIT_mindnoc  ();
 
    yUNIT_mincond  ("close an open file");
-   yUNIT_minval   ("close file"                         , yenv_uclose (&f)                  ,    1);
+   yUNIT_minval   ("close file"                         , yenv_uclose (s_file,  &f)         ,    1);
    yUNIT_minptr   ("... check pointer"                  , f                                 ,    0);
    yUNIT_minval   ("... unload stdin"                   , yenv_upurge_stdin ()              ,    0);
    yUNIT_mindnoc  ();
@@ -503,7 +503,7 @@ koios_code_uread   (char a_scrp, char a_list, char a_unit)
    yUNIT_mindnoc  ();
 
    yUNIT_mincond  ("close an open file");
-   yUNIT_minval   ("close file"                         , yenv_uclose (&f)                  ,    1);
+   yUNIT_minval   ("close file"                         , yenv_uclose (s_file, &f)          ,    1);
    yUNIT_minptr   ("... check pointer"                  , f                                 ,    0);
    yUNIT_mindnoc  ();
 

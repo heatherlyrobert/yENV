@@ -38,8 +38,8 @@
 /*········· ··········· ´·····························´········································*/
 #define     P_VERMAJOR  "1.--, production improvements"
 #define     P_VERMINOR  "1.3-, paring extra abilities into ySCORE and yAUDIT"
-#define     P_VERNUM    "1.3i"
-#define     P_VERTXT    "updated yENV_uver with cleaner yenv_uread and overall uver unit testing"
+#define     P_VERNUM    "1.3y"
+#define     P_VERTXT    "update to keep up with yTSAE testing"
 /*········· ··········· ´·····························´········································*/
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"

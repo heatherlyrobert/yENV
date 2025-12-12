@@ -77,17 +77,6 @@ yENV_open_full          (char a_label [LEN_LABEL], char c_force, char a_dir [LEN
       return rce;
    }
    DEBUG_YENV   yLOG_info    ("x_full"    , x_full);
-   /*---(verify existance)---------------*/
-   rc = yENV_exists (x_full);
-   DEBUG_YENV   yLOG_char    ("exists"    , rc);
-   --rce;  if (rc == YENV_NONE) {
-      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   --rce;  if (rc != YENV_REG && rc != YENV_HARD) {
-      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
    /*---(set mode)-----------------------*/
    DEBUG_YENV   yLOG_char    ("a_mode"    , a_mode);
    --rce;  switch (a_mode) {
@@ -117,6 +106,21 @@ yENV_open_full          (char a_label [LEN_LABEL], char c_force, char a_dir [LEN
       return rce;
    }
    DEBUG_YENV   yLOG_info    ("x_mode"    , x_mode);
+   /*---(verify existance)---------------*/
+   rc = yENV_exists (x_full);
+   DEBUG_YENV   yLOG_char    ("exists"    , rc);
+   --rce;  if (rc == YENV_NONE) {
+      if (strchr ("rR", a_mode) != NULL)  {
+         DEBUG_YENV   yLOG_note    ("can not read non-existant files");
+         DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
+   }
+   --rce;  if (strchr ("-rh", rc) == NULL) {
+      DEBUG_YENV   yLOG_note    ("file must be new, regular, or hardlink only");
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(open)---------------------------*/
    f = fopen (x_full, x_mode);
    DEBUG_YENV   yLOG_point   ("f"         , f);

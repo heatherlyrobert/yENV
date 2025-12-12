@@ -14,26 +14,26 @@ yENV_new                (char *a_terse, int a_size, void **a_new, int *a_count, 
    void       *x_new       = NULL;
    int         x_tries     =    0;
    /*---(header)-------------------------*/
-   DEBUG_YENV   yLOG_senter  (__FUNCTION__);
-   if (a_terse != NULL)  DEBUG_YENV   yLOG_snote   (a_terse);
+   DEBUG_YENV   yLOG_enter   (__FUNCTION__);
+   if (a_terse != NULL)  DEBUG_YENV   yLOG_note    (a_terse);
    /*---(check return)-------------------*/
-   DEBUG_YENV   yLOG_spoint  (a_new);
+   DEBUG_YENV   yLOG_point   ("a_new"     , a_new);
    --rce;  if (a_new == NULL) {
-      DEBUG_YENV   yLOG_sexitr  (__FUNCTION__, rce);
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   DEBUG_YENV   yLOG_spoint  (*a_new);
+   DEBUG_YENV   yLOG_point   ("*a_new"    , *a_new);
    --rce;  if (a_force != 'y' && *a_new != NULL) {
-      DEBUG_YENV   yLOG_snote   ("already set");
-      DEBUG_YENV   yLOG_sexitr  (__FUNCTION__, rce);
+      DEBUG_YENV   yLOG_note    ("already set");
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(default)------------------------*/
    *a_new = NULL;
    /*---(check size)---------------------*/
-   DEBUG_YENV   yLOG_sint    (a_size);
+   DEBUG_YENV   yLOG_value   ("a_size"    , a_size);
    --rce;  if (a_size <= 0 || a_size >= MAX_BYTES) {
-      DEBUG_YENV   yLOG_sexitr  (__FUNCTION__, rce);
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(allocate)-----------------------*/
@@ -42,10 +42,10 @@ yENV_new                (char *a_terse, int a_size, void **a_new, int *a_count, 
       x_new = malloc (a_size);
       if (x_tries > 3)   break;
    }
-   DEBUG_YENV   yLOG_sint    (x_tries);
+   DEBUG_YENV   yLOG_value   ("x_tries"   , x_tries);
    DEBUG_YENV   yLOG_spoint  (x_new);
    --rce;  if (x_new == NULL) {
-      DEBUG_YENV   yLOG_sexitr  (__FUNCTION__, rce);
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(wipe)---------------------------*/
@@ -55,8 +55,9 @@ yENV_new                (char *a_terse, int a_size, void **a_new, int *a_count, 
    if (a_count != NULL)  ++(*a_count);
    /*---(save return)--------------------*/
    *a_new = x_new;
+   DEBUG_YENV   yLOG_point   ("*a_new"    , *a_new);
    /*---(complete)-----------------------*/
-   DEBUG_YENV   yLOG_sexit   (__FUNCTION__);
+   DEBUG_YENV   yLOG_exit    (__FUNCTION__);
    return rc;
 }
 
@@ -66,28 +67,29 @@ yENV_free               (char *a_terse, void **a_old, int *a_count)
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    /*---(header)-------------------------*/
-   DEBUG_YENV   yLOG_senter  (__FUNCTION__);
-   if (a_terse != NULL)  DEBUG_YENV   yLOG_snote   (a_terse);
+   DEBUG_YENV   yLOG_enter   (__FUNCTION__);
+   if (a_terse != NULL)  DEBUG_YENV   yLOG_note    (a_terse);
    /*---(check return)-------------------*/
-   DEBUG_YENV   yLOG_spoint  (a_old);
+   DEBUG_YENV   yLOG_point   ("a_old"     , a_old);
    --rce;  if (a_old == NULL) {
-      DEBUG_YENV   yLOG_sexitr  (__FUNCTION__, rce);
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   DEBUG_YENV   yLOG_spoint  (*a_old);
+   DEBUG_YENV   yLOG_point   ("*a_old"    , *a_old);
    --rce;  if (*a_old == NULL) {
-      DEBUG_YENV   yLOG_snote   ("never set");
-      DEBUG_YENV   yLOG_sexitr  (__FUNCTION__, rce);
+      DEBUG_YENV   yLOG_note    ("never set");
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(clear and return)---------------*/
    free (*a_old);
    *a_old = NULL;
+   DEBUG_YENV   yLOG_point   ("*a_old"    , *a_old);
    /*---(update counter)-----------------*/
    if (a_count != NULL)  --(*a_count);
    /*---(complete)-----------------------*/
-   DEBUG_YENV   yLOG_sexit   (__FUNCTION__);
-   return 0;
+   DEBUG_YENV   yLOG_exit    (__FUNCTION__);
+   return 1;
 }
 
 static char  s_memory  [LEN_FULL]  = "";
