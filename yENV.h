@@ -4,6 +4,37 @@
 
 
 
+/*===[[ GNU GENERAL PUBLIC LICENSE (GPL) ]]===================================*/
+/*´´·········1·········2·········3·········4·········5·········6·········7·········8  */
+
+#define  P_COPYRIGHT   \
+   "copyright (c) 2020 robert.s.heatherly at balsashrike at gmail dot com"
+
+#define  P_LICENSE     \
+   "the only place you could have gotten this code is my github, my website,¦"   \
+   "or illegal sharing. given that, you should be aware that this is GPL licensed."
+
+#define  P_COPYLEFT    \
+   "the GPL COPYLEFT REQUIREMENT means any modifications or derivative works¦"   \
+   "must be released under the same GPL license, i.e, must be free and open."
+
+#define  P_INCLUDE     \
+   "the GPL DOCUMENTATION REQUIREMENT means that you must include the original¦" \
+   "copyright notice and the full licence text with any resulting anything."
+
+#define  P_AS_IS       \
+   "the GPL NO WARRANTY CLAUSE means the software is provided without any¦"      \
+   "warranty and the author cannot be held liable for damages."
+
+#define  P_THEFT    \
+   "if you knowingly violate the spirit of these ideas, i suspect you might "    \
+   "find any number of freedom-minded hackers may take it quite personally ;)"
+
+/*´´·········1·········2·········3·········4·········5·········6·········7·········8  */
+/*===[[ GNU GENERAL PUBLIC LICENSE (GPL) ]]===================================*/
+
+
+
 #include    <stdio.h>        /* C_ANSI : strcpy, strlen, strchr, strcmp, ...  */
 #include    <ySTR_solo.h>
 
@@ -61,6 +92,7 @@
 #define     YENV_UNSET       '*'
 #define     YENV_NOPASS      '?'
 
+typedef  long long   llong;
 
 
 /*===[[ yENV_base.c ]]========================================================*/
@@ -68,6 +100,8 @@
 char*       yENV_version            (void);
 char        yENV_whoami             (int *r_pid, int *r_ppid, int *r_uid, int *r_euid, char *r_root, char r_user [LEN_USER], char a_wheel, int *r_gid, int *r_egid, char r_group [LEN_USER]);
 char        yENV_project            (char r_whoami [LEN_LABEL]);
+llong       yENV_beg                (void);
+llong       yENV_end                (void);
 /*········· ´······················ ´·········································*/
 
 
@@ -213,6 +247,15 @@ char        yENV_check_end          (void);
 char*       yENV_check              (void);
 /*········· ´·················DONE· ´·········································*/
 
+
+
+/*===[[ yENV_dir.c ]]=========================================================*/
+/*········´ ´·····················´ ´·········································*/
+char        yENV_dir_open           (char a_label [LEN_LABEL], char a_dir [LEN_PATH], void **b_dir);
+char        yENV_dir_close          (char a_label [LEN_LABEL], void **b_dir);
+char        yENV_dir_read           (void *a_dir, char c_self, char c_hide, char c_temp, char a_white [LEN_FULL], char a_black [LEN_FULL], int *b_read, int *b_accept, char r_name [LEN_HUND]);
+char        yENV_dir_full           (char a_label [LEN_LABEL], char a_path [LEN_PATH], char c_self, char c_hide, char c_temp, char a_white [LEN_FULL], char a_black [LEN_FULL], int *r_read, int *r_accept, void *f_handler, char r_string [LEN_MASS]);
+/*········´ ´················DONE·´ ´·········································*/
 
 
 #endif

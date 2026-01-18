@@ -4,6 +4,37 @@
 
 
 
+/*===[[ GNU GENERAL PUBLIC LICENSE (GPL) ]]===================================*/
+/*´´·········1·········2·········3·········4·········5·········6·········7·········8  */
+
+#define  P_COPYRIGHT   \
+   "copyright (c) 2020 robert.s.heatherly at balsashrike at gmail dot com"
+
+#define  P_LICENSE     \
+   "the only place you could have gotten this code is my github, my website,¦"   \
+   "or illegal sharing. given that, you should be aware that this is GPL licensed."
+
+#define  P_COPYLEFT    \
+   "the GPL COPYLEFT REQUIREMENT means any modifications or derivative works¦"   \
+   "must be released under the same GPL license, i.e, must be free and open."
+
+#define  P_INCLUDE     \
+   "the GPL DOCUMENTATION REQUIREMENT means that you must include the original¦" \
+   "copyright notice and the full licence text with any resulting anything."
+
+#define  P_AS_IS       \
+   "the GPL NO WARRANTY CLAUSE means the software is provided without any¦"      \
+   "warranty and the author cannot be held liable for damages."
+
+#define  P_THEFT    \
+   "if you knowingly violate the spirit of these ideas, i suspect you might "    \
+   "find any number of freedom-minded hackers may take it quite personally ;)"
+
+/*´´·········1·········2·········3·········4·········5·········6·········7·········8  */
+/*===[[ GNU GENERAL PUBLIC LICENSE (GPL) ]]===================================*/
+
+
+
 /*===[[ ONE_LINERS ]]=========================================================*/
 /*                      ´·········1·········2·········3·········4·········5·········6·········7*/
 /*--------- 12345678901 ´123456789-123456789-123456789-123456789-123456789-123456789-123456789-*/
@@ -38,8 +69,8 @@
 /*········· ··········· ´·····························´········································*/
 #define     P_VERMAJOR  "1.--, production improvements"
 #define     P_VERMINOR  "1.3-, paring extra abilities into ySCORE and yAUDIT"
-#define     P_VERNUM    "1.3y"
-#define     P_VERTXT    "update to keep up with yTSAE testing"
+#define     P_VERNUM    "1.3z"
+#define     P_VERTXT    "most testing of yENV_dir complete, wrapping up"
 /*········· ··········· ´·····························´········································*/
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -68,12 +99,12 @@
 #include    <openssl/sha.h>       /* openssl implementation of sha1           */
 #include    <time.h>              /* time, localtime, strftime, ...              */
 #include    <errno.h>             /* allow use of errno value                 */
+#include    <dirent.h>
 
 
 
 #include    <yLOG.h>
 #include    <yURG.h>
-#include    <ySCORE.h>
 #include    <yDLST_solo.h>
 #include    <yCOLOR_solo.h>  /* CUSTOM : heatherly color constants            */
 
@@ -84,7 +115,8 @@ typedef struct stat      tSTAT;
 typedef struct passwd    tPASSWD;
 typedef struct group     tGROUP;
 typedef struct tm        tTIME;
-typedef struct timespec  tSPEC;
+typedef struct timespec  tTSPEC;
+typedef struct dirent    tDENTRY;
 
 
 
@@ -211,6 +243,10 @@ extern char  g_print   [LEN_RECD];
  *> char        yenv_audit_hacked       (char a_full [LEN_PATH], int a_epoch, long a_bytes, int a_inode, char a_hash [LEN_DESC]);                                                                                                                                                                                               <*/
 /*---(done)-----------------*/
 
+
+/*===[[ yENV_base.c ]]========================================================*/
+/*········· ´······················ ´·········································*/
+llong       yenv_now                (char a_type);
 
 
 /*===[[ yENV_name.c ]]========================================================*/

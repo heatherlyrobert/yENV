@@ -3,6 +3,37 @@
 #include    "yENV_priv.h"
 
 
+
+/*===[[ GNU GENERAL PUBLIC LICENSE (GPL) ]]===================================*/
+/*´´·········1·········2·········3·········4·········5·········6·········7·········8  */
+
+#define  P_COPYRIGHT   \
+   "copyright (c) 2020 robert.s.heatherly at balsashrike at gmail dot com"
+
+#define  P_LICENSE     \
+   "the only place you could have gotten this code is my github, my website,¦"   \
+   "or illegal sharing. given that, you should be aware that this is GPL licensed."
+
+#define  P_COPYLEFT    \
+   "the GPL COPYLEFT REQUIREMENT means any modifications or derivative works¦"   \
+   "must be released under the same GPL license, i.e, must be free and open."
+
+#define  P_INCLUDE     \
+   "the GPL DOCUMENTATION REQUIREMENT means that you must include the original¦" \
+   "copyright notice and the full licence text with any resulting anything."
+
+#define  P_AS_IS       \
+   "the GPL NO WARRANTY CLAUSE means the software is provided without any¦"      \
+   "warranty and the author cannot be held liable for damages."
+
+#define  P_THEFT    \
+   "if you knowingly violate the spirit of these ideas, i suspect you might "    \
+   "find any number of freedom-minded hackers may take it quite personally ;)"
+
+/*´´·········1·········2·········3·········4·········5·········6·········7·········8  */
+/*===[[ GNU GENERAL PUBLIC LICENSE (GPL) ]]===================================*/
+
+
 char  g_print   [LEN_RECD] = "";
 
 
@@ -156,5 +187,35 @@ yENV_project            (char r_whoami [LEN_LABEL])
    DEBUG_YENV  yLOG_exit    (__FUNCTION__);
    return 0;
 }
+
+llong        /*-> duration in milliseconds -----------------------------------*/
+yenv_now                (char a_type)
+{
+   /*---(locals)-------------------------*/
+   char        rce         = -10;
+   llong       a           =   0;
+   tTSPEC      t;
+   static llong s_beg      =   0;
+   llong        x_end      =   0;
+   llong        x_dur      =   0;
+   /*---(header)-------------------------*/
+   DEBUG_YENV  yLOG_enter   (__FUNCTION__);
+   /*---(current time)-------------------*/
+   clock_gettime (CLOCK_MONOTONIC, &t);
+   /*---(convert to millisec)------------*/
+   a += (llong) t.tv_sec  * 1000;
+   a += (llong) t.tv_nsec / 1000000;
+   /*---(handle stage)-------------------*/
+   switch (a_type) {
+   case 'b'  :  s_beg = a;                          break;
+   case 'e'  :  x_end = a;  x_dur = x_end - s_beg;  break;
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_YENV  yLOG_exit    (__FUNCTION__);
+   return x_dur;
+}
+
+llong yENV_beg       (void) { return yenv_now ('b'); }
+llong yENV_end       (void) { return yenv_now ('e'); }
 
 
