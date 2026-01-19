@@ -4,6 +4,7 @@
 
 
 static char   s_unit_home  [LEN_PATH]  = "";
+static char   s_answer     [LEN_FULL]  = "";
 
 
 char       /*----: set up programgents/debugging -----------------------------*/
@@ -32,6 +33,24 @@ yENV__unit_end          (void)
 }
 
 char
-yENV__unit_handler      (int a_read, int a_accept, char a_name [LEN_HUND])
+yenv__dir_reset         (void)
 {
+   strcpy (s_answer, "");
+   return 1;
 }
+
+char
+yenv__dir_handler       (int a_read, int a_accept, char a_name [LEN_HUND])
+{
+   char        t           [LEN_LABEL] = "";
+   sprintf (t, "%d  ", a_read);
+   strlcat (s_answer, t, LEN_HUND);
+   return 1;
+}
+
+char*
+yenv__dir_show          (void)
+{
+   return s_answer;
+}
+

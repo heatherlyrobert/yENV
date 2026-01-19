@@ -68,9 +68,9 @@
 #define     P_CREATED   "2024-05"
 /*········· ··········· ´·····························´········································*/
 #define     P_VERMAJOR  "1.--, production improvements"
-#define     P_VERMINOR  "1.3-, paring extra abilities into ySCORE and yAUDIT"
-#define     P_VERNUM    "1.3z"
-#define     P_VERTXT    "most testing of yENV_dir complete, wrapping up"
+#define     P_VERMINOR  "1.4-, paring extra abilities into ySCORE and yAUDIT"
+#define     P_VERNUM    "1.4a"
+#define     P_VERTXT    "all up-to-date, unit tested, and ready for _ls rewrite"
 /*········· ··········· ´·····························´········································*/
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
