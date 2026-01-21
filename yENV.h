@@ -92,6 +92,10 @@
 #define     YENV_UNSET       '*'
 #define     YENV_NOPASS      '?'
 
+
+
+#define     MAX_MIME        500
+
 typedef  long long   llong;
 
 
@@ -204,7 +208,7 @@ char        yENV_rmdir_fully        (char a_name [LEN_PATH]);
 char        yENV_exists             (char a_name [LEN_PATH]);
 char        yENV_size               (char a_name [LEN_PATH], long *r_bytes);
 char*       yENV_typedesc           (char a_type);
-char        yENV_detail             (char a_name [LEN_PATH], char r_tdesc [LEN_TERSE], int *r_uid, char r_owner [LEN_USER], int *r_gid, char r_group [LEN_USER], int *r_prm, char r_perms [LEN_TERSE], char r_pdisp [LEN_TERSE], long *r_bytes, int *r_epoch, int *r_major, int *r_minor, char r_link [LEN_PATH], int *r_dev, int *r_inode, char r_hash [LEN_DESC]);
+char        yENV_detail             (char a_name [LEN_PATH], char r_tdesc [LEN_TERSE], int *r_uid, char r_owner [LEN_USER], int *r_gid, char r_group [LEN_USER], int *r_prm, char r_perms [LEN_TERSE], char r_pdisp [LEN_TERSE], long *r_bytes, long *r_alloc, int *r_epoch, int *r_major, int *r_minor, char r_link [LEN_PATH], int *r_dev, int *r_inode, char r_hash [LEN_DESC]);
 char*       yENV_detail_unit        (char a_name [LEN_PATH]);
 /*········· ´·················DONE· ´·········································*/
 
@@ -220,14 +224,14 @@ char        yENV_name_detail        (char a_full [LEN_PATH], char *r_style, char
 
 
 /*===[[ yENV_file.c ]]========================================================*/
-/*········· ´···············access· ´·········································*/
+/*········· ´··············access·´ ´·········································*/
 char        yENV_open_full          (char a_label [LEN_LABEL], char c_force, char a_dir [LEN_PATH], char a_file [LEN_HUND], char a_mode, char r_mode [LEN_SHORT], char r_note [LEN_LABEL], char r_full [LEN_PATH], FILE **b_file);
 char        yENV_open               (char a_dir [LEN_PATH], char a_file [LEN_HUND], char a_mode, FILE **b_file);
 char        yENV_close_full         (char a_label [LEN_LABEL], FILE **b_file, char c_sync);
 char        yENV_close              (FILE **b_file);
-/*········· ´················input· ´·········································*/
+/*········· ´···············input·´ ´·········································*/
 char        yENV_read               (FILE *a_file, char c_comment, char c_visible, int *b_read, int *b_accept, char b_curr [LEN_RECD], char r_prev [LEN_RECD]);
-/*········· ´·················DONE· ´·········································*/
+/*········· ´················DONE·´ ´·········································*/
 
 
 
@@ -253,8 +257,8 @@ char*       yENV_check              (void);
 /*········´ ´·····················´ ´·········································*/
 char        yENV_dir_open           (char a_label [LEN_LABEL], char a_dir [LEN_PATH], void **b_dir);
 char        yENV_dir_close          (char a_label [LEN_LABEL], void **b_dir);
-char        yENV_dir_read           (void *a_dir, char c_self, char c_hide, char c_temp, char a_white [LEN_FULL], char a_black [LEN_FULL], int *b_read, int *b_accept, char r_name [LEN_HUND]);
-char        yENV_dir_full           (char a_label [LEN_LABEL], char a_path [LEN_PATH], char c_self, char c_hide, char c_temp, char a_white [LEN_FULL], char a_black [LEN_FULL], int *r_read, int *r_accept, void *f_handler, char r_string [LEN_MASS]);
+char        yENV_dir_read           (void *a_dir, char c_self, char c_hide, char c_temp, char c_white [LEN_FULL], char c_black [LEN_FULL], int *b_read, int *b_accept, int *r_len, char r_name [LEN_HUND]);
+char        yENV_dir_full           (char a_label [LEN_LABEL], char a_path [LEN_PATH], char c_self, char c_hide, char c_temp, char c_white [LEN_FULL], char c_black [LEN_FULL], int *r_read, int *r_accept, void *f_handler, char r_string [LEN_MASS]);
 /*········´ ´················DONE·´ ´·········································*/
 
 

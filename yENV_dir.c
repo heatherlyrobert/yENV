@@ -142,14 +142,14 @@ yENV_dir_close          (char a_label [LEN_LABEL], void **b_dir)
 }
 
 char
-yENV_dir_read           (void *a_dir, char c_self, char c_hide, char c_temp, char a_white [LEN_FULL], char a_black [LEN_FULL], int *b_read, int *b_accept, char r_name [LEN_HUND])
+yENV_dir_read           (void *a_dir, char c_self, char c_hide, char c_temp, char c_white [LEN_FULL], char c_black [LEN_FULL], int *b_read, int *b_accept, int *r_len, char r_name [LEN_HUND])
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    char        rc          =    0;
    DIR        *x_dir       = NULL;
-   char        x_name      [LEN_HUND]  = "";
    int         x_len       =    0;
+   char        x_name      [LEN_HUND]  = "";
    int         x_line      =    0;
    int         x_accept    =    0;
    tDENTRY    *x_entry     = NULL;           /* contains very little other than inode and name */
@@ -174,6 +174,7 @@ yENV_dir_read           (void *a_dir, char c_self, char c_hide, char c_temp, cha
    --rce;  while (1) {
       /*---(initialize)------------------*/
       strcpy (x_name, "");
+      x_len = 0;
       /*---(read)------------------------*/
       x_entry = readdir (x_dir);
       DEBUG_DATA   yLOG_point   ("x_entry"   , x_entry);
@@ -183,8 +184,8 @@ yENV_dir_read           (void *a_dir, char c_self, char c_hide, char c_temp, cha
       }
       /*---(handle)----------------------*/
       ++x_line;
+      x_len = strlen (x_entry->d_name);
       strlcpy (x_name, x_entry->d_name, LEN_HUND);
-      x_len = strlen (x_name);
       DEBUG_YENV   yLOG_complex ("x_recd"    , "%3d, %3då%sæ", x_line, x_len, x_name);
       /*---(filter self)-----------------*/
       DEBUG_DATA   yLOG_char    ("c_self"    , c_self);
@@ -221,7 +222,7 @@ yENV_dir_read           (void *a_dir, char c_self, char c_hide, char c_temp, cha
          }
       }
       /*---(extensions)------------------*/
-      if (a_white != NULL || a_black != NULL) {
+      if (c_white != NULL || c_black != NULL) {
          rc = yENV_name_detail (x_name, NULL, NULL, NULL, NULL, NULL, x_ext, NULL, NULL);
          DEBUG_YENV   yLOG_point   ("detail"    , rc);
          if (rc < 0) {
@@ -230,16 +231,16 @@ yENV_dir_read           (void *a_dir, char c_self, char c_hide, char c_temp, cha
          }
          sprintf (t, ",%s,", x_ext);
          DEBUG_YENV   yLOG_complex ("t"         , "%2då%sæ", strlen (t), t);
-         if (a_white != NULL && a_white [0] != '\0') {
-            p = strstr (a_white, t);
+         if (c_white != NULL && c_white [0] != '\0') {
+            p = strstr (c_white, t);
             DEBUG_YENV   yLOG_point   ("p"         , p);
             if (p == NULL) {
                DEBUG_YENV   yLOG_note    ("extension not on white-list");
                continue;
             }
          }
-         if (a_black != NULL && a_black [0] != '\0') {
-            p = strstr (a_black, t);
+         if (c_black != NULL && c_black [0] != '\0') {
+            p = strstr (c_black, t);
             DEBUG_YENV   yLOG_point   ("p"         , p);
             if (p != NULL) {
                DEBUG_YENV   yLOG_note    ("extension is on black-list");
@@ -256,6 +257,7 @@ yENV_dir_read           (void *a_dir, char c_self, char c_hide, char c_temp, cha
    /*---(save-back)-------------------*/
    if (b_read   != NULL)  *b_read   = x_line;;
    if (b_accept != NULL)  *b_accept = x_accept;;
+   if (r_len    != NULL)  *r_len    = x_len;;
    if (r_name   != NULL)  strlcpy (r_name, x_name, LEN_HUND);
    /*---(complete)-----------------------*/
    DEBUG_YENV   yLOG_exit    (__FUNCTION__);
@@ -263,15 +265,16 @@ yENV_dir_read           (void *a_dir, char c_self, char c_hide, char c_temp, cha
 }
 
 char 
-yENV_dir_full           (char a_label [LEN_LABEL], char a_path [LEN_PATH], char c_self, char c_hide, char c_temp, char a_white [LEN_FULL], char a_black [LEN_FULL], int *r_read, int *r_accept, void *f_handler, char r_string [LEN_MASS])
+yENV_dir_full           (char a_label [LEN_LABEL], char a_path [LEN_PATH], char c_self, char c_hide, char c_temp, char c_white [LEN_FULL], char c_black [LEN_FULL], int *r_read, int *r_accept, void *f_handler, char r_string [LEN_MASS])
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    char        rc          =    0;
-   char      (*x_handler)   (int a_read, int a_accept, char a_name [LEN_HUND]);
+   char      (*x_handler)   (int a_read, int a_accept, int a_len, char a_name [LEN_HUND]);
    DIR        *x_dir       = NULL;
    int         x_line      =    0;
    int         x_accept    =    0;
+   int         x_len       =    0;
    char        x_name      [LEN_HUND]  = "";
    char        x_count     [LEN_TERSE] = "";
    char        x_string    [LEN_MASS]  = "";
@@ -292,7 +295,7 @@ yENV_dir_full           (char a_label [LEN_LABEL], char a_path [LEN_PATH], char 
    /*---(walk directory)-----------------*/
    --rce; while (1) {
       /*---(read)------------------------*/
-      rc = yENV_dir_read (x_dir, c_self, c_hide, c_temp, a_white, a_black, &x_line, &x_accept, x_name);
+      rc = yENV_dir_read (x_dir, c_self, c_hide, c_temp, c_white, c_black, &x_line, &x_accept, &x_len, x_name);
       DEBUG_DATA   yLOG_value   ("read"      , rc);
       if (rc < 0) {
          DEBUG_DATA   yLOG_exitr   (__FUNCTION__, rce);
@@ -312,7 +315,7 @@ yENV_dir_full           (char a_label [LEN_LABEL], char a_path [LEN_PATH], char 
       /*---(handle)----------------------*/
       DEBUG_DATA   yLOG_point   ("f_handler" , f_handler);
       if (f_handler != NULL) {
-         rc = x_handler (x_line, x_accept, x_name);
+         rc = x_handler (x_line, x_accept, x_len, x_name);
          DEBUG_DATA   yLOG_value   ("handler"   , rc);
          if (rc < 0) {
             DEBUG_DATA   yLOG_exitr   (__FUNCTION__, rce);

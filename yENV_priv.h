@@ -69,8 +69,8 @@
 /*········· ··········· ´·····························´········································*/
 #define     P_VERMAJOR  "1.--, production improvements"
 #define     P_VERMINOR  "1.4-, paring extra abilities into ySCORE and yAUDIT"
-#define     P_VERNUM    "1.4a"
-#define     P_VERTXT    "all up-to-date, unit tested, and ready for _ls rewrite"
+#define     P_VERNUM    "1.4b"
+#define     P_VERTXT    "already half migrated mime/ext functionality from helios"
 /*········· ··········· ´·····························´········································*/
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -312,6 +312,25 @@ char        yenv_user_by_group      (char a_group [LEN_USER], char r_names [LEN_
 
 char        yenv_unit               (void);
 char        yenv_normal             (void);
+
+
+
+/*===[[ yENV_mime.c ]]========================================================*/
+/*········´ ´·············support·´ ´·········································*/
+short       yenv__mime_count        (void);
+/*········´ ´··············search·´ ´·········································*/
+short       yenv__mime_by_name      (char a_mime [LEN_TERSE], char *r_level, char *r_format, char r_desc [LEN_DESC]);
+short       yenv__mime_by_cursor    (char a_dir, char r_mime [LEN_TERSE], char *r_level, char *r_format, char r_desc [LEN_DESC]);
+/*········´ ´············location·´ ´·········································*/
+char        yenv__mime_gentoo       (char a_full [LEN_PATH], char **r_mime, char c_unittest);
+char        yenv__mime_git          (char a_full [LEN_PATH], char **r_mime);
+/*········´ ´················type·´ ´·········································*/
+char        yenv__mime_symlink      (char a_type, char a_ltype, char **r_mime);
+char        yenv__mime_device       (char a_type, char **r_mime);
+/*········´ ´···············tilde·´ ´·········································*/
+char        yenv__mime_tilde        (char a_full [LEN_PATH], char **b_mime);
+/*········´ ´················DONE·´ ´·········································*/
+
 
 
 #endif

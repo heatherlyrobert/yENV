@@ -304,7 +304,7 @@ yENV_touchier           (char a_type, char a_name [LEN_PATH], char a_owner [LEN_
       return rce;
    }
    /*---(verify)-------------------------*/
-   x_curr = yENV_detail (a_name, NULL, &x_euid, NULL, &x_egid, NULL, &x_eprm, NULL, NULL, NULL, NULL, &x_emaj, &x_emin, x_link, NULL, NULL, NULL);
+   x_curr = yENV_detail (a_name, NULL, &x_euid, NULL, &x_egid, NULL, &x_eprm, NULL, NULL, NULL, NULL, NULL, &x_emaj, &x_emin, x_link, NULL, NULL, NULL);
    --rce;  if (x_curr == YENV_NONE) {
       DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
       return YENV_NONE;
@@ -556,7 +556,7 @@ yENV_hash               (char a_type, char a_name [LEN_PATH], char r_hash [LEN_D
 }
 
 char 
-yENV_detail             (char a_name [LEN_PATH], char r_tdesc [LEN_TERSE], int *r_uid, char r_owner [LEN_USER], int *r_gid, char r_group [LEN_USER], int *r_prm, char r_perms [LEN_TERSE], char r_pdisp [LEN_TERSE], long *r_bytes, int *r_epoch, int *r_major, int *r_minor, char r_link [LEN_PATH], int *r_dev, int *r_inode, char r_hash [LEN_DESC])
+yENV_detail             (char a_name [LEN_PATH], char r_tdesc [LEN_TERSE], int *r_uid, char r_owner [LEN_USER], int *r_gid, char r_group [LEN_USER], int *r_prm, char r_perms [LEN_TERSE], char r_pdisp [LEN_TERSE], long *r_bytes, long *r_alloc, int *r_epoch, int *r_major, int *r_minor, char r_link [LEN_PATH], int *r_dev, int *r_inode, char r_hash [LEN_DESC])
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -564,15 +564,8 @@ yENV_detail             (char a_name [LEN_PATH], char r_tdesc [LEN_TERSE], int *
    tSTAT       s;
    char        x_type      = YENV_NONE;
    char        x_tdesc     [LEN_TERSE] = "WTF";
-   int         x_prm       =    0;
    int         i           =    0;
    FILE       *f           = NULL;
-   SHA_CTX     ctx;
-   uchar       x_buf       [LEN_RECD]  = "";
-   uchar       x_hash      [LEN_DESC]  = "";
-   uchar       t           [LEN_SHORT] = "";
-   int         x_bytes     = 0;
-   int         x_total     = 0;
    /*---(default)------------------------*/
    if (r_tdesc != NULL)  strcpy (r_tdesc, "");
    if (r_uid   != NULL)  *r_uid   = -1;
@@ -583,6 +576,7 @@ yENV_detail             (char a_name [LEN_PATH], char r_tdesc [LEN_TERSE], int *
    if (r_perms != NULL)  strcpy (r_perms, "");
    if (r_pdisp != NULL)  strcpy (r_pdisp, "");
    if (r_bytes != NULL)  *r_bytes = -1;
+   if (r_alloc != NULL)  *r_alloc = -1;
    if (r_epoch != NULL)  *r_epoch = -1;
    if (r_major != NULL)  *r_major = -1;
    if (r_minor != NULL)  *r_minor = -1;
@@ -614,13 +608,15 @@ yENV_detail             (char a_name [LEN_PATH], char r_tdesc [LEN_TERSE], int *
    DEBUG_FILE   yLOG_info    ("x_tdesc"   , x_tdesc);
    if (r_tdesc != NULL)  strlcpy (r_tdesc, x_tdesc, LEN_TERSE);
    /*---(owner)--------------------------*/
-   rc = yENV_user_uid   (x_type, s.st_uid, r_owner, r_uid);
+   rc = yENV_user_uid    (x_type, s.st_uid, r_owner, r_uid);
    /*---(group)--------------------------*/
    rc = yENV_group_gid   (x_type, s.st_gid, r_group, r_gid);
    /*---(permissions)--------------------*/
    rc = yENV_perms_octal (x_type, s.st_mode, r_perms, r_prm, r_pdisp);
    /*---(size)---------------------------*/
    if (x_type != YENV_SYM && r_bytes != NULL)      *r_bytes = s.st_size;
+   /*---(alloc)--------------------------*/
+   if (x_type != YENV_SYM && r_alloc != NULL)      *r_alloc = s.st_blocks * 512;
    /*---(update)-------------------------*/
    if (x_type != YENV_SYM && r_epoch != NULL)      *r_epoch = s.st_mtime;
    /*---(device)-------------------------*/
@@ -656,9 +652,9 @@ yENV_detail_unit        (char a_name [LEN_PATH])
    char        x_ttype     = YENV_NONE;
    char        x_target    [LEN_PATH]  = "";
    static char x_out       [LEN_FULL]  = "";
-   x_type  = yENV_detail (a_name, NULL, NULL, x_owner, NULL, x_group, NULL, NULL, x_perms, NULL, NULL, &x_major, &x_minor, x_target, NULL, NULL, NULL);
+   x_type  = yENV_detail (a_name, NULL, NULL, x_owner, NULL, x_group, NULL, NULL, x_perms, NULL, NULL, NULL, &x_major, &x_minor, x_target, NULL, NULL, NULL);
    if (x_type < 0) { strcpy (x_out, "(n/a)");  return x_out; }
-   if (strcmp (x_target, "") != 0)  x_ttype = yENV_detail (x_target, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+   if (strcmp (x_target, "") != 0)  x_ttype = yENV_detail (x_target, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
    switch (x_type) {
    case YENV_NONE  : sprintf (x_out, "%-45.45s  -  ·           ·           ·          ´", a_name);  break;
    case YENV_BLOCK :
