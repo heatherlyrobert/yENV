@@ -54,3 +54,20 @@ yenv__dir_show          (void)
    return s_answer;
 }
 
+char*
+yENV_mime_unit          (char a_full [LEN_PATH], char a_type, char a_ltype, char a_prms)
+{
+   short       n           =   -1;
+   char        x_format    =  '-';
+   char        x_fname     [LEN_TERSE] = "";
+   char        x_mime      [LEN_TERSE] = "";
+   char        x_fmime     [LEN_LABEL] = "";
+   char        x_desc      [LEN_DESC]  = "";
+   char        x_imp       =  '-';
+   char        x_keep      =  '·';
+   n = yENV_mime     (a_full, a_type, a_ltype, a_prms, &x_format, x_fname, x_mime, x_fmime, x_desc, &x_imp, &x_keep);
+   if (n < 0)  return "(n/a)";
+   sprintf (s_answer, "%-3d %c %-10.10s %-10.10s %c %c %-20.20s %s", n, x_format, x_fname, x_mime, x_imp, x_keep, x_fmime, x_desc);
+   return s_answer;
+}
+

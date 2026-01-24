@@ -297,7 +297,7 @@ yenv_octal2display      (int a_perms)
    else                    {  strcat (g_print, "-");                     }
    /*---(owner tweak)-----------------*/
    if (x_four == 'y') {
-      if (g_print [2] == 'x')  g_print [2] = 's';
+      if (g_print [2] == 'x')  g_print [2] = 's';  /* set execution uid to file's when running */
       else                     g_print [2] = 'S';
    }
    /*---(group)-----------------------*/
@@ -309,7 +309,7 @@ yenv_octal2display      (int a_perms)
    else                    {  strcat (g_print, "-");                     }
    /*---(group tweak)-----------------*/
    if (x_two  == 'y') {
-      if (g_print [5] == 'x')  g_print [5] = 's';
+      if (g_print [5] == 'x')  g_print [5] = 's';  /* set execution gid to file's when running */
       else                     g_print [5] = 'S';
    }
    /*---(other)-----------------------*/

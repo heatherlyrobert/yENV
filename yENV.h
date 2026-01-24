@@ -262,5 +262,12 @@ char        yENV_dir_full           (char a_label [LEN_LABEL], char a_path [LEN_
 /*········´ ´················DONE·´ ´·········································*/
 
 
+
+/*===[[ yENV_mime.c ]]========================================================*/
+/*········´ ´·····················´ ´·········································*/
+short        yENV_mime              (char a_full [LEN_PATH], char a_type, char a_ltype, char a_prms, char *r_format, char r_fname [LEN_TERSE], char r_mime [LEN_TERSE], char r_fmime [LEN_LABEL], char r_desc [LEN_DESC], char *r_imp, char *r_keep);
+/*········´ ´················DONE·´ ´·········································*/
+
+
 #endif
 /*===[[ END ]]================================================================*/

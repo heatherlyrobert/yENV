@@ -69,8 +69,8 @@
 /*········· ··········· ´·····························´········································*/
 #define     P_VERMAJOR  "1.--, production improvements"
 #define     P_VERMINOR  "1.4-, paring extra abilities into ySCORE and yAUDIT"
-#define     P_VERNUM    "1.4b"
-#define     P_VERTXT    "already half migrated mime/ext functionality from helios"
+#define     P_VERNUM    "1.4c"
+#define     P_VERTXT    "mime functionality is at least 90/10 ready and unit tested"
 /*········· ··········· ´·····························´········································*/
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -318,9 +318,10 @@ char        yenv_normal             (void);
 /*===[[ yENV_mime.c ]]========================================================*/
 /*········´ ´·············support·´ ´·········································*/
 short       yenv__mime_count        (void);
+char        yenv__mime_data         (char a_level, char a_format, char a_mime [LEN_TERSE], char r_fname [LEN_TERSE], char r_fmime [LEN_TERSE]);
 /*········´ ´··············search·´ ´·········································*/
-short       yenv__mime_by_name      (char a_mime [LEN_TERSE], char *r_level, char *r_format, char r_desc [LEN_DESC]);
-short       yenv__mime_by_cursor    (char a_dir, char r_mime [LEN_TERSE], char *r_level, char *r_format, char r_desc [LEN_DESC]);
+short       yENV_mime_by_name       (char a_mime [LEN_TERSE], char *r_level, char *r_format, char r_fname [LEN_TERSE], char r_fmime [LEN_LABEL], char r_desc [LEN_DESC], char *r_imp, char *r_keep);
+short       yENV_mime_by_cursor     (char a_dir, char r_mime [LEN_TERSE], char *r_level, char *r_format, char r_fname [LEN_TERSE], char r_fmime [LEN_LABEL], char r_desc [LEN_DESC], char *r_imp, char *r_keep);
 /*········´ ´············location·´ ´·········································*/
 char        yenv__mime_gentoo       (char a_full [LEN_PATH], char **r_mime, char c_unittest);
 char        yenv__mime_git          (char a_full [LEN_PATH], char **r_mime);
@@ -328,7 +329,20 @@ char        yenv__mime_git          (char a_full [LEN_PATH], char **r_mime);
 char        yenv__mime_symlink      (char a_type, char a_ltype, char **r_mime);
 char        yenv__mime_device       (char a_type, char **r_mime);
 /*········´ ´···············tilde·´ ´·········································*/
-char        yenv__mime_tilde        (char a_full [LEN_PATH], char **b_mime);
+char        yenv__mime_tilde        (char a_name [LEN_HUND], char **b_mime);
+/*········´ ´··············suffix·´ ´·········································*/
+char        yenv__mime_suffix       (char a_name [LEN_HUND], char **b_mime);
+/*········´ ´·············reclass·´ ´·········································*/
+char        yenv__mime_hidden       (char a_name [LEN_HUND], char **b_mime);
+char        yenv__mime_exec         (char a_name [LEN_HUND], char a_prms, char **b_mime);
+char        yenv__mime_manual       (char a_name [LEN_HUND], char **b_mime);
+char        yenv__mime_unitc        (char a_name [LEN_HUND], char **b_mime);
+char        yenv__mime_libs_two     (char a_full [LEN_PATH], char a_name [LEN_HUND], char a_type, char a_prms, char **b_mime);
+char        yenv__mime_exec_link    (char a_prms, char **b_mime);
+char        yenv__mime_exec_junk    (char a_full [LEN_PATH], char **b_mime);
+char        yenv__mime_cleanup      (char a_full [LEN_PATH], char a_name [LEN_HUND], char **b_mime);
+/*········´ ´··············driver·´ ´·········································*/
+short       yENV_mime               (char a_full [LEN_PATH], char a_type, char a_ltype, char a_prms, char *r_format, char r_fname [LEN_TERSE], char r_mime [LEN_TERSE], char r_fmime [LEN_LABEL], char r_desc [LEN_DESC], char *r_imp, char *r_keep);
 /*········´ ´················DONE·´ ´·········································*/
 
 
