@@ -69,8 +69,8 @@
 /*········· ··········· ´·····························´········································*/
 #define     P_VERMAJOR  "1.--, production improvements"
 #define     P_VERMINOR  "1.4-, paring extra abilities into ySCORE and yAUDIT"
-#define     P_VERNUM    "1.4d"
-#define     P_VERTXT    "updated in system rebuild and enhanced group with reporting"
+#define     P_VERNUM    "1.4e"
+#define     P_VERTXT    "updated and enhanced user with reporting"
 /*········· ··········· ´·····························´········································*/
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -226,6 +226,28 @@ char        yenv_creator            (char a_curr, char a_type, char a_name [LEN_
 
 
 
+/*===[[ yENV_user.c ]]========================================================*/
+/*········´ ´··············driver·´ ´·········································*/
+char        yENV_user_data          (char a_type, char b_name [LEN_USER], int *b_uid, int *r_gid, char r_home [LEN_HUND], char r_shell [LEN_HUND], char *r_quality, char *r_active, char *r_login, char *r_ngroup, char r_gnames [LEN_HUND], char r_gids [LEN_HUND], int n, char r_rptg [LEN_FULL]);
+/*········´ ´·········simplifiers·´ ´·········································*/
+char        yENV_user_full          (char a_type, char a_text [LEN_USER], char r_name [LEN_USER], int *r_uid, int *r_gid, char r_home [LEN_HUND], char r_shell [LEN_HUND], char r_handle [LEN_LABEL], char *r_naming, char *r_active, char *r_login, char *r_ngroup, char r_gnames [LEN_HUND], char r_gids [LEN_HUND]);
+char        yENV_user               (char a_text [LEN_USER], char r_name [LEN_USER], int *r_uid);
+char        yENV_user_uid           (char a_type, int a_value, char r_name [LEN_USER], int *r_uid);
+char        yENV_user_basics        (char a_text [LEN_USER], int *r_uid, int *r_gid, char r_home [LEN_HUND], char r_shell [LEN_HUND]);
+/*········´ ´··············search·´ ´·········································*/
+int         yENV_user_count         (void);
+char        yenv_user_reading       (int a_curr, char a_name [LEN_USER], char r_name [LEN_USER], char r_rptg [LEN_PATH]);
+char        yENV_user_by_name       (char a_name [LEN_USER], char r_name [LEN_USER], int *r_uid, int *r_gid, char r_home [LEN_HUND], char r_shell [LEN_HUND], char *r_quality, char *r_active, char *r_login, char *r_ngroup, char r_gnames [LEN_HUND], char r_gids [LEN_HUND], char r_rptg [LEN_PATH]);
+char        yENV_user_by_cursor     (char a_dir, char r_name [LEN_USER], int *b_uid, int *r_gid, char r_home [LEN_HUND], char r_shell [LEN_HUND], char *r_quality, char *r_active, char *r_login, char *r_ngroup, char r_gnames [LEN_HUND], char r_gids [LEN_HUND], char r_rptg [LEN_FULL]);
+/*········´ ´········test-support·´ ´·········································*/
+char        yENV_user_add           (char a_name [LEN_USER], int a_uid, char a_home, char a_shell);
+char        yENV_user_del           (char a_name [LEN_USER]);
+char        yENV_user_purge         (void);
+char        yENV_user_switch        (char a_name [LEN_USER]);
+/*········´ ´················DONE·´ ´·········································*/
+
+
+
 /*===[[ yENV_group.c ]]=======================================================*/
 char        yenv_groups__by_user    (char a_recd [LEN_RECD], char a_user [LEN_LABEL], char r_names [LEN_HUND], char r_gids [LEN_HUND]);
 char        yenv_group_by_user      (char a_user [LEN_USER], char r_names [LEN_HUND], char r_gids [LEN_HUND]);
@@ -242,6 +264,7 @@ char        yENV_group              (char a_text [LEN_USER], char r_name [LEN_US
 char        yENV_group_gid          (char a_type, int a_value, char r_name [LEN_USER], int *r_gid);
 /*········´ ´··············search·´ ´·········································*/
 int         yENV_group_count        (void);
+char        yenv_group_reading      (int a_curr, char a_name [LEN_USER], char r_name [LEN_USER], char r_rptg [LEN_PATH]);
 char        yENV_group_by_name      (char a_name [LEN_USER], char r_name [LEN_USER], int *r_gid, char *r_quality, char *r_active, char *r_nuser, char r_unames [LEN_HUND], char r_uids [LEN_HUND], char r_rptg [LEN_FULL]);
 char        yENV_group_by_cursor    (char a_dir, char r_name [LEN_USER], int *r_gid, char *r_quality, char *r_active, char *r_nuser, char r_unames [LEN_HUND], char r_uids [LEN_HUND], char r_rptg [LEN_FULL]);
 /*········´ ´···········unit-test·´ ´·········································*/
@@ -280,7 +303,6 @@ char        yENV_perms              (char a_text [LEN_TERSE], char r_name [LEN_T
 char        yenv_user_quality       (char a_user [LEN_HUND]);
 char        yenv_user_login         (char a_shell [LEN_HUND]);
 char        yenv_user_active        (char a_pass [LEN_LABEL]);
-char*       yenv_user_detail        (char a_user [LEN_USER]);
 
 /*> char*       yenv_group_detail       (char a_group [LEN_USER]);                    <*/
 

@@ -131,24 +131,23 @@ char        yENV_diff               (char *a_actual, char *a_expect);
 
 
 /*===[[ yENV_user.c ]]========================================================*/
-/*········· ´······················ ´·········································*/
-/*---(driver)---------------*/   /*--- DEPRICATED ----------------------------*/
-char        yENV_user_data          (char a_type, char b_name [LEN_USER], int *b_uid, int *r_gid, char r_home [LEN_HUND], char r_shell [LEN_HUND], char *r_quality, char *r_active, char *r_login, char *r_ngroup, char r_gnames [LEN_HUND], char r_gids [LEN_HUND]);
+/*········´ ´··············driver·´ ´·········································*/
+char        yENV_user_data          (char a_type, char b_name [LEN_USER], int *b_uid, int *r_gid, char r_home [LEN_HUND], char r_shell [LEN_HUND], char *r_quality, char *r_active, char *r_login, char *r_ngroup, char r_gnames [LEN_HUND], char r_gids [LEN_HUND], int n, char r_rptg [LEN_PATH]);
+/*········´ ´·········simplifiers·´ ´·········································*/
 char        yENV_user_full          (char a_type, char a_text [LEN_USER], char r_name [LEN_USER], int *r_uid, int *r_gid, char r_home [LEN_HUND], char r_shell [LEN_HUND], char r_handle [LEN_LABEL], char *r_naming, char *r_active, char *r_login, char *r_ngroup, char r_gnames [LEN_HUND], char r_gids [LEN_HUND]);
-/*---(simplifiers)----------*/
 char        yENV_user               (char a_text [LEN_USER], char r_name [LEN_USER], int *r_uid);
 char        yENV_user_uid           (char a_type, int a_value, char r_name [LEN_USER], int *r_uid);
 char        yENV_user_basics        (char a_text [LEN_USER], int *r_uid, int *r_gid, char r_home [LEN_HUND], char r_shell [LEN_HUND]);
-/*---(unit-testing)---------*/
+/*········´ ´··············search·´ ´·········································*/
+int         yENV_user_count         (void);
+char        yENV_user_by_name       (char a_name [LEN_USER], char r_name [LEN_USER], int *r_uid, int *r_gid, char r_home [LEN_HUND], char r_shell [LEN_HUND], char *r_quality, char *r_active, char *r_login, char *r_ngroup, char r_gnames [LEN_HUND], char r_gids [LEN_HUND], char r_rptg [LEN_PATH]);
+char        yENV_user_by_cursor     (char a_dir, char r_name [LEN_USER], int *b_uid, int *r_gid, char r_home [LEN_HUND], char r_shell [LEN_HUND], char *r_quality, char *r_active, char *r_login, char *r_ngroup, char r_gnames [LEN_HUND], char r_gids [LEN_HUND], char r_rptg [LEN_PATH]);
+/*········´ ´········test-support·´ ´·········································*/
 char        yENV_user_add           (char a_name [LEN_USER], int a_uid, char a_home, char a_shell);
 char        yENV_user_del           (char a_name [LEN_USER]);
 char        yENV_user_purge         (void);
 char        yENV_user_switch        (char a_name [LEN_USER]);
-/*---(access)---------------*/
-int         yENV_user_count         (void);
-char*       yENV_user_by_cursor     (char a_dir);
-char*       yENV_user_by_text       (char a_text [LEN_USER]);
-/*---(done)-----------------*/
+/*········´ ´················DONE·´ ´·········································*/
 
 
 

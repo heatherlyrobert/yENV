@@ -248,7 +248,7 @@ yenv_group__users       (char a_recd [LEN_RECD], char a_group [LEN_LABEL], char 
    strcpy (x_names, ",");
    strcpy (x_uids , ",");
    while (p != NULL) {
-      rc = yENV_user_data ('n', p, &x_uid, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+      rc = yENV_user_data ('n', p, &x_uid, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, -1, NULL);
       /*---(name list)-------------------*/
       if (rc < 0) sprintf (t, "<%s>", p);
       else        sprintf (t, "%s"  , p);
@@ -576,6 +576,91 @@ yENV_group_count        (void)
 }
 
 char
+yenv_group_reading      (int a_curr, char a_name [LEN_USER], char r_name [LEN_USER], char r_rptg [LEN_PATH])
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   int         rc          =   -1;
+   int         x_len       =    0;
+   FILE       *f           = NULL;
+   char        t           [LEN_RECD]  = "";
+   int         l           =    0;
+   int         n           =   -1;
+   char       *p           = NULL;
+   char       *r           = NULL;
+   char        x_found     =  '-';
+   char        x_name      [LEN_USER]  = "";
+   /*---(header)-------------------------*/
+   DEBUG_YENV    yLOG_enter   (__FUNCTION__);
+   /*---(default)------------------------*/
+   if (r_name    != NULL)  strcpy (r_name , "");
+   /*---(defense)------------------------*/
+   DEBUG_YENV    yLOG_point   ("a_name"    , a_name);
+   --rce;  if (a_name == NULL || a_name [0] == '\0') {
+      if (r_rptg != NULL) strcpy (r_rptg, "(null/empty name)");
+      DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_YENV    yLOG_info    ("a_name"    , a_name);
+   /*---(prepare)------------------------*/
+   x_len = strlen (a_name);
+   DEBUG_YENV    yLOG_value   ("x_len"     , x_len);
+   /*---(open)---------------------------*/
+   f = fopen ("/etc/group" , "rt");
+   DEBUG_YENV    yLOG_point   ("f"         , f);
+   --rce;  if (f == NULL) {
+      if (r_rptg != NULL) strcpy (r_rptg, "(can not open)");
+      DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(walk file)----------------------*/
+   while (1) {
+      /*---(read)------------------------*/
+      fgets (t, LEN_RECD, f);
+      if (feof (f))  break;
+      ++n;
+      /*---(filter)----------------------*/
+      if (t [0] == '#' )  continue;
+      if (t [0] == '\0')  continue;
+      /*---(fix)-------------------------*/
+      l = strlen (t);
+      if (l > 0 && t [l - 1] == '\n')  t [--l] = '\0';
+      DEBUG_YENV    yLOG_complex ("looking"   , "%3d %3d å%sæ vs %3d %3d å%sæ", a_curr, x_len, a_name, n, l, t);
+      /*---(check)-----------------------*/
+      if (a_curr <  0 && strncmp (t, a_name, x_len) != 0)  continue;
+      if (a_curr >= 0 && n != a_curr)                      continue;
+      /*---(found)-----------------------*/
+      DEBUG_YENV    yLOG_note    ("FOUND");
+      p = strtok_r (t, ":", &r);
+      if (p == NULL) {
+         if (r_rptg != NULL) strcpy (r_rptg, "(can not parse)");
+         DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
+      /*---(save)------------------------*/
+      strlcpy (x_name, p, LEN_USER);
+      DEBUG_YENV    yLOG_info    ("x_name"    , x_name);
+      x_found = 'y';
+      break;
+      /*---(done)------------------------*/
+   }
+   /*---(close)--------------------------*/
+   fclose (f);
+   /*---(trouble)------------------------*/
+   DEBUG_YENV    yLOG_char    ("x_found"   , x_found);
+   --rce;  if (x_found != 'y') {
+      if (r_rptg != NULL) strcpy (r_rptg, "(n/a)");
+      DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(save-back)----------------------*/
+   if (r_name    != NULL)  strlcpy (r_name , x_name, LEN_USER);
+   /*---(complete)-----------------------*/
+   DEBUG_YENV    yLOG_exit    (__FUNCTION__);
+   return n;
+}
+
+char
 yENV_group_by_name      (char a_name [LEN_USER], char r_name [LEN_USER], int *r_gid, char *r_quality, char *r_active, char *r_nuser, char r_unames [LEN_HUND], char r_uids [LEN_HUND], char r_rptg [LEN_FULL])
 {
    /*---(locals)-----------+-----+-----+-*/
@@ -586,6 +671,7 @@ yENV_group_by_name      (char a_name [LEN_USER], char r_name [LEN_USER], int *r_
    char        t           [LEN_RECD]  = "";
    int         l           =    0;
    int         n           =   -1;
+   char        x_name      [LEN_USER]  = "";
    char        x_found     =  '-';
    /*---(header)-------------------------*/
    DEBUG_YENV    yLOG_enter   (__FUNCTION__);
@@ -609,44 +695,51 @@ yENV_group_by_name      (char a_name [LEN_USER], char r_name [LEN_USER], int *r_
    /*---(prepare)------------------------*/
    x_len = strlen (a_name);
    DEBUG_YENV    yLOG_value   ("x_len"     , x_len);
+   /*---(read)---------------------------*/
+   n = yenv_group_reading (-1, a_name, x_name, r_rptg);
+   DEBUG_YENV    yLOG_value   ("n"         , n);
+   --rce;  if (n < 0) {
+      DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(open)---------------------------*/
-   f = fopen ("/etc/group", "rt");
-   DEBUG_YENV    yLOG_point   ("f"         , f);
-   --rce;  if (f == NULL) {
-      if (r_rptg != NULL) strcpy (r_rptg, "(can not open)");
-      DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
+   /*> f = fopen ("/etc/group", "rt");                                                <* 
+    *> DEBUG_YENV    yLOG_point   ("f"         , f);                                  <* 
+    *> --rce;  if (f == NULL) {                                                       <* 
+    *>    if (r_rptg != NULL) strcpy (r_rptg, "(can not open)");                      <* 
+    *>    DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);                             <* 
+    *>    return rce;                                                                 <* 
+    *> }                                                                              <*/
    /*---(walk file)----------------------*/
-   while (1) {
-      /*---(read)------------------------*/
-      fgets (t, LEN_RECD, f);
-      if (feof (f))  break;
-      ++n;
-      /*---(filter)----------------------*/
-      if (t [0] == '#' )  continue;
-      if (t [0] == '\0')  continue;
-      /*---(fix)-------------------------*/
-      l = strlen (t);
-      if (l > 0 && t [l - 1] == '\n')  t [--l] = '\0';
-      DEBUG_YENV    yLOG_complex ("looking"   , "å%sæ %3d å%sæ", a_name, n, t);
-      /*---(check)-----------------------*/
-      if (strncmp (t, a_name, x_len) != 0)  continue;
-      /*---(found)-----------------------*/
-      DEBUG_YENV    yLOG_note    ("FOUND");
-      x_found = 'y';
-      break;
-      /*---(done)------------------------*/
-   }
+   /*> while (1) {                                                                    <* 
+    *>    /+---(read)------------------------+/                                       <* 
+    *>    fgets (t, LEN_RECD, f);                                                     <* 
+    *>    if (feof (f))  break;                                                       <* 
+    *>    ++n;                                                                        <* 
+    *>    /+---(filter)----------------------+/                                       <* 
+    *>    if (t [0] == '#' )  continue;                                               <* 
+    *>    if (t [0] == '\0')  continue;                                               <* 
+    *>    /+---(fix)-------------------------+/                                       <* 
+    *>    l = strlen (t);                                                             <* 
+    *>    if (l > 0 && t [l - 1] == '\n')  t [--l] = '\0';                            <* 
+    *>    DEBUG_YENV    yLOG_complex ("looking"   , "å%sæ %3d å%sæ", a_name, n, t);   <* 
+    *>    /+---(check)-----------------------+/                                       <* 
+    *>    if (strncmp (t, a_name, x_len) != 0)  continue;                             <* 
+    *>    /+---(found)-----------------------+/                                       <* 
+    *>    DEBUG_YENV    yLOG_note    ("FOUND");                                       <* 
+    *>    x_found = 'y';                                                              <* 
+    *>    break;                                                                      <* 
+    *>    /+---(done)------------------------+/                                       <* 
+    *> }                                                                              <*/
    /*---(trouble)------------------------*/
-   DEBUG_YENV    yLOG_char    ("x_found"   , x_found);
-   --rce;  if (x_found != 'y') {
-      if (r_rptg != NULL) strcpy (r_rptg, "(n/a)");
-      DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
+   /*> DEBUG_YENV    yLOG_char    ("x_found"   , x_found);                            <*/
+   /*> --rce;  if (x_found != 'y') {                                                  <* 
+    *>    if (r_rptg != NULL) strcpy (r_rptg, "(n/a)");                               <* 
+    *>    DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);                             <* 
+    *>    return rce;                                                                 <* 
+    *> }                                                                              <*/
    /*---(close)--------------------------*/
-   fclose (f);
+   /*> fclose (f);                                                                    <*/
    /*---(get details)--------------------*/
    rc = yENV_group_data  ('n', a_name, r_gid, r_quality, r_active, r_nuser, r_unames, r_uids, n, r_rptg);
    DEBUG_YENV    yLOG_value   ("data"      , rc);
@@ -676,6 +769,7 @@ yENV_group_by_cursor    (char a_dir, char r_name [LEN_USER], int *r_gid, char *r
    char       *r           = NULL;
    char        x_name      [LEN_USER]  = "";
    char        x_found     =  '-';
+   char       *x_parse     = "#ù parsing··´··åid·  gid··>  ln> name········<  Q  A  cnt>  len> user-names········································<  len> user-uids·······························<æ";
    /*---(header)-------------------------*/
    DEBUG_YENV    yLOG_enter   (__FUNCTION__);
    /*---(default)------------------------*/
@@ -694,6 +788,7 @@ yENV_group_by_cursor    (char a_dir, char r_name [LEN_USER], int *r_gid, char *r
    DEBUG_YENV    yLOG_value   ("c"         , c);
    x_curr = zENV_cgroup;
    DEBUG_YENV    yLOG_value   ("x_curr"    , x_curr);
+   /*---(handle)-------------------------*/
    DEBUG_YENV    yLOG_char    ("a_dir"     , a_dir);
    --rce;  switch (a_dir) {
    case YDLST_HEAD  : case YDLST_DHEAD :
@@ -721,7 +816,7 @@ yENV_group_by_cursor    (char a_dir, char r_name [LEN_USER], int *r_gid, char *r
       x_curr = c;
       break;
    case 'ù' :
-      if (r_rptg != NULL) strcpy (r_rptg, "#ù parsing··´··åid  gid··>  ln> name········<  Q  A  cnt>  len> user-names········································<  len> user-uids·······························<æ");
+      if (r_rptg != NULL) strlcpy (r_rptg, x_parse, LEN_FULL);
       DEBUG_YENV    yLOG_exit    (__FUNCTION__);
       return 0;
       break;
@@ -734,52 +829,59 @@ yENV_group_by_cursor    (char a_dir, char r_name [LEN_USER], int *r_gid, char *r
    DEBUG_YENV    yLOG_value   ("x_curr"    , x_curr);
    /*---(save-back)----------------------*/
    zENV_cgroup = x_curr;
+   /*---(read)---------------------------*/
+   n = yenv_group_reading (x_curr, "(nope)", x_name, r_rptg);
+   DEBUG_YENV    yLOG_value   ("n"         , n);
+   --rce;  if (n < 0) {
+      DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(open)---------------------------*/
-   f = fopen ("/etc/group", "rt");
-   DEBUG_YENV    yLOG_point   ("f"         , f);
-   --rce;  if (f == NULL) {
-      if (r_rptg != NULL) strcpy (r_rptg, "(can not open)");
-      DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
+   /*> f = fopen ("/etc/group", "rt");                                                <* 
+    *> DEBUG_YENV    yLOG_point   ("f"         , f);                                  <* 
+    *> --rce;  if (f == NULL) {                                                       <* 
+    *>    if (r_rptg != NULL) strcpy (r_rptg, "(can not open)");                      <* 
+    *>    DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);                             <* 
+    *>    return rce;                                                                 <* 
+    *> }                                                                              <*/
    /*---(walk file)----------------------*/
-   while (1) {
-      /*---(read)------------------------*/
-      fgets (t, LEN_RECD, f);
-      if (feof (f))  break;
-      ++n;
-      /*---(filter)----------------------*/
-      if (t [0] == '#' )  continue;
-      if (t [0] == '\0')  continue;
-      /*---(fix)-------------------------*/
-      l = strlen (t);
-      if (l > 0 && t [l - 1] == '\n')  t [--l] = '\0';
-      DEBUG_YENV    yLOG_complex ("looking"   , "%3d %3d å%sæ", x_curr, n, t);
-      /*---(check)-----------------------*/
-      if (n != x_curr)  continue;
-      /*---(found)-----------------------*/
-      DEBUG_YENV    yLOG_note    ("FOUND");
-      p = strtok_r (t, ":", &r);
-      if (p == NULL) {
-         if (r_rptg != NULL) strcpy (r_rptg, "(can not parse)");
-         DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
-         return rce;
-      }
-      strlcpy (x_name, p, LEN_USER);
-      DEBUG_YENV    yLOG_info    ("x_name"    , x_name);
-      x_found = 'y';
-      break;
-      /*---(done)------------------------*/
-   }
-   /*---(trouble)------------------------*/
-   DEBUG_YENV    yLOG_char    ("x_found"   , x_found);
-   --rce;  if (x_found != 'y') {
-      if (r_rptg != NULL) strcpy (r_rptg, "(n/a)");
-      DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
+   /*> while (1) {                                                                    <* 
+    *>    /+---(read)------------------------+/                                       <* 
+    *>    fgets (t, LEN_RECD, f);                                                     <* 
+    *>    if (feof (f))  break;                                                       <* 
+    *>    ++n;                                                                        <* 
+    *>    /+---(filter)----------------------+/                                       <* 
+    *>    if (t [0] == '#' )  continue;                                               <* 
+    *>    if (t [0] == '\0')  continue;                                               <* 
+    *>    /+---(fix)-------------------------+/                                       <* 
+    *>    l = strlen (t);                                                             <* 
+    *>    if (l > 0 && t [l - 1] == '\n')  t [--l] = '\0';                            <* 
+    *>    DEBUG_YENV    yLOG_complex ("looking"   , "%3d %3d å%sæ", x_curr, n, t);    <* 
+    *>    /+---(check)-----------------------+/                                       <* 
+    *>    if (n != x_curr)  continue;                                                 <* 
+    *>    /+---(found)-----------------------+/                                       <* 
+    *>    DEBUG_YENV    yLOG_note    ("FOUND");                                       <* 
+    *>    p = strtok_r (t, ":", &r);                                                  <* 
+    *>    if (p == NULL) {                                                            <* 
+    *>       if (r_rptg != NULL) strcpy (r_rptg, "(can not parse)");                  <* 
+    *>       DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);                          <* 
+    *>       return rce;                                                              <* 
+    *>    }                                                                           <* 
+    *>    strlcpy (x_name, p, LEN_USER);                                              <* 
+    *>    DEBUG_YENV    yLOG_info    ("x_name"    , x_name);                          <* 
+    *>    x_found = 'y';                                                              <* 
+    *>    break;                                                                      <* 
+    *>    /+---(done)------------------------+/                                       <* 
+    *> }                                                                              <*/
    /*---(close)--------------------------*/
-   fclose (f);
+   /*> fclose (f);                                                                    <*/
+   /*---(trouble)------------------------*/
+   /*> DEBUG_YENV    yLOG_char    ("x_found"   , x_found);                            <*/
+   /*> --rce;  if (x_found != 'y') {                                                  <* 
+    *>    if (r_rptg != NULL) strcpy (r_rptg, "(n/a)");                               <* 
+    *>    DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);                             <* 
+    *>    return rce;                                                                 <* 
+    *> }                                                                              <*/
    /*---(get details)--------------------*/
    rc = yENV_group_data  ('n', x_name, r_gid, r_quality, r_active, r_nuser, r_unames, r_uids, x_curr, r_rptg);
    DEBUG_YENV    yLOG_value   ("data"      , rc);
