@@ -72,16 +72,18 @@ yENV_open_full          (char a_label [LEN_LABEL], char c_force, char a_dir [LEN
       return rce;
    }
    DEBUG_YENV   yLOG_info    ("a_dir"     , a_dir);
-   DEBUG_YENV   yLOG_point   ("a_file"    , a_file);
-   --rce;  if (a_file      == NULL) {
-      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   DEBUG_YENV   yLOG_info    ("a_file"    , a_file);
-   DEBUG_YENV   yLOG_char    ("a_mode"    , a_mode);
-   --rce;  if (a_mode == 0 || strchr ("rRwW", a_mode) == NULL) {
-      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
+   if (a_dir  [0] != '(') {
+      DEBUG_YENV   yLOG_point   ("a_file"    , a_file);
+      --rce;  if (a_file      == NULL) {
+         DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
+      DEBUG_YENV   yLOG_info    ("a_file"    , a_file);
+      DEBUG_YENV   yLOG_char    ("a_mode"    , a_mode);
+      --rce;  if (a_mode == 0 || strchr ("rRwW", a_mode) == NULL) {
+         DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
    }
    DEBUG_YENV   yLOG_point   ("b_file"    , b_file);
    --rce;  if (b_file      == NULL) {
@@ -96,18 +98,32 @@ yENV_open_full          (char a_label [LEN_LABEL], char c_force, char a_dir [LEN
    /*---(ground)-------------------------*/
    *b_file = NULL;
    /*---(full name)----------------------*/
-   rc = yENV_name_full (a_dir, a_file, &x_style, x_full);
-   DEBUG_YENV   yLOG_value   ("full"      , rc);
-   --rce;  if (rc < 0) {
-      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
+   if (a_dir   [0] != '(') {
+      rc = yENV_name_full (a_dir, a_file, &x_style, x_full);
+      DEBUG_YENV   yLOG_value   ("full"      , rc);
+      --rce;  if (rc < 0) {
+         DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
+      DEBUG_YENV   yLOG_char    ("x_style"   , x_style);
+      --rce;  if (x_style != 'b') {
+         DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
+      DEBUG_YENV   yLOG_info    ("x_full"    , x_full);
    }
-   DEBUG_YENV   yLOG_char    ("x_style"   , x_style);
-   --rce;  if (x_style != 'b') {
-      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
+   /*---(overrides)----------------------*/
+   if (a_dir   [0] == '(') {
+      if      (strcmp (a_dir  , "(stdin)" ) == 0)  a_mode = 'r';
+      else if (strcmp (a_dir  , "(stdout)") == 0)  a_mode = 'w';
+      else if (strcmp (a_dir  , "(stderr)") == 0)  a_mode = 'w';
+      else if (strcmp (a_dir  , "(clip)"  ) == 0)  strcpy (x_full, YSTR_CLIP);
+      else {
+         DEBUG_YENV   yLOG_note    ("file starts with '(', but is not defined");
+         DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
    }
-   DEBUG_YENV   yLOG_info    ("x_full"    , x_full);
    /*---(set mode)-----------------------*/
    DEBUG_YENV   yLOG_char    ("a_mode"    , a_mode);
    --rce;  switch (a_mode) {
@@ -138,22 +154,27 @@ yENV_open_full          (char a_label [LEN_LABEL], char c_force, char a_dir [LEN
    }
    DEBUG_YENV   yLOG_info    ("x_mode"    , x_mode);
    /*---(verify existance)---------------*/
-   rc = yENV_exists (x_full);
-   DEBUG_YENV   yLOG_char    ("exists"    , rc);
-   --rce;  if (rc == YENV_NONE) {
-      if (strchr ("rR", a_mode) != NULL)  {
-         DEBUG_YENV   yLOG_note    ("can not read non-existant files");
+   if (a_dir   [0] != '(') {
+      rc = yENV_exists (x_full);
+      DEBUG_YENV   yLOG_char    ("exists"    , rc);
+      --rce;  if (rc == YENV_NONE) {
+         if (strchr ("rR", a_mode) != NULL)  {
+            DEBUG_YENV   yLOG_note    ("can not read non-existant files");
+            DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
+            return rce;
+         }
+      }
+      --rce;  if (strchr ("-rh", rc) == NULL) {
+         DEBUG_YENV   yLOG_note    ("file must be new, regular, or hardlink only");
          DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
          return rce;
       }
    }
-   --rce;  if (strchr ("-rh", rc) == NULL) {
-      DEBUG_YENV   yLOG_note    ("file must be new, regular, or hardlink only");
-      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
    /*---(open)---------------------------*/
-   f = fopen (x_full, x_mode);
+   if      (strcmp (a_dir  , "(stdin)" ) == 0)  f = stdin;
+   else if (strcmp (a_dir  , "(stdout)") == 0)  f = stdout;
+   else if (strcmp (a_dir  , "(stderr)") == 0)  f = stderr;
+   else                                         f = fopen (x_full, x_mode);
    DEBUG_YENV   yLOG_point   ("f"         , f);
    --rce;  if (f == NULL) {
       DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
@@ -176,6 +197,10 @@ yENV_open                (char a_dir [LEN_PATH], char a_file [LEN_HUND], char a_
 {
    return yENV_open_full ("file", '-', a_dir, a_file, a_mode, NULL, NULL, NULL, b_file);
 }
+
+char yENV_open_stdin          (FILE **b_file) { return yENV_open_full ("(stdin)" , '-', "(stdin)" , "", 'r', NULL, NULL, NULL, b_file); }
+char yENV_open_stdout         (FILE **b_file) { return yENV_open_full ("(stdout)", '-', "(stdout)", "", 'w', NULL, NULL, NULL, b_file); }
+char yENV_open_stderr         (FILE **b_file) { return yENV_open_full ("(stderr)", '-', "(stderr)", "", 'w', NULL, NULL, NULL, b_file); }
 
 char
 yENV_close_full         (char a_label [LEN_LABEL], FILE **b_file, char c_sync)
@@ -203,11 +228,16 @@ yENV_close_full         (char a_label [LEN_LABEL], FILE **b_file, char c_sync)
       return rce;
    }
    /*---(close file)---------------------*/
-   rc = fclose (*b_file);
-   DEBUG_YENV    yLOG_value   ("fclose"    , rc);
-   --rce;  if (rc < 0) {
-      DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
+   if      (strcmp (a_label, "(stdin)" ) == 0 || *b_file == stdin )  ;
+   else if (strcmp (a_label, "(stdout)") == 0 || *b_file == stdout)  ;
+   else if (strcmp (a_label, "(stderr)") == 0 || *b_file == stderr)  ;
+   else {
+      rc = fclose (*b_file);
+      DEBUG_YENV    yLOG_value   ("fclose"    , rc);
+      --rce;  if (rc < 0) {
+         DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
    }
    /*---(ground)-------------------------*/
    *b_file = NULL;

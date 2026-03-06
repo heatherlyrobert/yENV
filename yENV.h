@@ -153,23 +153,22 @@ char*       yENV_user_by_text       (char a_text [LEN_USER]);
 
 
 /*===[[ yENV_group.c ]]=======================================================*/
-/*········· ´······················ ´·········································*/
-/*---(driver)---------------*/   /*--- DEPRICATED ----------------------------*/
-char        yENV_group_data         (char a_type, char b_name [LEN_USER], int *b_gid, char *r_quality, char *r_active, char *r_nuser, char r_unames [LEN_HUND], char r_uids [LEN_HUND]);
+/*········´ ´··············driver·´ ´·········································*/
+char        yENV_group_data         (char a_type, char b_name [LEN_USER], int *b_gid, char *r_quality, char *r_active, char *r_nuser, char r_unames [LEN_HUND], char r_uids [LEN_HUND], int n, char r_rptg [LEN_FULL]);
+/*········´ ´·········simplifiers·´ ´·········································*/
 char        yENV_group_full         (char a_type, char a_text [LEN_USER], char r_name [LEN_USER], int *r_gid, char r_handle [LEN_LABEL], char *r_quality, char *r_active, char *r_nuser, char r_unames [LEN_HUND], char r_uids [LEN_HUND]);
-/*---(simplifiers)----------*/
 char        yENV_group              (char a_text [LEN_USER], char r_name [LEN_USER], int *r_gid);
 char        yENV_group_gid          (char a_type, int a_value, char r_name [LEN_USER], int *r_gid);
-/*---(data-access)----------*/
+/*········´ ´··············search·´ ´·········································*/
 int         yENV_group_count        (void);
-char*       yENV_group_by_cursor    (char a_dir);
-char*       yENV_group_by_text      (char a_text [LEN_USER]);
-/*---(unit-testing)---------*/
+char        yENV_group_by_name      (char a_name [LEN_USER], char r_name [LEN_USER], int *r_gid, char *r_quality, char *r_active, char *r_nuser, char r_unames [LEN_HUND], char r_uids [LEN_HUND], char r_rptg [LEN_FULL]);
+char        yENV_group_by_cursor    (char a_dir, char r_name [LEN_USER], int *r_gid, char *r_quality, char *r_active, char *r_nuser, char r_unames [LEN_HUND], char r_uids [LEN_HUND], char r_rptg [LEN_FULL]);
+/*········´ ´········test-support·´ ´·········································*/
 char        yENV_group_add          (char a_name [LEN_USER], int a_gid);
 char        yENV_group_del          (char a_name [LEN_USER]);
 char        yENV_group_purge        (void);
 char        yENV_group_switch       (char a_name [LEN_USER]);
-/*---(driver)---------------*/
+/*········´ ´················DONE·´ ´·········································*/
 
 
 
@@ -227,6 +226,9 @@ char        yENV_name_detail        (char a_full [LEN_PATH], char *r_style, char
 /*········· ´··············access·´ ´·········································*/
 char        yENV_open_full          (char a_label [LEN_LABEL], char c_force, char a_dir [LEN_PATH], char a_file [LEN_HUND], char a_mode, char r_mode [LEN_SHORT], char r_note [LEN_LABEL], char r_full [LEN_PATH], FILE **b_file);
 char        yENV_open               (char a_dir [LEN_PATH], char a_file [LEN_HUND], char a_mode, FILE **b_file);
+char        yENV_open_stdin         (FILE **b_file);
+char        yENV_open_stdout        (FILE **b_file);
+char        yENV_open_stderr        (FILE **b_file);
 char        yENV_close_full         (char a_label [LEN_LABEL], FILE **b_file, char c_sync);
 char        yENV_close              (FILE **b_file);
 /*········· ´···············input·´ ´·········································*/

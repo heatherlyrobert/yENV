@@ -127,7 +127,7 @@ yENV_whoami             (int *r_pid, int *r_ppid, int *r_uid, int *r_euid, char 
    DEBUG_YENV  yLOG_value   ("x_egid"    , x_egid);
    if (r_gid   != NULL)   *r_gid   = getgid ();
    if (r_egid  != NULL)   *r_egid  = x_egid;
-   rc = yENV_group_data ('i', r_group, &x_egid, NULL, NULL, NULL, NULL, NULL);
+   rc = yENV_group_data ('i', r_group, &x_egid, NULL, NULL, NULL, NULL, NULL, -1, NULL);
    --rce;  if (rc < 0) {
       DEBUG_YENV  yLOG_exitr   (__FUNCTION__, rce);
       return rce;

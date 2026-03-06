@@ -43,149 +43,7 @@ static  int zENV_cgroup  =   -1;
 /*====================------------------------------------====================*/
 /*===----                          main driver                         ----===*/
 /*====================------------------------------------====================*/
-static void      o___DRIVER_____________o (void) {;}
-
-char
-yENV_group_data         (char a_type, char b_name [LEN_USER], int *b_gid, char *r_quality, char *r_active, char *r_nuser, char r_unames [LEN_HUND], char r_uids [LEN_HUND])
-{
-   /*---(locals)-----------+-----+-----+-*/
-   char        rce         =  -10;
-   tGROUP     *x_group     = NULL;
-   /*---(default)------------------------*/
-   if (b_name  != NULL && a_type != 'n')    strcpy (b_name, "");
-   if (b_gid   != NULL && a_type != 'i')    *b_gid     = -1;
-   if (r_quality != NULL)                   *r_quality = '-';
-   if (r_active  != NULL)                   *r_active  = '-';
-   if (r_nuser   != NULL)                   *r_nuser   =  -1;
-   if (r_unames  != NULL)                   strcpy (r_unames, "");
-   if (r_uids    != NULL)                   strcpy (r_uids , "");
-   /*---(defense)------------------------*/
-   --rce;  if (a_type == '\0' || strchr ("ni", a_type) == NULL)                return rce;
-   --rce;  if (a_type == 'n' && (b_name == NULL || strcmp (b_name, "") == 0))  return rce;
-   --rce;  if (a_type == 'i' && (b_gid  == NULL || *b_gid < 0))                return rce;
-   /*---(get owner record)---------------*/
-   if (a_type == 'n')    x_group = getgrnam (b_name);
-   else                  x_group = getgrgid (*b_gid);
-   --rce;  if (x_group == NULL)                                                return rce;
-   /*---(save back)----------------------*/
-   if (a_type == 'i' && b_name  != NULL)  strlcpy (b_name , x_group->gr_name , LEN_USER);
-   if (a_type == 'n' && b_gid   != NULL)  *b_gid = x_group->gr_gid;
-   /*---(fill in data)-------------------*/
-   if (r_quality != NULL)  *r_quality = yenv_user_quality  (x_group->gr_name);
-   if (r_active  != NULL)  *r_active  = yenv_user_active   (x_group->gr_passwd);
-   if (r_nuser   != NULL)  *r_nuser   = yenv_group_users   (x_group->gr_name, r_unames, r_uids);
-   /*---(complete)-----------------------*/
-   return 0;
-}
-
-char
-yENV_group_full         (char a_type, char a_text [LEN_USER], char r_name [LEN_USER], int *r_gid, char r_handle [LEN_LABEL], char *r_quality, char *r_active, char *r_nuser, char r_unames [LEN_HUND], char r_uids [LEN_HUND])
-{
-   /*---(locals)-----------+-----+-----+-*/
-   char        rce         =  -10;
-   char        rc          =    0;
-   char        x_group     [LEN_USER]  = "";
-   int         x_gid       =   -1;
-   /*---(header)-------------------------*/
-   DEBUG_YENV    yLOG_senter  (__FUNCTION__);
-   /*---(defaults)-----------------------*/
-   if (r_name    != NULL)  strcpy (r_name  , "");
-   if (r_gid     != NULL)  *r_gid   = -1;
-   if (r_handle  != NULL)  strcpy (r_handle, "");
-   if (r_quality != NULL)  *r_quality = '-';
-   if (r_active  != NULL)  *r_active  = '-';
-   if (r_nuser   != NULL)  *r_nuser   =  -1;
-   if (r_unames  != NULL)  strcpy (r_unames, "");
-   if (r_uids    != NULL)  strcpy (r_uids , "");
-   /*---(quick-out)----------------------*/
-   if (a_type == YENV_NONE) {
-      DEBUG_YENV    yLOG_snote   ("nothing to be done");
-      DEBUG_YENV    yLOG_sexit   (__FUNCTION__);
-      return RC_ACK;
-   }
-   if (a_type == YENV_SYM) {
-      DEBUG_YENV    yLOG_snote   ("nothing to be done");
-      DEBUG_YENV    yLOG_sexit   (__FUNCTION__);
-      return RC_ACK;
-   }
-   if (a_text != NULL && strcmp (a_text, "-") == 0) {
-      DEBUG_YENV    yLOG_snote   ("ignore request");
-      if (r_handle != NULL)  strlcpy (r_handle, "ignore", LEN_LABEL);
-      DEBUG_YENV    yLOG_sexit   (__FUNCTION__);
-      return RC_ACK;
-   }
-   /*---(defense)------------------------*/
-   DEBUG_YENV    yLOG_schar   (a_type);
-   --rce;  if (a_type == 0 || strchr (YENV_REAL, a_type) == NULL) {
-      DEBUG_YENV    yLOG_sexitr  (__FUNCTION__, rce);
-      return rce;
-   }
-   DEBUG_YENV    yLOG_spoint  (a_text);
-   --rce;  if (a_text == NULL) {
-      DEBUG_YENV    yLOG_sexitr  (__FUNCTION__, rce);
-      return rce;
-   }
-   DEBUG_YENV    yLOG_snote   (a_text);
-   /*---(prepare)------------------------*/
-   strlcpy (x_group, a_text, LEN_USER);
-   rc = -1;
-   x_gid = atoi (a_text);
-   if (x_gid <= 0)                 x_gid = -1;
-   if (strcmp (a_text, "0") == 0)  x_gid = 0;
-   /*---(group by gid)-------------------*/
-   --rce;  if (x_gid >= 0) {
-      DEBUG_YENV    yLOG_snote   ("handle by group uid");
-      if (r_handle != NULL)  strlcpy (r_handle, "gid", LEN_LABEL);
-      rc = yENV_group_data ('i', x_group, &x_gid, r_quality, r_active, r_nuser, r_unames, r_uids);
-   }
-   /*---(group by current gid)-----------*/
-   --rce;  if (x_gid < 0 && strcmp (a_text, "@") == 0) {
-      DEBUG_YENV    yLOG_snote   ("handle using current group");
-      if (r_handle != NULL)  strlcpy (r_handle, "default", LEN_LABEL);
-      x_gid = getgid ();
-      rc = yENV_group_data ('i', x_group, &x_gid, r_quality, r_active, r_nuser, r_unames, r_uids);
-   }
-   /*---(group by name)------------------*/
-   --rce;  if (x_gid < 0 && strcmp (a_text, "") != 0) {
-      DEBUG_YENV    yLOG_snote   ("handle by group name");
-      if (r_handle != NULL)  strlcpy (r_handle, "name", LEN_LABEL);
-      rc = yENV_group_data ('n', x_group, &x_gid, r_quality, r_active, r_nuser, r_unames, r_uids);
-   }
-   /*---(trouble)------------------------*/
-   DEBUG_YENV    yLOG_sint    (rc);
-   if (rc < 0) {
-      DEBUG_YENV    yLOG_sexitr  (__FUNCTION__, rce);
-      return rce;
-   }
-   DEBUG_YENV    yLOG_sint    (x_gid);
-   /*---(save-back)----------------------*/
-   if (r_name   != NULL)  strlcpy (r_name  , x_group, LEN_USER);
-   if (r_gid    != NULL)  *r_gid   = x_gid;
-   /*---(complete)-----------------------*/
-   DEBUG_YENV    yLOG_sexit   (__FUNCTION__);
-   return RC_POSITIVE;
-}
-
-
-
-/*====================------------------------------------====================*/
-/*===----                          simplifiers                         ----===*/
-/*====================------------------------------------====================*/
-static void      o___SIMPLE_____________o (void) {;}
-
-char
-yENV_group              (char a_text [LEN_USER], char r_name [LEN_USER], int *r_gid)
-{
-   return yENV_group_full (YENV_REG, a_text, r_name, r_gid, NULL, NULL, NULL, NULL, NULL, NULL);
-}
-
-char
-yENV_group_gid          (char a_type, int a_value, char r_name [LEN_USER], int *r_gid)
-{
-   char        x_text      [LEN_TERSE] = "";
-   snprintf (x_text, LEN_TERSE, "%d", a_value);
-   return yENV_group_full (a_type, x_text, r_name, r_gid, NULL, NULL, NULL, NULL, NULL, NULL);
-}
+static void      o___SUPPORT____________o (void) {;}
 
 char
 yenv_groups__by_user    (char a_recd [LEN_RECD], char a_user [LEN_LABEL], char r_names [LEN_HUND], char r_gids [LEN_HUND])
@@ -502,6 +360,192 @@ char yenv_groups_by_user  (char a_user  [LEN_USER], char r_names [LEN_HUND], cha
 
 
 /*====================------------------------------------====================*/
+/*===----                          main driver                         ----===*/
+/*====================------------------------------------====================*/
+static void      o___DRIVER_____________o (void) {;}
+
+char
+yENV_group_data         (char a_type, char b_name [LEN_USER], int *b_gid, char *r_quality, char *r_active, char *r_nuser, char r_unames [LEN_HUND], char r_uids [LEN_HUND], int n, char r_rptg [LEN_FULL])
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   tGROUP     *x_group     = NULL;
+   char        x_quality   =  '-';
+   char        x_active    =  '-';
+   char        x_nuser     =    0;
+   char        x_unames    [LEN_HUND]  = "";
+   char        x_uids      [LEN_HUND]  = "";
+   char        x_seq       [LEN_SHORT] = "";
+   char        x_zer       [LEN_HUND]  = "";
+   char        x_one       [LEN_HUND]  = "";
+   char        x_two       [LEN_HUND]  = "";
+   char        x_thr       [LEN_HUND]  = "";
+   char        c           =    0;
+   /*---(default)------------------------*/
+   if (b_name    != NULL && a_type != 'n')  strcpy (b_name, "");
+   if (b_gid     != NULL && a_type != 'i')  *b_gid     = -1;
+   if (r_quality != NULL)                   *r_quality = '-';
+   if (r_active  != NULL)                   *r_active  = '-';
+   if (r_nuser   != NULL)                   *r_nuser   =  -1;
+   if (r_unames  != NULL)                   strcpy (r_unames, "");
+   if (r_uids    != NULL)                   strcpy (r_uids , "");
+   if (r_rptg    != NULL)                   strcpy (r_rptg , "");
+   /*---(defense)------------------------*/
+   --rce;  if (a_type == '\0' || strchr ("ni", a_type) == NULL)                return rce;
+   --rce;  if (a_type == 'n' && (b_name == NULL || strcmp (b_name, "") == 0))  return rce;
+   --rce;  if (a_type == 'i' && (b_gid  == NULL || *b_gid < 0))                return rce;
+   /*---(get owner record)---------------*/
+   if (a_type == 'n')    x_group = getgrnam (b_name);
+   else                  x_group = getgrgid (*b_gid);
+   --rce;  if (x_group == NULL)                                                return rce;
+   /*---(save back)----------------------*/
+   if (a_type == 'i' && b_name  != NULL)  strlcpy (b_name , x_group->gr_name , LEN_USER);
+   if (a_type == 'n' && b_gid   != NULL)  *b_gid = x_group->gr_gid;
+   /*---(fill in data)-------------------*/
+   x_quality = yenv_user_quality  (x_group->gr_name);
+   x_active  = yenv_user_active   (x_group->gr_passwd);
+   x_nuser   = yenv_group_users   (x_group->gr_name, x_unames, x_uids);
+   /*---(save-back)----------------------*/
+   if (r_quality != NULL)  *r_quality = x_quality;
+   if (r_active  != NULL)  *r_active  = x_active;
+   if (r_nuser   != NULL)  *r_nuser   = x_nuser;
+   if (r_unames  != NULL)   strlcpy (r_unames, x_unames, LEN_HUND);
+   if (r_uids    != NULL)   strlcpy (r_uids  , x_uids  , LEN_HUND);
+   /*---(reporting)----------------------*/
+   if (r_rptg != NULL) {
+      if (n < 0)  strcpy  (x_seq, "···");
+      else {
+         sprintf  (x_seq, "%d", n);
+         c = 3 - strlen (x_seq);
+         snprintf (x_seq, LEN_HUND, "%d%*.*s", n, c, c, YSTR_EDOTS);
+      }
+      sprintf  (x_zer, "%d", x_group->gr_gid);
+      c = 5 - strlen (x_zer);
+      snprintf (x_zer, LEN_HUND, "%*.*s%d", c, c, YSTR_EDOTS, x_group->gr_gid);
+      snprintf (x_one, LEN_HUND, "%2d %s%s", strlen (x_group->gr_name)  , x_group->gr_name  , YSTR_EDOTS);
+      if (x_one [15] != '·')   x_one [14] = '>';
+      snprintf (x_two, LEN_HUND, "%3d %s%s", strlen (x_unames), x_unames, YSTR_EDOTS);
+      if (x_two [53] != '·')   x_two [52] = '>';
+      snprintf (x_thr, LEN_HUND, "%3d %s%s", strlen (x_uids)  , x_uids  , YSTR_EDOTS);
+      if (x_thr [43] != '·')   x_thr [42] = '>';
+      snprintf (r_rptg, LEN_FULL, "%-3.3s  %-5.5s  %-15.15s  %c  %c  %3d  %-53.53s  %-43.43s  Ï", x_seq, x_zer, x_one, x_quality, x_active, x_nuser, x_two, x_thr);
+   }
+   /*---(complete)-----------------------*/
+   return 0;
+}
+
+char
+yENV_group_full         (char a_type, char a_text [LEN_USER], char r_name [LEN_USER], int *r_gid, char r_handle [LEN_LABEL], char *r_quality, char *r_active, char *r_nuser, char r_unames [LEN_HUND], char r_uids [LEN_HUND])
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   char        x_group     [LEN_USER]  = "";
+   int         x_gid       =   -1;
+   /*---(header)-------------------------*/
+   DEBUG_YENV    yLOG_senter  (__FUNCTION__);
+   /*---(defaults)-----------------------*/
+   if (r_name    != NULL)  strcpy (r_name  , "");
+   if (r_gid     != NULL)  *r_gid   = -1;
+   if (r_handle  != NULL)  strcpy (r_handle, "");
+   if (r_quality != NULL)  *r_quality = '-';
+   if (r_active  != NULL)  *r_active  = '-';
+   if (r_nuser   != NULL)  *r_nuser   =  -1;
+   if (r_unames  != NULL)  strcpy (r_unames, "");
+   if (r_uids    != NULL)  strcpy (r_uids , "");
+   /*---(quick-out)----------------------*/
+   if (a_type == YENV_NONE) {
+      DEBUG_YENV    yLOG_snote   ("nothing to be done");
+      DEBUG_YENV    yLOG_sexit   (__FUNCTION__);
+      return RC_ACK;
+   }
+   if (a_type == YENV_SYM) {
+      DEBUG_YENV    yLOG_snote   ("nothing to be done");
+      DEBUG_YENV    yLOG_sexit   (__FUNCTION__);
+      return RC_ACK;
+   }
+   if (a_text != NULL && strcmp (a_text, "-") == 0) {
+      DEBUG_YENV    yLOG_snote   ("ignore request");
+      if (r_handle != NULL)  strlcpy (r_handle, "ignore", LEN_LABEL);
+      DEBUG_YENV    yLOG_sexit   (__FUNCTION__);
+      return RC_ACK;
+   }
+   /*---(defense)------------------------*/
+   DEBUG_YENV    yLOG_schar   (a_type);
+   --rce;  if (a_type == 0 || strchr (YENV_REAL, a_type) == NULL) {
+      DEBUG_YENV    yLOG_sexitr  (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_YENV    yLOG_spoint  (a_text);
+   --rce;  if (a_text == NULL) {
+      DEBUG_YENV    yLOG_sexitr  (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_YENV    yLOG_snote   (a_text);
+   /*---(prepare)------------------------*/
+   strlcpy (x_group, a_text, LEN_USER);
+   rc = -1;
+   x_gid = atoi (a_text);
+   if (x_gid <= 0)                 x_gid = -1;
+   if (strcmp (a_text, "0") == 0)  x_gid = 0;
+   /*---(group by gid)-------------------*/
+   --rce;  if (x_gid >= 0) {
+      DEBUG_YENV    yLOG_snote   ("handle by group uid");
+      if (r_handle != NULL)  strlcpy (r_handle, "gid", LEN_LABEL);
+      rc = yENV_group_data ('i', x_group, &x_gid, r_quality, r_active, r_nuser, r_unames, r_uids, -1, NULL);
+   }
+   /*---(group by current gid)-----------*/
+   --rce;  if (x_gid < 0 && strcmp (a_text, "@") == 0) {
+      DEBUG_YENV    yLOG_snote   ("handle using current group");
+      if (r_handle != NULL)  strlcpy (r_handle, "default", LEN_LABEL);
+      x_gid = getgid ();
+      rc = yENV_group_data ('i', x_group, &x_gid, r_quality, r_active, r_nuser, r_unames, r_uids, -1, NULL);
+   }
+   /*---(group by name)------------------*/
+   --rce;  if (x_gid < 0 && strcmp (a_text, "") != 0) {
+      DEBUG_YENV    yLOG_snote   ("handle by group name");
+      if (r_handle != NULL)  strlcpy (r_handle, "name", LEN_LABEL);
+      rc = yENV_group_data ('n', x_group, &x_gid, r_quality, r_active, r_nuser, r_unames, r_uids, -1, NULL);
+   }
+   /*---(trouble)------------------------*/
+   DEBUG_YENV    yLOG_sint    (rc);
+   if (rc < 0) {
+      DEBUG_YENV    yLOG_sexitr  (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_YENV    yLOG_sint    (x_gid);
+   /*---(save-back)----------------------*/
+   if (r_name   != NULL)  strlcpy (r_name  , x_group, LEN_USER);
+   if (r_gid    != NULL)  *r_gid   = x_gid;
+   /*---(complete)-----------------------*/
+   DEBUG_YENV    yLOG_sexit   (__FUNCTION__);
+   return RC_POSITIVE;
+}
+
+
+
+/*====================------------------------------------====================*/
+/*===----                          simplifiers                         ----===*/
+/*====================------------------------------------====================*/
+static void      o___SIMPLE_____________o (void) {;}
+
+char
+yENV_group              (char a_text [LEN_USER], char r_name [LEN_USER], int *r_gid)
+{
+   return yENV_group_full (YENV_REG, a_text, r_name, r_gid, NULL, NULL, NULL, NULL, NULL, NULL);
+}
+
+char
+yENV_group_gid          (char a_type, int a_value, char r_name [LEN_USER], int *r_gid)
+{
+   char        x_text      [LEN_TERSE] = "";
+   snprintf (x_text, LEN_TERSE, "%d", a_value);
+   return yENV_group_full (a_type, x_text, r_name, r_gid, NULL, NULL, NULL, NULL, NULL, NULL);
+}
+
+
+
+/*====================------------------------------------====================*/
 /*===----                      data accessors                          ----===*/
 /*====================------------------------------------====================*/
 static void      o___ACCESS_____________o (void) {;}
@@ -531,25 +575,93 @@ yENV_group_count        (void)
    return c;
 }
 
-char*
-yenv_group_detail       (char a_group [LEN_USER])
+char
+yENV_group_by_name      (char a_name [LEN_USER], char r_name [LEN_USER], int *r_gid, char *r_quality, char *r_active, char *r_nuser, char r_unames [LEN_HUND], char r_uids [LEN_HUND], char r_rptg [LEN_FULL])
 {
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
    char        rc          =    0;
-   int         x_gid       =    0;
-   char        x_naming, x_active;
-   char        x_ngroup    =    0;
-   char        x_names     [LEN_HUND]  = "";
-   char        x_uids      [LEN_HUND]  = "";
-   strcpy (g_print, "");
-   if (a_group  == NULL)    return "(user null)";
-   rc = yENV_group_data ('n', a_group, &x_gid, &x_naming, &x_active, &x_ngroup, x_names, x_uids);
-   if (rc < 0)             return "(missing)";
-   sprintf (g_print, "%-12.12s  %c  %c  %5d  %2d  %-50.50s  %-20.20s  Ï", a_group, x_naming, x_active, x_gid, x_ngroup, x_names, x_uids);
-   return g_print;
+   int         x_len       =    0;
+   FILE       *f           = NULL;
+   char        t           [LEN_RECD]  = "";
+   int         l           =    0;
+   int         n           =   -1;
+   char        x_found     =  '-';
+   /*---(header)-------------------------*/
+   DEBUG_YENV    yLOG_enter   (__FUNCTION__);
+   /*---(default)------------------------*/
+   if (r_name    != NULL)   strcpy (r_name, "");
+   if (r_gid     != NULL)   *r_gid     = -1;
+   if (r_quality != NULL)   *r_quality = '-';
+   if (r_active  != NULL)   *r_active  = '-';
+   if (r_nuser   != NULL)   *r_nuser   =  -1;
+   if (r_unames  != NULL)   strcpy (r_unames, "");
+   if (r_uids    != NULL)   strcpy (r_uids , "");
+   if (r_rptg    != NULL)   strcpy (r_rptg , "");
+   /*---(defense)------------------------*/
+   DEBUG_YENV    yLOG_point   ("a_name"    , a_name);
+   --rce;  if (a_name == NULL || a_name [0] == '\0') {
+      if (r_rptg != NULL) strcpy (r_rptg, "(null/empty name)");
+      DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_YENV    yLOG_info    ("a_name"    , a_name);
+   /*---(prepare)------------------------*/
+   x_len = strlen (a_name);
+   DEBUG_YENV    yLOG_value   ("x_len"     , x_len);
+   /*---(open)---------------------------*/
+   f = fopen ("/etc/group", "rt");
+   DEBUG_YENV    yLOG_point   ("f"         , f);
+   --rce;  if (f == NULL) {
+      if (r_rptg != NULL) strcpy (r_rptg, "(can not open)");
+      DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(walk file)----------------------*/
+   while (1) {
+      /*---(read)------------------------*/
+      fgets (t, LEN_RECD, f);
+      if (feof (f))  break;
+      ++n;
+      /*---(filter)----------------------*/
+      if (t [0] == '#' )  continue;
+      if (t [0] == '\0')  continue;
+      /*---(fix)-------------------------*/
+      l = strlen (t);
+      if (l > 0 && t [l - 1] == '\n')  t [--l] = '\0';
+      DEBUG_YENV    yLOG_complex ("looking"   , "å%sæ %3d å%sæ", a_name, n, t);
+      /*---(check)-----------------------*/
+      if (strncmp (t, a_name, x_len) != 0)  continue;
+      /*---(found)-----------------------*/
+      DEBUG_YENV    yLOG_note    ("FOUND");
+      x_found = 'y';
+      break;
+      /*---(done)------------------------*/
+   }
+   /*---(trouble)------------------------*/
+   DEBUG_YENV    yLOG_char    ("x_found"   , x_found);
+   --rce;  if (x_found != 'y') {
+      if (r_rptg != NULL) strcpy (r_rptg, "(n/a)");
+      DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(close)--------------------------*/
+   fclose (f);
+   /*---(get details)--------------------*/
+   rc = yENV_group_data  ('n', a_name, r_gid, r_quality, r_active, r_nuser, r_unames, r_uids, n, r_rptg);
+   DEBUG_YENV    yLOG_value   ("data"      , rc);
+   --rce;  if (rc < 0) {
+      if (r_rptg != NULL) strcpy (r_rptg, "(data error)");
+      DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_YENV    yLOG_exit    (__FUNCTION__);
+   return n;
 }
 
-char*
-yENV_group_by_cursor    (char a_dir)
+char
+yENV_group_by_cursor    (char a_dir, char r_name [LEN_USER], int *r_gid, char *r_quality, char *r_active, char *r_nuser, char r_unames [LEN_HUND], char r_uids [LEN_HUND], char r_rptg [LEN_FULL])
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -559,12 +671,22 @@ yENV_group_by_cursor    (char a_dir)
    char        t           [LEN_RECD]  = "";
    int         l           =    0;
    int         c           =    0;
-   int         n           =    0;
+   int         n           =   -1;
    char       *p           = NULL;
    char       *r           = NULL;
-   char        x_group     [LEN_USER]  = "";
+   char        x_name      [LEN_USER]  = "";
+   char        x_found     =  '-';
    /*---(header)-------------------------*/
    DEBUG_YENV    yLOG_enter   (__FUNCTION__);
+   /*---(default)------------------------*/
+   if (r_name    != NULL)   strcpy (r_name, "");
+   if (r_gid     != NULL)   *r_gid     = -1;
+   if (r_quality != NULL)   *r_quality = '-';
+   if (r_active  != NULL)   *r_active  = '-';
+   if (r_nuser   != NULL)   *r_nuser   =  -1;
+   if (r_unames  != NULL)   strcpy (r_unames, "");
+   if (r_uids    != NULL)   strcpy (r_uids , "");
+   if (r_rptg    != NULL)   strcpy (r_rptg , "");
    /*---(prepare)------------------------*/
    if (zENV_ngroup <= 0)   yENV_group_count ();
    /*---(set target)---------------------*/
@@ -579,36 +701,53 @@ yENV_group_by_cursor    (char a_dir)
       break;
    case YDLST_PREV  : case YDLST_DPREV :
       if (x_curr > 0)  --x_curr;
-      else             return "(n/a)";
+      else {
+         if (r_rptg != NULL) strcpy (r_rptg, "(already at head)");
+         DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
       break;
    case YDLST_CURR  : case YDLST_DCURR :
       break;
    case YDLST_NEXT  : case YDLST_DNEXT : case '·' :  /* · means default */
       if (x_curr < c)  ++x_curr;
-      else             return "(n/a)";
+      else {
+         if (r_rptg != NULL) strcpy (r_rptg, "(already at tail)");
+         DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
       break;
    case YDLST_TAIL  : case YDLST_DTAIL :
       x_curr = c;
       break;
+   case 'ù' :
+      if (r_rptg != NULL) strcpy (r_rptg, "#ù parsing··´··åid  gid··>  ln> name········<  Q  A  cnt>  len> user-names········································<  len> user-uids·······························<æ");
+      DEBUG_YENV    yLOG_exit    (__FUNCTION__);
+      return 0;
+      break;
    default :
+      if (r_rptg != NULL) strcpy (r_rptg, "(bad dir)");
       DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
-      return "(bad dir)";
+      return rce;
       break;
    }
+   DEBUG_YENV    yLOG_value   ("x_curr"    , x_curr);
    /*---(save-back)----------------------*/
    zENV_cgroup = x_curr;
    /*---(open)---------------------------*/
    f = fopen ("/etc/group", "rt");
    DEBUG_YENV    yLOG_point   ("f"         , f);
    --rce;  if (f == NULL) {
+      if (r_rptg != NULL) strcpy (r_rptg, "(can not open)");
       DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
-      return "(not open)";
+      return rce;
    }
    /*---(walk file)----------------------*/
    while (1) {
       /*---(read)------------------------*/
       fgets (t, LEN_RECD, f);
       if (feof (f))  break;
+      ++n;
       /*---(filter)----------------------*/
       if (t [0] == '#' )  continue;
       if (t [0] == '\0')  continue;
@@ -617,37 +756,41 @@ yENV_group_by_cursor    (char a_dir)
       if (l > 0 && t [l - 1] == '\n')  t [--l] = '\0';
       DEBUG_YENV    yLOG_complex ("looking"   , "%3d %3d å%sæ", x_curr, n, t);
       /*---(check)-----------------------*/
-      if (n != x_curr) {
-         ++n;
-         continue;
-      }
+      if (n != x_curr)  continue;
       /*---(found)-----------------------*/
       DEBUG_YENV    yLOG_note    ("FOUND");
       p = strtok_r (t, ":", &r);
-      if (p == NULL)  return "(strtok)";
-      strlcpy (x_group, p, LEN_USER);
-      DEBUG_YENV    yLOG_info    ("x_group"   , x_group);
+      if (p == NULL) {
+         if (r_rptg != NULL) strcpy (r_rptg, "(can not parse)");
+         DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
+      strlcpy (x_name, p, LEN_USER);
+      DEBUG_YENV    yLOG_info    ("x_name"    , x_name);
+      x_found = 'y';
       break;
       /*---(done)------------------------*/
    }
+   /*---(trouble)------------------------*/
+   DEBUG_YENV    yLOG_char    ("x_found"   , x_found);
+   --rce;  if (x_found != 'y') {
+      if (r_rptg != NULL) strcpy (r_rptg, "(n/a)");
+      DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(close)--------------------------*/
    fclose (f);
+   /*---(get details)--------------------*/
+   rc = yENV_group_data  ('n', x_name, r_gid, r_quality, r_active, r_nuser, r_unames, r_uids, x_curr, r_rptg);
+   DEBUG_YENV    yLOG_value   ("data"      , rc);
+   --rce;  if (rc < 0) {
+      if (r_rptg != NULL) strcpy (r_rptg, "(data error)");
+      DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(complete)-----------------------*/
    DEBUG_YENV    yLOG_exit    (__FUNCTION__);
-   return yenv_group_detail (x_group);
-}
-
-char*
-yENV_group_by_text      (char a_text [LEN_USER])
-{
-   int         rc          =   -1;
-   char        x_group     [LEN_USER]  = "";
-   if (a_text     == NULL)  return "(null)";
-   if (a_text [0] == '\0')  return "(empty)";
-   rc = yENV_group (a_text, x_group, NULL);
-   if (rc < 0)  return "(n/a)";
-   /*---(complete)-----------------------*/
-   return yenv_group_detail (x_group);
+   return n;
 }
 
 
@@ -680,12 +823,12 @@ yENV_group_add          (char a_name [LEN_USER], int a_gid)
    --rce;  if (a_gid < 900 || a_gid > 999)         return rce;
    --rce;  if (strncmp (a_name, "GRP_", 4) != 0)   return rce;
    /*---(check for existing)-------------*/
-   rc = yENV_group_data ('n', a_name, &g, NULL, NULL, NULL, NULL, NULL);
+   rc = yENV_group_data ('n', a_name, &g, NULL, NULL, NULL, NULL, NULL, -1, NULL);
    --rce;  if (rc >= 0 && g >= 0) {
       if (g == a_gid)                              return 1;
       else                                         return rce;
    }
-   rc = yENV_group_data ('i', x_name, &a_gid, NULL, NULL, NULL, NULL, NULL);
+   rc = yENV_group_data ('i', x_name, &a_gid, NULL, NULL, NULL, NULL, NULL, -1, NULL);
    --rce;  if (rc >= 0) {
       if (strcmp (x_name, a_name) != 0)            return rce;
       else                                         return 2;
@@ -711,7 +854,7 @@ yENV_group_add          (char a_name [LEN_USER], int a_gid)
    rc = system (t);
    --rce;  if (rc < 0)                             return rce;
    /*---(verify)-------------------------*/
-   rc = yENV_group_data ('n', a_name, NULL, NULL, NULL, NULL, NULL, NULL);
+   rc = yENV_group_data ('n', a_name, NULL, NULL, NULL, NULL, NULL, NULL, -1, NULL);
    --rce;  if (rc <  0)                            return rce;
    /*---(complete)-----------------------*/
    return 0; 
@@ -729,7 +872,7 @@ yENV_group_del          (char a_name [LEN_USER])
    --rce;  if (a_name == NULL)                     return rce;
    --rce;  if (strncmp (a_name, "GRP_", 4) != 0)   return rce;
    /*---(check for group)----------------*/
-   rc = yENV_group_data ('n', a_name, &g, NULL, NULL, NULL, NULL, NULL);
+   rc = yENV_group_data ('n', a_name, &g, NULL, NULL, NULL, NULL, NULL, -1, NULL);
    --rce;  if (rc < 0)                             return 1;
    --rce;  if (g < 900 || g > 999)                 return rce;
    /*---(delete)-------------------------*/
@@ -741,7 +884,7 @@ yENV_group_del          (char a_name [LEN_USER])
    rc = system (t);
    --rce;  if (rc < 0)   return rce;
    /*---(verify)-------------------------*/
-   rc = yENV_group_data ('n', a_name, NULL, NULL, NULL, NULL, NULL, NULL);
+   rc = yENV_group_data ('n', a_name, NULL, NULL, NULL, NULL, NULL, NULL, -1, NULL);
    --rce;  if (rc >= 0)  return rce;
    /*---(complete)-----------------------*/
    return 0; 
@@ -755,7 +898,7 @@ yENV_group_purge        (void)
    char        c           =    0;
    char        x_name      [LEN_USER] = "";
    for (i = 900; i <= 999; ++i) {
-      rc = yENV_group_data ('i', x_name, &i, NULL, NULL, NULL, NULL, NULL);
+      rc = yENV_group_data ('i', x_name, &i, NULL, NULL, NULL, NULL, NULL, -1, NULL);
       if (rc >= 0 && strncmp (x_name, "GRP_", 4) == 0) {
          rc = yENV_group_del (x_name);
          if (rc >= 0)  ++c;
