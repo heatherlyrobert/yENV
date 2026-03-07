@@ -197,6 +197,8 @@ yenv_group_by_user      (char a_user [LEN_USER], char r_names [LEN_HUND], char r
       /*---(done)------------------------*/
       ++n;
    }
+   /*---(close)--------------------------*/
+   fclose (f);
    /*---(save-back)----------------------*/
    if (strcmp (x_names, ",") == 0)  strcpy (x_names, ".");
    DEBUG_YENV    yLOG_complex ("x_names"   , "%3d å%sæ", c, x_names);
@@ -633,6 +635,7 @@ yenv_group_reading      (int a_curr, char a_name [LEN_USER], char r_name [LEN_US
       DEBUG_YENV    yLOG_note    ("FOUND");
       p = strtok_r (t, ":", &r);
       if (p == NULL) {
+         fclose (f);
          if (r_rptg != NULL) strcpy (r_rptg, "(can not parse)");
          DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
          return rce;

@@ -602,59 +602,160 @@ yenv_perms_detail       (int n)
    return g_print;
 }
 
-char*
-yENV_perms_by_cursor    (char a_dir)
+char
+yENV_perms_by_cursor    (char a_dir, char r_name [LEN_TERSE], int *r_perms, char r_disp [LEN_TERSE], char r_title [LEN_TITLE], char r_desc [LEN_HUND], char r_rptg [LEN_FULL])
 {
    /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
    int         x_curr      =    0;
    int         c           =    0;
+   int         n           =    0;
+   char        x_seq       [LEN_SHORT] = "";
+   char        x_one       [LEN_HUND]  = "";
+   char        x_two       [LEN_HUND]  = "";
+   char        x_thr       [LEN_HUND]  = "";
+   char       *x_parse     = "#ù parsing··´··åid·  name······<  simple························<  octal<  disp·····<  description·····································································<æ";
+   /*---(header)-------------------------*/
+   DEBUG_YENV    yLOG_enter   (__FUNCTION__);
+   /*---(default)------------------------*/
+   if (r_name    != NULL)  strcpy (r_name , "");
+   if (r_perms   != NULL)  *r_perms   = -1;
+   if (r_disp    != NULL)  strcpy (r_disp , "");
+   if (r_title   != NULL)  strcpy (r_title, "");
+   if (r_desc    != NULL)  strcpy (r_desc , "");
+   if (r_rptg    != NULL)  strcpy (r_rptg , "");
    /*---(prepare)------------------------*/
    if (zENV_nperm <= 0)   yENV_perms_count ();
    /*---(set target)---------------------*/
    c      = zENV_nperm - 1;
+   DEBUG_YENV    yLOG_value   ("c"         , c);
    x_curr = zENV_cperm;
+   DEBUG_YENV    yLOG_value   ("x_curr"    , x_curr);
+   /*---(handle)-------------------------*/
+   DEBUG_YENV    yLOG_char    ("a_dir"     , a_dir);
    switch (a_dir) {
    case YDLST_HEAD  : case YDLST_DHEAD :
       x_curr = 0;
       break;
    case YDLST_PREV  : case YDLST_DPREV :
       if (x_curr > 0)  --x_curr;
-      else             return "(n/a)";
+      else {
+         if (r_rptg != NULL) strcpy (r_rptg, "(already at head)");
+         DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
       break;
    case YDLST_CURR  : case YDLST_DCURR :
       break;
    case YDLST_NEXT  : case YDLST_DNEXT : case '·' :  /* · means default */
       if (x_curr < c)  ++x_curr;
-      else             return "(n/a)";
+      else {
+         if (r_rptg != NULL) strcpy (r_rptg, "(already at tail)");
+         DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+         return rce;
+      }
       break;
    case YDLST_TAIL  : case YDLST_DTAIL :
       x_curr = c;
       break;
+   case 'ù' :
+      if (r_rptg != NULL) strlcpy (r_rptg, x_parse, LEN_PATH);
+      DEBUG_YENV    yLOG_exit    (__FUNCTION__);
+      return 0;
+      break;
    default :
-      return "(bad dir)";
+      if (r_rptg != NULL) strcpy (r_rptg, "(bad dir)");
+      DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
       break;
    }
    /*---(save-back)----------------------*/
    zENV_cperm = x_curr;
+   /*---(save-back)----------------------*/
+   if (r_name    != NULL)  strlcpy (r_name , zENV_perms [n].name  , LEN_TERSE);
+   if (r_perms   != NULL)  *r_perms   = zENV_perms [n].value;
+   if (r_disp    != NULL)  strlcpy (r_disp , zENV_perms [n].disp  , LEN_TERSE);
+   if (r_title   != NULL)  strlcpy (r_title, zENV_perms [n].simple, LEN_TITLE);
+   if (r_desc    != NULL)  strlcpy (r_desc , zENV_perms [n].desc  , LEN_HUND);
+   /*---(reporting)----------------------*/
+   if (r_rptg != NULL) {
+      n = x_curr;
+      sprintf  (x_seq, "%d", n);
+      c = 3 - strlen (x_seq);
+      snprintf (x_seq, LEN_SHORT, "%d%*.*s", n, c, c, YSTR_EDOTS);
+      snprintf (x_one, LEN_HUND, "%s%s", zENV_perms [n].name  , YSTR_EDOTS);
+      if (x_one [10] != '·')   x_one [ 9] = '>';
+      snprintf (x_two, LEN_HUND, "%s%s", zENV_perms [n].simple, YSTR_EDOTS);
+      if (x_two [30] != '·')   x_two [29] = '>';
+      snprintf (x_thr, LEN_HUND, "%s%s", zENV_perms [n].simple, YSTR_EDOTS);
+      if (x_thr [80] != '·')   x_thr [79] = '>';
+      snprintf (r_rptg, LEN_FULL, "%-3.3s  %-10.10s  %-30.30s  %05o  %-9.9s  %-80.80s  Ï", x_seq, x_one, x_two, zENV_perms [n].value, zENV_perms [n].disp, x_thr);
+   }
    /*---(complete)-----------------------*/
-   return yenv_perms_detail (x_curr);
+   DEBUG_YENV    yLOG_exit    (__FUNCTION__);
+   return n;
 }
 
-char*
-yENV_perms_by_text      (char a_text [LEN_TERSE])
+char
+yENV_perms_by_name      (char a_text [LEN_TERSE], char r_name [LEN_TERSE], int *r_perms, char r_disp [LEN_TERSE], char r_title [LEN_TITLE], char r_desc [LEN_HUND], char r_rptg [LEN_FULL])
 {
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
    int         rc          =   -1;
+   int         c           =    0;
    int         n           =    0;
-   char        x_found     =  '-';
-   int         x_octal     =   -1;
-   if (a_text     == NULL)  return "(null)";
-   if (a_text [0] == '\0')  return "(empty)";
+   char        x_seq       [LEN_SHORT] = "";
+   char        x_one       [LEN_HUND]  = "";
+   char        x_two       [LEN_HUND]  = "";
+   char        x_thr       [LEN_HUND]  = "";
+   /*---(header)-------------------------*/
+   DEBUG_YENV    yLOG_enter   (__FUNCTION__);
+   /*---(default)------------------------*/
+   if (r_name    != NULL)  strcpy (r_name , "");
+   if (r_perms   != NULL)  *r_perms   = -1;
+   if (r_disp    != NULL)  strcpy (r_disp , "");
+   if (r_title   != NULL)  strcpy (r_title, "");
+   if (r_desc    != NULL)  strcpy (r_desc , "");
+   if (r_rptg    != NULL)  strcpy (r_rptg , "");
+   /*---(defense)------------------------*/
+   DEBUG_YENV    yLOG_point   ("a_text"    , a_text);
+   --rce;  if (a_text == NULL || a_text [0] == '\0') {
+      if (r_rptg != NULL) strcpy (r_rptg, "(null/empty)");
+      DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   DEBUG_YENV    yLOG_info    ("a_text"    , a_text);
+   /*---(handle)-------------------------*/
    if (rc < 0)  rc = yenv_perms_by_name  (a_text, &n, NULL, NULL, NULL, NULL);
    if (rc < 0)  rc = yenv_perms_by_octal (a_text, &n, NULL, NULL, NULL, NULL);
    if (rc < 0)  rc = yenv_perms_by_disp  (a_text, &n, NULL, NULL, NULL, NULL);
-   if (rc < 0)  return "(n/a)";
+   if (rc < 0) {
+      if (r_rptg != NULL) strcpy (r_rptg, "(n/a)");
+      DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(save-back)----------------------*/
+   if (r_name    != NULL)  strlcpy (r_name , zENV_perms [n].name  , LEN_TERSE);
+   if (r_perms   != NULL)  *r_perms   = zENV_perms [n].value;
+   if (r_disp    != NULL)  strlcpy (r_disp , zENV_perms [n].disp  , LEN_TERSE);
+   if (r_title   != NULL)  strlcpy (r_title, zENV_perms [n].simple, LEN_TITLE);
+   if (r_desc    != NULL)  strlcpy (r_desc , zENV_perms [n].desc  , LEN_HUND);
+   /*---(reporting)----------------------*/
+   if (r_rptg != NULL) {
+      sprintf  (x_seq, "%d", n);
+      c = 3 - strlen (x_seq);
+      snprintf (x_seq, LEN_SHORT, "%d%*.*s", n, c, c, YSTR_EDOTS);
+      snprintf (x_one, LEN_HUND, "%s%s", zENV_perms [n].name  , YSTR_EDOTS);
+      if (x_one [10] != '·')   x_one [ 9] = '>';
+      snprintf (x_two, LEN_HUND, "%s%s", zENV_perms [n].simple, YSTR_EDOTS);
+      if (x_two [30] != '·')   x_two [29] = '>';
+      snprintf (x_thr, LEN_HUND, "%s%s", zENV_perms [n].simple, YSTR_EDOTS);
+      if (x_thr [80] != '·')   x_thr [79] = '>';
+      snprintf (r_rptg, LEN_FULL, "%-3.3s  %-10.10s  %-30.30s  %05o  %-9.9s  %-80.80s  Ï", x_seq, x_one, x_two, zENV_perms [n].value, zENV_perms [n].disp, x_thr);
+   }
    /*---(complete)-----------------------*/
-   return yenv_perms_detail (n);
+   DEBUG_YENV    yLOG_exit    (__FUNCTION__);
+   return n;
 }
 
 

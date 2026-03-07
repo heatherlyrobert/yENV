@@ -515,6 +515,7 @@ yENV_hash               (char a_type, char a_name [LEN_PATH], char r_hash [LEN_D
    }
    rc = SHA1_Init (&ctx);
    --rce;  if (rc != 1) {
+      fclose (f);
       DEBUG_YENV    yLOG_sexitr  (__FUNCTION__, rce);
       return rce;
    }

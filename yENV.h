@@ -182,8 +182,8 @@ char        yENV_perms              (char a_text [LEN_TERSE], char r_name [LEN_T
 char        yENV_perms_octal        (char a_type, int a_value, char r_name [LEN_TERSE], int *r_prm, char r_disp [LEN_TERSE]);
 /*---(access)---------------*/
 int         yENV_perms_count        (void);
-char*       yENV_perms_by_cursor    (char a_dir);
-char*       yENV_perms_by_text      (char a_text [LEN_TERSE]);
+char        yENV_perms_by_name      (char a_name [LEN_TERSE], char r_name [LEN_TERSE], int *r_perms, char r_disp [LEN_TERSE], char r_title [LEN_TITLE], char r_desc [LEN_HUND], char r_rptg [LEN_FULL]);
+char        yENV_perms_by_cursor    (char a_dir, char r_name [LEN_TERSE], int *r_perms, char r_disp [LEN_TERSE], char r_title [LEN_TITLE], char r_desc [LEN_HUND], char r_rptg [LEN_FULL]);
 /*········· ´·················DONE· ´·········································*/
 
 

@@ -415,6 +415,7 @@ yenv_user_reading       (int a_curr, char a_name [LEN_USER], char r_name [LEN_US
       DEBUG_YENV    yLOG_note    ("FOUND");
       p = strtok_r (t, ":", &r);
       if (p == NULL) {
+         fclose (f);
          if (r_rptg != NULL) strcpy (r_rptg, "(can not parse)");
          DEBUG_YENV    yLOG_exitr   (__FUNCTION__, rce);
          return rce;
