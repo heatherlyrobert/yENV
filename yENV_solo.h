@@ -1,6 +1,7 @@
-/*============================[[    beg-code    ]]============================*/
-#ifndef   YENV_SOLO   
-#define   YENV_SOLO         loaded
+/*===[[ HEADER GUARD ]]=======================================================*/
+/*·········´·················´················································*/
+#ifndef    YENV_solo_guard
+#define    YENV_solo_guard   loaded
 
 
 
@@ -35,18 +36,21 @@
 
 
 
+/*---(ansi)---------------------------*/
 #include    <stdio.h>
 #include    <stdarg.h>                   /* va_arg                              */
 #include    <string.h>
-#include    <unistd.h>                   /* unlink                              */
-#include    <sys/stat.h>          /* fstat, umask                                */
 #include    <fcntl.h>
 #include    <errno.h>             /* allow use of errno value                 */
-
-#include    <ySTR_solo.h>
-#include    <yDLST_solo.h>
-#include    <yLOG.h>         /* CUSTOM : heatherly debugging framework        */
-#include    <yURG.h>
+/*---(posix)--------------------------*/
+#include    <unistd.h>                   /* unlink                              */
+#include    <sys/stat.h>          /* fstat, umask                                */
+/*---(custom)-------------------------*/
+#include    <yLOG.h>              /* CUSTOM : heatherly process logging       */
+#include    <yURG.h>              /* CUSTOM : heatherly debugging framework   */
+/*---(solo)---------------------------*/
+#include    <ySTR_solo.h>         /* CUSTOM : simplified ySTR capability      */
+#include    <yDLST_solo.h>        /* CUSTOM : simplified yDLST capability     */
 
 
 

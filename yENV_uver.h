@@ -1,4 +1,7 @@
-#include    "yENV_solo.h"
+/*===[[ HEADER GUARD ]]=======================================================*/
+/*·········´·················´················································*/
+#ifndef    YENV_uver_guard
+#define    YENV_uver_guard   loaded
 
 
 
@@ -30,6 +33,14 @@
 
 /*´´·········1·········2·········3·········4·········5·········6·········7·········8  */
 /*===[[ GNU GENERAL PUBLIC LICENSE (GPL) ]]===================================*/
+
+
+
+/*===[[ START ]]==============================================================*/
+#include    "yLOG_solo.h"
+#include    "yLOG_uver.h"
+
+#include    "yENV_solo.h"
 
 
 
@@ -691,3 +702,4 @@ yenv_udetail            (char a_full [LEN_PATH], char *r_style, char r_dir [LEN_
 }
 
 
+#endif

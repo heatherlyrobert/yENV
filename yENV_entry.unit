@@ -497,7 +497,7 @@ SCRP    [0c]  (ENTRY) verify gathing hash strings                              
 
    COND       verify hash                                                        - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((05.002))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
      exec     call detail                          yENV_hash                   YENV_REG   , u_samp             , hs                                                                  z_equal     1                                                                                                    
-     echo     ... check hash                       - - - - - - - - - - - - -   hs                                                                                                    w_equal     åde8d06e4a5208d24d91addddd7ce1d5329516764æ
+     echo     ... check hash                       - - - - - - - - - - - - -   hs                                                                                                    w_equal     ådc7bd5598ac1f792f1d481cdac6003178d7793a1æ
      exec     call remove                          yENV_rm                     u_samp                                                                                                c_equal     '-'                                                                                                  
 
    COND       attempt on non-regular files                                       - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -   ((05.002))  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  

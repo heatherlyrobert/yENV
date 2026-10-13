@@ -258,8 +258,14 @@ yENV_close              (FILE **b_file)
 }
 
 char
-yENV_read               (FILE *a_file, char c_comment, char c_visible, int *b_read, int *b_accept, char b_curr [LEN_RECD], char r_prev [LEN_RECD])
-{
+yENV_read               (FILE *a_file, char c_empty, char c_comment, char c_visible, int *b_read, int *b_accept, char b_curr [LEN_RECD], char r_prev [LEN_RECD])
+{  /*---(design notes)-------------------*/
+   /*
+    *  c_empty    = y) show empty/short lines , -) hides
+    *  c_comment  = y) show comment lines (#) , -) hides
+    *  c_visible  = y) show field markers (§) , -) hides
+    *
+    */
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    char        rc          =    0;
@@ -314,16 +320,20 @@ yENV_read               (FILE *a_file, char c_comment, char c_visible, int *b_re
       x_len = strlen (x_recd);
       DEBUG_YENV   yLOG_value   ("length"    , x_len);
       if (x_recd [x_len - 1] == '\n')  x_recd [--x_len] = '\0';
-      DEBUG_YENV   yLOG_complex ("x_recd"    , "%3då%sæ", x_len, x_recd);
+      DEBUG_YENV   yLOG_info    ("x_recd"    , x_recd);
       /*---(filter)----------------------*/
+      DEBUG_YENV   yLOG_char    ("[0]"       , x_recd [0]);
       if (x_recd [0] == '\0') {
-         DEBUG_YENV   yLOG_note    ("blank line");
-         continue;
+         DEBUG_YENV   yLOG_char    ("c_empty"   , c_empty);
+         if (c_empty   != 'y') {
+            DEBUG_YENV   yLOG_note    ("blank line, skipping");
+            continue;
+         }
       }
       if (x_recd [0] == '#') {
          DEBUG_YENV   yLOG_char    ("c_comment" , c_comment);
-         if (c_comment == 'y') {
-            DEBUG_YENV   yLOG_note    ("ignoring all comment lines");
+         if (c_comment != 'y') {
+            DEBUG_YENV   yLOG_note    ("ignoring all comment lines, skipping");
             continue;
          }
          switch (x_recd [1]) {
@@ -334,14 +344,19 @@ yENV_read               (FILE *a_file, char c_comment, char c_visible, int *b_re
             DEBUG_YENV   yLOG_note    ("allowing gyges-style exim configuraton");
             break;
          default  :
-            DEBUG_YENV   yLOG_note    ("ignoring comment line");
-            continue;
+            if (c_comment != 'y') {
+               DEBUG_YENV   yLOG_note    ("ignoring comment line, skipping");
+               continue;
+            }
             break;
          }
       }
       if (x_len <= 10)  {
-         DEBUG_YENV   yLOG_note    ("too short, skipping");
-         continue;
+         DEBUG_YENV   yLOG_char    ("c_empty"   , c_empty);
+         if (c_empty   != 'y') {
+            DEBUG_YENV   yLOG_note    ("too short, skipping");
+            continue;
+         }
       }
       /*---(accept)----------------------*/
       ++x_accept;

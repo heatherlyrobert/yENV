@@ -1,6 +1,7 @@
 /*===[[ HEADER GUARD ]]=======================================================*/
-#ifndef YENV_priv_hguard
-#define YENV_priv_hguard loaded
+/*·········´·················´················································*/
+#ifndef    YENV_priv_guard
+#define    YENV_priv_guard   loaded
 
 
 
@@ -64,23 +65,41 @@
 #define     P_COMPILER  "gcc 5.3.0"
 #define     P_CODESIZE  "small       (appoximately 1,000 slocl)"
 /*········· ··········· ´·····························´········································*/
+#define     P_DEPSTDC   "stdio,stdlib,string,stdarg,ctype,time,errno"
+#define     P_DEPPOSIX  "unistd,dirent,sys/stat,sys/mount,fcntl,sys/sysmacros"
+#define     P_DEPSECURE "pwd,grp"
+#define     P_DEPEXTEND "openssl/sha"
+#define     P_DEPCORE   "yLOG,yURG"
+#define     P_DEPVIKEY  "´"
+#define     P_DEPGRAPH  "´"
+#define     P_DEPOTHER  "´"
+#define     P_DEPSOLO   "yDLST_solo,yCOLOR_solo"
+#define     P_DEPALIEN  "´"
+/*········· ··········· ´·····························´········································*/
 #define     P_AUTHOR    "heatherlyrobert"
 #define     P_CREATED   "2024-05"
 /*········· ··········· ´·····························´········································*/
 #define     P_VERMAJOR  "1.--, production improvements"
 #define     P_VERMINOR  "1.4-, paring extra abilities into ySCORE and yAUDIT"
-#define     P_VERNUM    "1.4f"
-#define     P_VERTXT    "updated and enhanced perms with reporting AND found/fixed stupid file descriptor leak :("
+#define     P_VERNUM    "1.4g"
+#define     P_VERTXT    "small fixes to header guards and updating some unit tests"
 /*········· ··········· ´·····························´········································*/
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
-#define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
+#define     P_PRINCIPLE "[grow a set] and build your wings on the way down (r. bradbury)"
 #define     P_REMINDER  "there are many better options, but i *own* every byte of this one"
 /*········· ··········· ´·····························´········································*/
 /*--------- 12345678901 ´123456789-123456789-123456789-123456789-123456789-123456789-123456789-*/
 
-
-
 /*===[[ END_HEADER ]]=========================================================*/
+
+
+/*´´·········1·········2·········3·········4·········5·········6·········7·········8  */
+#define  P_DISCLAIM    \
+   "i am a crazy, selfish, dog-fooding c-programmer. my code tends to be¦"         \
+   "experimental and constantly evolving. my point is NOT to be the best, it¦"     \
+   "is to challenge myself, build from scratch, and allow fast problem solving."
+
+
 
 /*345678901-12345678901-123456789-123456789-123456789-123456789-123456789-123456789-123456789-*/
 
@@ -103,10 +122,14 @@
 
 
 
-#include    <yLOG.h>
-#include    <yURG.h>
-#include    <yDLST_solo.h>
-#include    <yCOLOR_solo.h>  /* CUSTOM : heatherly color constants            */
+/*---(custom)-------------------------*/
+#include    <yLOG.h>              /* CUSTOM : heatherly process logging       */
+#include    <yURG.h>              /* CUSTOM : heatherly debugging framework   */
+/*---(solo)---------------------------*/
+#include    <ySTR_solo.h>         /* CUSTOM : heatherly string constants      */
+#include    <yDLST_solo.h>        /* CUSTOM : heatherly search constants      */
+#include    <yCOLOR_solo.h>       /* CUSTOM : heatherly color constants       */
+
 
 
 #define     DEBUG_YENV   if (1) 

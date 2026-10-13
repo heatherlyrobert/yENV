@@ -1,6 +1,7 @@
 /*===[[ HEADER GUARD ]]=======================================================*/
-#ifndef YENV_HGUARD
-#define YENV_HGUARD loaded
+/*·········´·················´················································*/
+#ifndef    YENV_guard
+#define    YENV_guard        loaded
 
 
 
@@ -231,7 +232,7 @@ char        yENV_open_stderr        (FILE **b_file);
 char        yENV_close_full         (char a_label [LEN_LABEL], FILE **b_file, char c_sync);
 char        yENV_close              (FILE **b_file);
 /*········· ´···············input·´ ´·········································*/
-char        yENV_read               (FILE *a_file, char c_comment, char c_visible, int *b_read, int *b_accept, char b_curr [LEN_RECD], char r_prev [LEN_RECD]);
+char        yENV_read               (FILE *a_file, char c_empty, char c_comment, char c_visible, int *b_read, int *b_accept, char b_curr [LEN_RECD], char r_prev [LEN_RECD]);
 /*········· ´················DONE·´ ´·········································*/
 
 
