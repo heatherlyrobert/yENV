@@ -258,12 +258,188 @@ yENV_close              (FILE **b_file)
 }
 
 char
-yENV_read               (FILE *a_file, char c_empty, char c_comment, char c_visible, int *b_read, int *b_accept, char b_curr [LEN_RECD], char r_prev [LEN_RECD])
+yenv_file__eof          (FILE *a_file)
+{
+   /*---(locals)-----------+-----------+-*/
+   char        rce         =  -10;          /* return code for errors         */
+   char        rc          =    0;
+   int         x_flags     =    0;
+   int         x_ch        =  ' ';
+   /*---(header)-------------------------*/
+   DEBUG_YENV   yLOG_enter   (__FUNCTION__);
+   /*---(quick-out)----------------------*/
+   DEBUG_YENV   yLOG_point   ("a_file"    , a_file);
+   --rce;  if (a_file == NULL) {
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(normal)-------------------------*/
+   if (a_file != stdin) {
+      DEBUG_YENV   yLOG_note    ("normal file");
+      if (feof (a_file)) {
+         DEBUG_YENV   yLOG_note    ("hit end-of-file");
+         DEBUG_YENV   yLOG_exit    (__FUNCTION__);
+         return RC_DONE;
+      }
+      DEBUG_YENV   yLOG_exit    (__FUNCTION__);
+      return RC_POSITIVE;
+   }
+   /*---(set stdin to non-blocking)------*/
+   DEBUG_YENV   yLOG_note    ("make stdin non-blocking");
+   x_flags = fcntl(0, F_GETFL, 0);
+   rc = fcntl (stdin, F_SETFL, x_flags | O_NONBLOCK);
+   DEBUG_YENV   yLOG_value   ("rc"        , rc);
+   --rce;  if (rc < 0) {
+      DEBUG_YENV   yLOG_note    ("can not set to non-blocking");
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(test stdin for input)-----------*/
+   DEBUG_YENV   yLOG_note    ("test for input on stdin");
+   x_ch = getc (stdin);
+   DEBUG_YENV   yLOG_value   ("x_ch"      , x_ch);
+   --rce;  if (x_ch == -1) {
+      DEBUG_YENV   yLOG_note    ("stdin end-of-file");
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
+      return RC_DONE;
+   }
+   /*---(put stdin back to normal)-------*/
+   DEBUG_YENV   yLOG_note    ("put stdin back to normal");
+   ungetc (x_ch, stdin);
+   rc = fcntl  (0, F_SETFL, x_flags);
+   DEBUG_YENV   yLOG_value   ("rc"        , rc);
+   --rce;  if (rc < 0) {
+      DEBUG_YENV   yLOG_note    ("can not set to back to normal");
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_YENV   yLOG_exit    (__FUNCTION__);
+   return RC_POSITIVE;
+}
+
+char
+yenv_file__skip         (char a_recd [LEN_RECD], char c_empty, char c_comment, char c_leof)
 {  /*---(design notes)-------------------*/
    /*
-    *  c_empty    = y) show empty/short lines , -) hides
-    *  c_comment  = y) show comment lines (#) , -) hides
-    *  c_visible  = y) show field markers (§) , -) hides
+    *  return 0 = meant to skip                RC_SKIP
+    *  return 1 = logical end of file          YENV_EOF
+    *  return 2 = accepted for processing      YENV_ACCEPT
+    *
+    */
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        x_pre       [LEN_LABEL] = "";
+   char        x_eof       =  '-';
+   int         l           =    0;
+   char        x_skip      =  '-';
+   char        x_1st       =    0;
+   char        x_2nd       =    0;
+   /*---(header)-------------------------*/
+   DEBUG_YENV   yLOG_enter   (__FUNCTION__);
+   /*---(defense)------------------------*/
+   DEBUG_YENV   yLOG_point   ("a_recd"    , a_recd);
+   --rce;  if (a_recd == NULL) {
+      DEBUG_YENV   yLOG_note    ("null record found");
+      DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(check logical eof)--------------*/
+   DEBUG_YENV   yLOG_char    ("c_leof"    , c_leof);
+   if (c_leof == 'y') {
+      DEBUG_YENV   yLOG_note    ("configured to check logical eof");
+      /*---(prepare)---------------------*/
+      strlcpy (x_pre, a_recd, LEN_LABEL);
+      DEBUG_YENV   yLOG_info    ("x_pre"     , x_pre);
+      l = strlen (x_pre);
+      DEBUG_YENV   yLOG_value   ("l"         , l);
+      /*---(check for bottom)------------*/
+      if      (strncmp (a_recd, "# END-OF-FILE"   , 12) == 0)   x_eof  = 'y';
+      else if (strncmp (a_recd, "## END-OF-FILE"  , 12) == 0)   x_eof  = 'y';
+      else if (strncmp (a_recd, "# end-of-file"   , 12) == 0)   x_eof  = 'y';
+      else if (strncmp (a_recd, "## end-of-file"  , 12) == 0)   x_eof  = 'y';
+      else if (strncmp (a_recd, "# done, finito"  , 12) == 0)   x_eof  = 'y';
+      else if (strncmp (a_recd, "## done, finito" , 12) == 0)   x_eof  = 'y';
+      DEBUG_YENV   yLOG_char    ("x_eof"     , x_eof);
+      if (x_eof == 'y') {
+         DEBUG_YENV   yLOG_note    ("end of content found");
+         DEBUG_YENV   yLOG_exit    (__FUNCTION__);
+         return RC_DONE;
+      }
+      /*---(done)------------------------*/
+   }
+   /*---(check empty lines)--------------*/
+   x_1st   = a_recd [0];
+   DEBUG_YENV   yLOG_char    ("x_1st"     , x_1st);
+   if (x_1st == '\0') {
+      DEBUG_YENV   yLOG_char    ("c_empty"   , c_empty);
+      if (c_empty  == 'y') {
+         DEBUG_YENV   yLOG_note    ("return blank lines");
+         DEBUG_YENV   yLOG_exit    (__FUNCTION__);
+         return RC_POSITIVE;
+      }
+      DEBUG_YENV   yLOG_note    ("skip blank lines");
+      DEBUG_YENV   yLOG_exit    (__FUNCTION__);
+      return RC_SKIP;
+   }
+   /*---(check comments)-----------------*/
+   DEBUG_YENV   yLOG_char    ("c_comment" , c_comment);
+   if (x_1st == '#')  {
+      if (c_comment == '-') {
+         DEBUG_YENV   yLOG_note    ("set to IGNORE all forms of comments");
+         x_skip = 'y';
+      } else if (c_comment == 'Y') {
+         DEBUG_YENV   yLOG_note    ("set to RETURN all forms of comments");
+         x_skip = '-';
+      } else {
+         DEBUG_YENV   yLOG_note    ("set to SELECTIVELY show comments");
+         x_2nd = a_recd [1];
+         DEBUG_YENV   yLOG_char    ("x_2nd"     , x_2nd);
+         switch (x_2nd) {
+         case '>' :
+            DEBUG_YENV   yLOG_note    ("allowing koios-style saved comments");
+            x_skip = '-';
+            break;
+         case '@' :
+            DEBUG_YENV   yLOG_note    ("allowing gyges-style exim configuraton");
+            x_skip = '-';
+            break;
+         default  :
+            DEBUG_YENV   yLOG_note    ("normal comment, skip");
+            x_skip = 'y';
+            break;
+         }
+      }
+      DEBUG_YENV   yLOG_char    ("x_skip"    , x_skip);
+      if (x_skip == 'y') {
+         DEBUG_YENV   yLOG_exit    (__FUNCTION__);
+         return RC_SKIP;
+      }
+      DEBUG_YENV   yLOG_exit    (__FUNCTION__);
+      return RC_POSITIVE;
+   }
+   /*---(check short lines)--------------*/
+   l = strlen (a_recd);
+   DEBUG_YENV   yLOG_value   ("l"         , l);
+   if (l <= 10) {
+      DEBUG_YENV   yLOG_note    ("line too short (<= 10 chars)");
+      DEBUG_YENV   yLOG_exit    (__FUNCTION__);
+      return RC_SKIP;
+   }
+   /*---(default)------------------------*/
+   DEBUG_YENV   yLOG_note    ("realistic line found");
+   /*---(complete)-----------------------*/
+   DEBUG_YENV   yLOG_exit    (__FUNCTION__);
+   return RC_POSITIVE;
+}
+
+char
+yENV_read               (FILE *a_file, char c_empty, char c_comment, char c_leof, char c_visible, int *b_read, int *b_accept, char b_curr [LEN_RECD], char r_prev [LEN_RECD], int *r_len)
+{  /*---(design notes)-------------------*/
+   /*
+    *  c_empty    = y) return empty/short lines    , -) hides
+    *  c_comment  = y) return comment lines (#)    , -) hides
+    *  c_visible  = y) switch field markers (§)    , -) hides
     *
     */
    /*---(locals)-----------+-----+-----+-*/
@@ -281,6 +457,7 @@ yENV_read               (FILE *a_file, char c_empty, char c_comment, char c_visi
    if (b_read   != NULL)  x_line   = *b_read;
    if (b_accept != NULL)  x_accept = *b_accept;
    if (r_prev   != NULL)  strcpy (r_prev, "");
+   if (r_len    != NULL)  *r_len   = 0;
    /*---(defense)------------------------*/
    DEBUG_YENV   yLOG_point   ("a_file"    , a_file);
    --rce;  if (a_file == NULL) {
@@ -296,7 +473,8 @@ yENV_read               (FILE *a_file, char c_empty, char c_comment, char c_visi
    strlcpy (x_prev, b_curr, LEN_RECD);
    DEBUG_YENV   yLOG_info    ("x_prev"    , x_prev);
    /*---(check end-of-file)--------------*/
-   --rce;  if (feof (a_file)) {
+   rc = yenv_file__eof (a_file);
+   --rce;  if (rc == RC_DONE) {
       DEBUG_YENV   yLOG_note    ("already at end-of-file");
       if (b_curr   != NULL)  strlcpy (b_curr, "", LEN_RECD);
       DEBUG_YENV   yLOG_exitr   (__FUNCTION__, rce);
@@ -307,12 +485,13 @@ yENV_read               (FILE *a_file, char c_empty, char c_comment, char c_visi
       /*---(get text)-----------------*/
       fgets  (x_recd, LEN_RECD, a_file);
       /*---(check end-of-file)--------*/
-      if (feof (a_file)) {
+      rc = yenv_file__eof (a_file);
+      if (rc == RC_DONE) {
          DEBUG_YENV   yLOG_note    ("hit end-of-file");
          if (b_curr   != NULL)  strlcpy (b_curr, "", LEN_RECD);
          if (b_read   != NULL)  *b_read   = x_line;;
          DEBUG_YENV   yLOG_exit    (__FUNCTION__);
-         return 0;
+         return RC_DONE;
       }
       /*---(handle)----------------------*/
       ++x_line;
@@ -322,42 +501,52 @@ yENV_read               (FILE *a_file, char c_empty, char c_comment, char c_visi
       if (x_recd [x_len - 1] == '\n')  x_recd [--x_len] = '\0';
       DEBUG_YENV   yLOG_info    ("x_recd"    , x_recd);
       /*---(filter)----------------------*/
-      DEBUG_YENV   yLOG_char    ("[0]"       , x_recd [0]);
-      if (x_recd [0] == '\0') {
-         DEBUG_YENV   yLOG_char    ("c_empty"   , c_empty);
-         if (c_empty   != 'y') {
-            DEBUG_YENV   yLOG_note    ("blank line, skipping");
-            continue;
-         }
+      rc = yenv_file__skip (x_recd, c_empty, c_comment, c_leof);
+      DEBUG_YENV   yLOG_value   ("skip"      , rc);
+      if (rc == RC_SKIP)  continue;
+      if (rc == RC_DONE) {
+         DEBUG_YENV   yLOG_note    ("hit logical end-of-file");
+         if (b_curr   != NULL)  strlcpy (b_curr, "", LEN_RECD);
+         if (b_read   != NULL)  *b_read   = x_line;;
+         DEBUG_YENV   yLOG_exit    (__FUNCTION__);
+         return RC_DONE;
       }
-      if (x_recd [0] == '#') {
-         DEBUG_YENV   yLOG_char    ("c_comment" , c_comment);
-         if (c_comment != 'y') {
-            DEBUG_YENV   yLOG_note    ("ignoring all comment lines, skipping");
-            continue;
-         }
-         switch (x_recd [1]) {
-         case '>' :
-            DEBUG_YENV   yLOG_note    ("allowing koios-style saved comments");
-            break;
-         case '@' :
-            DEBUG_YENV   yLOG_note    ("allowing gyges-style exim configuraton");
-            break;
-         default  :
-            if (c_comment != 'y') {
-               DEBUG_YENV   yLOG_note    ("ignoring comment line, skipping");
-               continue;
-            }
-            break;
-         }
-      }
-      if (x_len <= 10)  {
-         DEBUG_YENV   yLOG_char    ("c_empty"   , c_empty);
-         if (c_empty   != 'y') {
-            DEBUG_YENV   yLOG_note    ("too short, skipping");
-            continue;
-         }
-      }
+      /*> DEBUG_YENV   yLOG_char    ("[0]"       , x_recd [0]);                       <*/
+      /*> if (x_recd [0] == '\0') {                                                     <* 
+       *>    DEBUG_YENV   yLOG_char    ("c_empty"   , c_empty);                         <* 
+       *>    if (c_empty   != 'y') {                                                    <* 
+       *>       DEBUG_YENV   yLOG_note    ("blank line, skipping");                     <* 
+       *>       continue;                                                               <* 
+       *>    }                                                                          <* 
+       *> }                                                                             <* 
+       *> if (x_recd [0] == '#') {                                                      <* 
+       *>    DEBUG_YENV   yLOG_char    ("c_comment" , c_comment);                       <* 
+       *>    if (c_comment != 'y') {                                                    <* 
+       *>       DEBUG_YENV   yLOG_note    ("ignoring all comment lines, skipping");     <* 
+       *>       continue;                                                               <* 
+       *>    }                                                                          <* 
+       *>    switch (x_recd [1]) {                                                      <* 
+       *>    case '>' :                                                                 <* 
+       *>       DEBUG_YENV   yLOG_note    ("allowing koios-style saved comments");      <* 
+       *>       break;                                                                  <* 
+       *>    case '@' :                                                                 <* 
+       *>       DEBUG_YENV   yLOG_note    ("allowing gyges-style exim configuraton");   <* 
+       *>       break;                                                                  <* 
+       *>    default  :                                                                 <* 
+       *>       if (c_comment != 'y') {                                                 <* 
+       *>          DEBUG_YENV   yLOG_note    ("ignoring comment line, skipping");       <* 
+       *>          continue;                                                            <* 
+       *>       }                                                                       <* 
+       *>       break;                                                                  <* 
+       *>    }                                                                          <* 
+       *> }                                                                             <* 
+       *> if (x_len <= 10)  {                                                           <* 
+       *>    DEBUG_YENV   yLOG_char    ("c_empty"   , c_empty);                         <* 
+       *>    if (c_empty   != 'y') {                                                    <* 
+       *>       DEBUG_YENV   yLOG_note    ("too short, skipping");                      <* 
+       *>       continue;                                                               <* 
+       *>    }                                                                          <* 
+       *> }                                                                             <*/
       /*---(accept)----------------------*/
       ++x_accept;
       DEBUG_YENV   yLOG_value   ("x_accept"  , x_accept);
@@ -372,9 +561,13 @@ yENV_read               (FILE *a_file, char c_empty, char c_comment, char c_visi
    if (b_accept != NULL)  *b_accept = x_accept;;
    if (b_curr   != NULL)  strlcpy (b_curr, x_recd, LEN_RECD);
    if (r_prev   != NULL)  strlcpy (r_prev, x_prev, LEN_RECD);
+   if (r_len    != NULL)  *r_len   = x_len;
    /*---(complete)-----------------------*/
    DEBUG_YENV   yLOG_exit    (__FUNCTION__);
-   return 1;
+   return RC_POSITIVE;
 }
 
+
+char yENV_read_all   (FILE *a_file, int *b_read, int *b_accept, char b_curr [LEN_RECD], char r_prev [LEN_RECD]) { return yENV_read  (a_file, 'y', 'y', '-', '-', b_read, b_accept, b_curr, r_prev, NULL); }
+char yENV_read_easy  (FILE *a_file, char r_curr [LEN_RECD])                                                     { return yENV_read  (a_file, 'y', 'y', '-', '-', NULL, NULL, r_curr, NULL, NULL); }
 

@@ -81,8 +81,8 @@
 /*········· ··········· ´·····························´········································*/
 #define     P_VERMAJOR  "1.--, production improvements"
 #define     P_VERMINOR  "1.4-, paring extra abilities into ySCORE and yAUDIT"
-#define     P_VERNUM    "1.4g"
-#define     P_VERTXT    "small fixes to header guards and updating some unit tests"
+#define     P_VERNUM    "1.4h"
+#define     P_VERTXT    "updated yENV_read to handle yPARSE needs too and stdin handling"
 /*········· ··········· ´·····························´········································*/
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPLE "[grow a set] and build your wings on the way down (r. bradbury)"

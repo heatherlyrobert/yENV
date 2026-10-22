@@ -43,12 +43,14 @@
 
 /*---(standard recturn codes)-------------------*/
 #define     RC_ACK          0
+#define     RC_SKIP         0
 #define     RC_POSITIVE     1
 #define     RC_OVERRIDE     2
 #define     RC_REPAIR       3
 #define     RC_WARNING      4
 #define     RC_FAILED       5
 #define     RC_FATAL        5   /* depricated */
+#define     RC_DONE        99
 /*---(c_type)-------------------------*/
 #define     YENV_BLOCK       'b'
 #define     YENV_CHAR        'c'
@@ -92,6 +94,7 @@
 #define     YENV_LOCKED      '!'
 #define     YENV_UNSET       '*'
 #define     YENV_NOPASS      '?'
+
 
 
 
@@ -232,12 +235,14 @@ char        yENV_open_stderr        (FILE **b_file);
 char        yENV_close_full         (char a_label [LEN_LABEL], FILE **b_file, char c_sync);
 char        yENV_close              (FILE **b_file);
 /*········· ´···············input·´ ´·········································*/
-char        yENV_read               (FILE *a_file, char c_empty, char c_comment, char c_visible, int *b_read, int *b_accept, char b_curr [LEN_RECD], char r_prev [LEN_RECD]);
+char        yENV_read               (FILE *a_file, char c_empty, char c_comment, char c_leof, char c_visible, int *b_read, int *b_accept, char b_curr [LEN_RECD], char r_prev [LEN_RECD], int *r_len);
+char        yENV_read_all           (FILE *a_file, int *b_read, int *b_accept, char b_curr [LEN_RECD], char r_prev [LEN_RECD]);
+char        yENV_read_easy          (FILE *a_file, char r_curr [LEN_RECD]);
 /*········· ´················DONE·´ ´·········································*/
 
 
 
-/*===[[ yENV_memory.c ]]======================================================*/
+/*===[[ yENV_memtest.c ]]=====================================================*/
 /*········· ´················alloc· ´·········································*/
 char        yENV_new                (char *a_terse, int a_size, void **a_new, int *a_count, char a_force, char *a_wiper (void *));
 char        yENV_free               (char *a_terse, void **a_old, int *a_count);
