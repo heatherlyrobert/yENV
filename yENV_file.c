@@ -257,6 +257,7 @@ yENV_close              (FILE **b_file)
    return yENV_close_full ("file", b_file, '-');
 }
 
+
 char
 yenv_file__eof          (FILE *a_file)
 {
@@ -318,13 +319,14 @@ yenv_file__eof          (FILE *a_file)
    return RC_POSITIVE;
 }
 
+
 char
 yenv_file__skip         (char a_recd [LEN_RECD], char c_empty, char c_comment, char c_leof)
 {  /*---(design notes)-------------------*/
    /*
-    *  return 0 = meant to skip                RC_SKIP
-    *  return 1 = logical end of file          YENV_EOF
-    *  return 2 = accepted for processing      YENV_ACCEPT
+    *  return  0 = meant to skip                RC_SKIP
+    *  return 99 = logical end of file          RC_EOF
+    *  return  1 = accepted for processing      RC_POSITIVE
     *
     */
    /*---(locals)-----------+-----+-----+-*/
@@ -385,13 +387,10 @@ yenv_file__skip         (char a_recd [LEN_RECD], char c_empty, char c_comment, c
    /*---(check comments)-----------------*/
    DEBUG_YENV   yLOG_char    ("c_comment" , c_comment);
    if (x_1st == '#')  {
-      if (c_comment == '-') {
-         DEBUG_YENV   yLOG_note    ("set to IGNORE all forms of comments");
-         x_skip = 'y';
-      } else if (c_comment == 'Y') {
+      if (c_comment == 'Y') {
          DEBUG_YENV   yLOG_note    ("set to RETURN all forms of comments");
          x_skip = '-';
-      } else {
+      } else if (c_comment == 'y') {
          DEBUG_YENV   yLOG_note    ("set to SELECTIVELY show comments");
          x_2nd = a_recd [1];
          DEBUG_YENV   yLOG_char    ("x_2nd"     , x_2nd);
@@ -409,6 +408,9 @@ yenv_file__skip         (char a_recd [LEN_RECD], char c_empty, char c_comment, c
             x_skip = 'y';
             break;
          }
+      } else {
+         DEBUG_YENV   yLOG_note    ("set to IGNORE all forms of comments");
+         x_skip = 'y';
       }
       DEBUG_YENV   yLOG_char    ("x_skip"    , x_skip);
       if (x_skip == 'y') {

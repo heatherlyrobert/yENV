@@ -81,8 +81,8 @@
 /*········· ··········· ´·····························´········································*/
 #define     P_VERMAJOR  "1.--, production improvements"
 #define     P_VERMINOR  "1.4-, paring extra abilities into ySCORE and yAUDIT"
-#define     P_VERNUM    "1.4h"
-#define     P_VERTXT    "updated yENV_read to handle yPARSE needs too and stdin handling"
+#define     P_VERNUM    "1.4i"
+#define     P_VERTXT    "added yENV_stdin common handling and good monitoring, plus unit-test"
 /*········· ··········· ´·····························´········································*/
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPLE "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -313,6 +313,41 @@ char        yENV_perms_full         (char a_type, char a_text [LEN_TERSE], char 
 char        yENV_perms              (char a_text [LEN_TERSE], char r_name [LEN_TERSE], int *r_perms, char r_disp [LEN_TERSE], char r_desc [LEN_TITLE]);
 /*---(done)-----------------*/
 
+
+
+/*===[[ yENV_file.c ]]========================================================*/
+/*········· ´··············access·´ ´·········································*/
+char        yENV_open_full          (char a_label [LEN_LABEL], char c_force, char a_dir [LEN_PATH], char a_file [LEN_HUND], char a_mode, char r_mode [LEN_SHORT], char r_note [LEN_LABEL], char r_full [LEN_PATH], FILE **b_file);
+char        yENV_open               (char a_dir [LEN_PATH], char a_file [LEN_HUND], char a_mode, FILE **b_file);
+char        yENV_open_stdin         (FILE **b_file);
+char        yENV_open_stdout        (FILE **b_file);
+char        yENV_open_stderr        (FILE **b_file);
+char        yENV_close_full         (char a_label [LEN_LABEL], FILE **b_file, char c_sync);
+char        yENV_close              (FILE **b_file);
+/*········´ ´·············support·´ ´·········································*/
+char        yenv_file__eof          (FILE *a_file);
+char        yenv_file__skip         (char a_recd [LEN_RECD], char c_empty, char c_comment, char c_leof);
+/*········· ´···············input·´ ´·········································*/
+char        yENV_read               (FILE *a_file, char c_empty, char c_comment, char c_leof, char c_visible, int *b_read, int *b_accept, char b_curr [LEN_RECD], char r_prev [LEN_RECD], int *r_len);
+char        yENV_read_all           (FILE *a_file, int *b_read, int *b_accept, char b_curr [LEN_RECD], char r_prev [LEN_RECD]);
+char        yENV_read_easy          (FILE *a_file, char r_curr [LEN_RECD]);
+/*········· ´················DONE·´ ´·········································*/
+
+
+
+/*===[[ yENV_stdin.c ]]=======================================================*/
+/*········· ´··············access·´ ´·········································*/
+char        yENV_stdin_unblock      (void);
+char        yENV_stdin_block        (void);
+/*········· ´············checking·´ ´·········································*/
+char        yenv_stdin__clear       (void);
+char        yenv_stdin__collect     (char a_action);
+/*········· ´·········simplifiers·´ ´·········································*/
+char        yENV_stdin_purge        (void);
+char        yENV_stdin_eof          (void);
+char        yENV_stdin_fgets        (char r_recd [LEN_RECD]);
+char*       yENV_stdin_status       (void);
+/*········· ´················DONE·´ ´·········································*/
 
 
 
